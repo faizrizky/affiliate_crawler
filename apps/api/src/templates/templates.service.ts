@@ -17,9 +17,9 @@ export class TemplatesService {
     return template;
   }
 
-  create(name: string, content: string, variables: string[]) {
+  create(name: string, content: string, variables: string[], userId: string) {
     return this.prisma.template.create({
-      data: { name, content, variables },
+      data: { name, content, variables, userId },
     });
   }
 

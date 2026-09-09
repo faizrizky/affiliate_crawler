@@ -72,12 +72,13 @@ export class TopicsService {
     };
   }
 
-  async search(keyword: string, limit: number) {
+  async search(keyword: string, limit: number, userId: string) {
     const existing = await this.prisma.topic.findFirst({
       where: { keyword: { equals: keyword.trim(), mode: "insensitive" } },
     });
     const topic =
-      existing ?? (await this.prisma.topic.create({ data: { keyword } }));
+      existing ??
+      (await this.prisma.topic.create({ data: { keyword, userId } }));
     const job = await this.crawl.enqueue(topic.id, keyword, limit);
     return { topicId: topic.id, jobId: job.id, status: job.status };
   }

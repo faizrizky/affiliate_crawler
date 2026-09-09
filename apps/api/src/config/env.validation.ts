@@ -8,6 +8,7 @@ const schema = z.object({
   CRAWLER_CONCURRENCY: z.coerce.number().int().min(1).default(4),
   API_PORT: z.coerce.number().int().min(1).default(3001),
   OPENAI_API_KEY: z.string().optional(),
+  JWT_SECRET: z.string().min(32),
 });
 
 export function validateEnv(env: Record<string, unknown>) {

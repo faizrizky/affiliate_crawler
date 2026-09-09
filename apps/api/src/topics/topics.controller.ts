@@ -10,6 +10,8 @@ import {
 } from "@nestjs/common";
 import { Type } from "class-transformer";
 import { IsInt, IsOptional, IsString, Max, MaxLength, Min, MinLength } from "class-validator";
+import { CurrentUser } from "../auth/auth.guard";
+import type { JwtPayload } from "../auth/auth.service";
 import { TopicsService } from "./topics.service";
 
 class SearchDto {
@@ -64,8 +66,8 @@ export class TopicsController {
 
   @Post("search")
   @HttpCode(202)
-  search(@Body() dto: SearchDto) {
-    return this.topics.search(dto.keyword, dto.limit ?? 20);
+  search(@Body() dto: SearchDto, @CurrentUser() user: JwtPayload) {
+    return this.topics.search(dto.keyword, dto.limit ?? 20, user.sub);
   }
 
   @Delete(":id")

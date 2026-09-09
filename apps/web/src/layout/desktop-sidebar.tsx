@@ -11,6 +11,7 @@ import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 import { useUiStore } from "@/stores/ui-store";
+import { UserNav } from "@/layout/user-nav";
 
 const ICONS = [LayoutDashboard, FileText];
 
@@ -69,6 +70,14 @@ export function DesktopSidebar() {
           );
         })}
       </nav>
+      <div
+        className={cn(
+          "mt-auto border-t border-border p-3",
+          collapsed && "flex justify-center",
+        )}
+      >
+        <UserNav showEmail={!collapsed} />
+      </div>
     </aside>
   );
 }

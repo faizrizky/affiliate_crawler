@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { UserNav } from "@/layout/user-nav";
 
 export function TopHeader({ className }: { className?: string }) {
   const pathname = usePathname();
@@ -18,6 +19,7 @@ export function TopHeader({ className }: { className?: string }) {
         <Link href="/home" className="text-base font-semibold">
           Threads Research
         </Link>
+        <div className="flex items-center gap-2">
         <nav className="flex items-center gap-1">
           {NAV_ITEMS.map((item) => {
             const active = pathname === item.href;
@@ -38,6 +40,8 @@ export function TopHeader({ className }: { className?: string }) {
             );
           })}
         </nav>
+        <UserNav />
+        </div>
       </div>
     </header>
   );

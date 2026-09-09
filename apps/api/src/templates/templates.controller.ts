@@ -9,6 +9,8 @@ import {
   Post,
 } from "@nestjs/common";
 import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import { CurrentUser } from "../auth/auth.guard";
+import type { JwtPayload } from "../auth/auth.service";
 import { TemplatesService } from "./templates.service";
 
 class TemplateCreateDto {
@@ -54,9 +56,9 @@ export class TemplatesController {
   }
 
   @Post()
-  create(@Body() dto: TemplateCreateDto) {
+  create(@Body() dto: TemplateCreateDto, @CurrentUser() user: JwtPayload) {
     const variables = extractVariables(dto.content);
-    return this.templates.create(dto.name, dto.content, variables);
+    return this.templates.create(dto.name, dto.content, variables, user.sub);
   }
 
   @Patch(":id")

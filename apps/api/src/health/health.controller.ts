@@ -1,4 +1,5 @@
 import { Controller, Get } from "@nestjs/common";
+import { Public } from "../auth/auth.guard";
 import { PrismaService } from "../prisma/prisma.service";
 import { RedisService } from "../jobs/redis.service";
 
@@ -9,6 +10,7 @@ export class HealthController {
     private readonly redis: RedisService,
   ) {}
 
+  @Public()
   @Get()
   async check() {
     const [db, redis] = await Promise.all([

@@ -17,6 +17,8 @@ import {
   IsString,
 } from "class-validator";
 import { PrismaService } from "../prisma/prisma.service";
+import { CurrentUser } from "../auth/auth.guard";
+import type { JwtPayload } from "../auth/auth.service";
 
 type AffiliateContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
@@ -102,7 +104,7 @@ export class AffiliateController {
 
   @Post("generate")
   @HttpCode(HttpStatus.CREATED)
-  async generate(@Body() dto: GenerateContentDto) {
+  async generate(@Body() dto: GenerateContentDto, @CurrentUser() user: JwtPayload) {
     const template = await this.prisma.template.findUnique({
       where: { id: dto.templateId },
     });
@@ -129,6 +131,7 @@ export class AffiliateController {
         status: "DRAFT",
         templateId: dto.templateId,
         topicId: dto.topicId,
+        userId: user.sub,
       },
       include: { template: true },
     });
