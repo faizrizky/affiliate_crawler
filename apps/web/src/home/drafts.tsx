@@ -1,17 +1,29 @@
 "use client";
 
-import { Copy, Trash2 } from "lucide-react";
+import { Copy, Pencil, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
-import type { AffiliateContentListItem } from "@aff/types";
+import type {
+  AffiliateContentListItem,
+  AffiliateContentStatus,
+} from "@aff/types";
 import { ConfirmDialog } from "@/common/confirm-dialog";
+import { EditDraftDialog, STATUS_LABELS } from "@/home/edit-draft-dialog";
 import { useAffiliateContents } from "@/hooks/use-affiliate";
 import { formatTimeAgo } from "@/lib/utils";
 import { Card } from "@/ui/card";
 
+const STATUS_STYLES: Record<AffiliateContentStatus, string> = {
+  DRAFT: "bg-muted text-muted-foreground",
+  PUBLISHED: "bg-emerald-500/15 text-emerald-600",
+  ARCHIVED: "bg-muted text-muted-foreground opacity-70",
+};
+
 export function Drafts() {
   const { contents, deleteContent } = useAffiliateContents();
   const [deleteTarget, setDeleteTarget] =
+    useState<AffiliateContentListItem | null>(null);
+  const [editTarget, setEditTarget] =
     useState<AffiliateContentListItem | null>(null);
   const drafts = contents.data?.slice(0, 5) ?? [];
 
@@ -35,14 +47,29 @@ export function Drafts() {
           <Card key={draft.id} className="flex flex-col p-5">
             <div className="flex items-start justify-between gap-3">
               <div className="min-w-0">
-                <p className="truncate text-sm font-semibold">
-                  {draft.product}
-                </p>
+                <div className="flex items-center gap-2">
+                  <p className="truncate text-sm font-semibold">
+                    {draft.product}
+                  </p>
+                  <span
+                    className={`shrink-0 rounded-full px-2 py-0.5 text-xs font-medium ${STATUS_STYLES[draft.status]}`}
+                  >
+                    {STATUS_LABELS[draft.status]}
+                  </span>
+                </div>
                 <p className="mt-0.5 text-xs text-muted-foreground">
                   {draft.template.name} · {formatTimeAgo(draft.createdAt)}
                 </p>
               </div>
               <div className="flex shrink-0 items-center gap-1">
+                <button
+                  type="button"
+                  title="Edit draft"
+                  onClick={() => setEditTarget(draft)}
+                  className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
+                >
+                  <Pencil className="h-4 w-4" />
+                </button>
                 <button
                   type="button"
                   title="Copy content"
@@ -79,6 +106,11 @@ export function Drafts() {
           </Card>
         ))}
       </div>
+
+      <EditDraftDialog
+        draft={editTarget}
+        onOpenChange={(open) => !open && setEditTarget(null)}
+      />
 
       <ConfirmDialog
         open={deleteTarget != null}

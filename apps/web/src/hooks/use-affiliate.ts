@@ -6,6 +6,7 @@ import {
 import type {
   AffiliateContent,
   AffiliateContentListItem,
+  AffiliateContentUpdateInput,
   AffiliateGenerateInput,
 } from "@aff/types";
 import { apiFetch } from "@/lib/api";
@@ -41,6 +42,21 @@ export function useAffiliateContents() {
     onSuccess: invalidate,
   });
 
+  const updateContent = useMutation({
+    mutationFn: async ({
+      id,
+      ...input
+    }: { id: string } & AffiliateContentUpdateInput) => {
+      const data = await apiFetch<AffiliateContent>(`/affiliate/${id}`, {
+        method: "PUT",
+        body: JSON.stringify(input),
+      });
+      if (!data) throw new Error("Update failed");
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+
   const deleteContent = useMutation({
     mutationFn: async (id: string) => {
       await apiFetch(`/affiliate/${id}`, { method: "DELETE" });
@@ -48,5 +64,5 @@ export function useAffiliateContents() {
     onSuccess: invalidate,
   });
 
-  return { contents, generateContent, deleteContent };
+  return { contents, generateContent, updateContent, deleteContent };
 }

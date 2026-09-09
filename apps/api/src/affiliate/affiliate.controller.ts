@@ -8,9 +8,17 @@ import {
   NotFoundException,
   Param,
   Post,
+  Put,
 } from "@nestjs/common";
-import { IsNotEmpty, IsOptional, IsString } from "class-validator";
+import {
+  IsIn,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+} from "class-validator";
 import { PrismaService } from "../prisma/prisma.service";
+
+type AffiliateContentStatus = "DRAFT" | "PUBLISHED" | "ARCHIVED";
 
 class GenerateContentDto {
   @IsString()
@@ -40,6 +48,34 @@ class GenerateContentDto {
   @IsString()
   @IsNotEmpty()
   affiliateLink?: string;
+}
+
+class UpdateContentDto {
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  product?: string;
+
+  @IsOptional()
+  @IsString()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  context?: string;
+
+  @IsOptional()
+  @IsString()
+  affiliateLink?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  content?: string;
+
+  @IsOptional()
+  @IsIn(["DRAFT", "PUBLISHED", "ARCHIVED"])
+  status?: AffiliateContentStatus;
 }
 
 const VARIABLE_MAP: Record<string, keyof GenerateContentDto> = {
@@ -116,6 +152,33 @@ export class AffiliateController {
       throw new NotFoundException("Affiliate content not found");
     }
     return content;
+  }
+
+  @Put(":id")
+  async update(@Param("id") id: string, @Body() dto: UpdateContentDto) {
+    const existing = await this.prisma.affiliateContent.findUnique({
+      where: { id },
+    });
+    if (!existing) {
+      throw new NotFoundException("Affiliate content not found");
+    }
+
+    return this.prisma.affiliateContent.update({
+      where: { id },
+      data: {
+        ...(dto.product !== undefined && { product: dto.product }),
+        ...(dto.category !== undefined && {
+          category: dto.category || null,
+        }),
+        ...(dto.context !== undefined && { context: dto.context || null }),
+        ...(dto.affiliateLink !== undefined && {
+          affiliateLink: dto.affiliateLink || null,
+        }),
+        ...(dto.content !== undefined && { content: dto.content }),
+        ...(dto.status !== undefined && { status: dto.status }),
+      },
+      include: { template: { select: { id: true, name: true } } },
+    });
   }
 
   @Delete(":id")

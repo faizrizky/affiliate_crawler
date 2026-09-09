@@ -21,6 +21,15 @@ export interface AffiliateContentListItem extends AffiliateContent {
   };
 }
 
+export interface AffiliateContentUpdateInput {
+  product?: string;
+  category?: string;
+  context?: string;
+  affiliateLink?: string;
+  content?: string;
+  status?: AffiliateContentStatus;
+}
+
 export interface AffiliateGenerateInput {
   templateId: string;
   topicId?: string;
