@@ -114,3 +114,53 @@ def test_parse_result_defaults():
     result = ParseResult()
     assert result.posts == []
     assert result.layer == "none"
+
+
+def test_detect_empty_ignores_script_content():
+    html = '<html><head><script>var msg = "no results";</script></head><body><div>hello world</div></body></html>'
+    assert not detect_empty_results(html)
+    assert not parse_threads_html(html).empty_results
+
+
+def test_detect_empty_indonesian_marker():
+    assert detect_empty_results("<p>Tidak ada hasil</p>")
+    result = parse_threads_html("<html><body>Tidak ada hasil untuk 'gatal'</body></html>")
+    assert result.empty_results
+    assert not result.posts
+
+
+def test_detect_login_wall_ignores_script_content():
+    html = '<html><head><script>log in to continue</script></head><body><div>hello world</div></body></html>'
+    assert not detect_login_wall(html)
+    assert not parse_threads_html(html).login_wall
+
+
+def test_parse_relay_dedupes_posts():
+    post = '{"id":"123","code":"abc","user":{"username":"u"},"caption":{"text":"hi"}}'
+    edge = '{"node":{"thread":{"thread_items":[{"post":%s}]}}}' % post
+    html = f'<script type="application/json">{{"searchResults":{{"edges":[{edge},{edge}]}}}}</script>'
+    result = parse_threads_html(html)
+    assert result.layer == "relay_json"
+    assert [p["external_id"] for p in result.posts] == ["123"]
+
+
+def test_parse_relay_skips_post_without_content_or_media():
+    html = (
+        '<script type="application/json">{"searchResults":{"edges":'
+        '[{"node":{"thread":{"thread_items":[{"post":{"id":"999","user":{"username":"u"}}}]}}}]'
+        "}}</script>"
+    )
+    result = parse_threads_html(html)
+    assert result.layer == "relay_json"
+    assert result.posts == []
+    assert not result.empty_results
+
+
+def test_parse_relay_float_taken_at():
+    html = (
+        '<script type="application/json">{"searchResults":{"edges":'
+        '[{"node":{"thread":{"thread_items":[{"post":{"id":"123","caption":{"text":"hi"},"taken_at":"1700000000.5"}}]}}}]'
+        "}}</script>"
+    )
+    post = parse_threads_html(html).posts[0]
+    assert post["published_at"] == "2023-11-14T22:13:20Z"

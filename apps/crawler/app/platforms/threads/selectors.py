@@ -10,4 +10,4 @@ LOGIN_WALL_MARKERS = [
     "log in or sign up to continue",
 ]
 
-EMPTY_RESULT_MARKERS = ["no results"]
+EMPTY_RESULT_MARKERS = ["no results", "tidak ada hasil"]

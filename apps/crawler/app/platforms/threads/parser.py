@@ -55,14 +55,20 @@ def parse_threads_html(html: str) -> ParseResult:
     )
 
 
+def _visible_text(html: str) -> str:
+    stripped = re.sub(r"<(script|style)\b[^>]*>.*?</\1>", " ", html, flags=re.S | re.I)
+    stripped = re.sub(r"<[^>]+>", " ", stripped)
+    return re.sub(r"\s+", " ", stripped).lower()
+
+
 def detect_login_wall(html: str) -> bool:
-    lowered = html.lower()
-    return any(marker in lowered for marker in LOGIN_WALL_MARKERS)
+    visible = _visible_text(html)
+    return any(marker in visible for marker in LOGIN_WALL_MARKERS)
 
 
 def detect_empty_results(html: str) -> bool:
-    lowered = html.lower()
-    return any(marker in lowered for marker in EMPTY_RESULT_MARKERS)
+    visible = _visible_text(html)
+    return any(marker in visible for marker in EMPTY_RESULT_MARKERS)
 
 
 def _from_relay_json(html: str) -> ParseResult:
@@ -105,10 +111,12 @@ def _find_search_results(node: object) -> dict | None:
 
 def _map_relay_edges(edges: list) -> list[dict]:
     posts: list[dict] = []
+    seen: set[str] = set()
     for edge in edges:
         for post in _relay_posts(edge):
             mapped = _from_relay_post(post)
-            if mapped:
+            if mapped and mapped["external_id"] not in seen:
+                seen.add(mapped["external_id"])
                 posts.append(mapped)
     return posts
 
@@ -145,13 +153,16 @@ def _from_relay_post(post: dict) -> dict | None:
             str(fragment.get("text", "")) for fragment in fragments if isinstance(fragment, dict)
         ).strip()
     info = post.get("text_post_app_info") or {}
+    media_urls = _relay_media_urls(post)
+    if not content and not media_urls:
+        return None
     return {
         "external_id": str(post_id or code),
         "author_username": username,
         "author_display_name": user.get("full_name") or None,
         "author_avatar_url": user.get("profile_pic_url"),
         "content": content,
-        "media_urls": _relay_media_urls(post),
+        "media_urls": media_urls,
         "like_count": to_int(post.get("like_count")),
         "reply_count": to_int(info.get("direct_reply_count")),
         "repost_count": to_int(info.get("repost_count")),
@@ -187,12 +198,16 @@ def _relay_media_urls(post: dict) -> list[str]:
 
 def _to_iso_utc(value: object) -> str | None:
     try:
-        timestamp = int(value)
+        timestamp = float(value)
     except (TypeError, ValueError):
         return None
     if timestamp <= 0:
         return None
-    return datetime.fromtimestamp(timestamp, tz=timezone.utc).isoformat().replace("+00:00", "Z")
+    return (
+        datetime.fromtimestamp(timestamp, tz=timezone.utc)
+        .isoformat(timespec="seconds")
+        .replace("+00:00", "Z")
+    )
 
 
 def _from_next_data(html: str) -> ParseResult:
@@ -205,8 +220,14 @@ def _from_next_data(html: str) -> ParseResult:
         return ParseResult(layer="none")
     posts: list[dict] = []
     _walk(data, posts)
-    if posts:
-        return ParseResult(posts=posts, candidate_count=len(posts), layer="next_data")
+    deduped: list[dict] = []
+    seen: set[str] = set()
+    for post in posts:
+        if post["external_id"] and post["external_id"] not in seen:
+            seen.add(post["external_id"])
+        deduped.append(post)
+    if deduped:
+        return ParseResult(posts=deduped, candidate_count=len(deduped), layer="next_data")
     return ParseResult(layer="none")
 
 

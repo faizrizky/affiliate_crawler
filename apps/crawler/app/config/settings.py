@@ -16,6 +16,11 @@ class Settings(BaseSettings):
     threads_browser_profile: str | None = None
     threads_browser_timeout: float = 30.0
     threads_content_wait: float = 15.0
+    threads_search_attempts: int = 3
+    threads_retry_backoff_seconds: float = 1.0
+    threads_browser_locale: str = "id-ID"
+    threads_browser_timezone: str = "Asia/Jakarta"
+    threads_accept_language: str = "id-ID,id;q=0.9,en-US;q=0.8,en;q=0.7"
 
 
 settings = Settings()
