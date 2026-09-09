@@ -44,6 +44,12 @@ All API endpoints require `Authorization: Bearer <token>` except `GET /health`
 and `POST /auth/login`. The web app shows a login page and attaches the token
 to every request automatically.
 
+The browser talks to the API through a same-origin `/api/*` proxy (Next route
+handler in `apps/web`), so only port 3000 needs to be reachable from your
+device. The proxy target defaults to `http://localhost:3001` and can be
+overridden with `API_PROXY_TARGET` (set to `http://api:3001` in
+`docker-compose.yml`).
+
 ```bash
 curl -X POST http://localhost:3001/auth/login \
   -H 'Content-Type: application/json' \

@@ -67,7 +67,7 @@ services:
       dockerfile: apps/web/Dockerfile
     restart: unless-stopped
     environment:
-      NEXT_PUBLIC_API_URL: http://localhost:3001
+      API_PROXY_TARGET: http://api:3001
       WEB_PORT: 3000
     ports:
       - "3000:3000"
