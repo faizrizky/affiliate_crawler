@@ -1,0 +1,141 @@
+generator client {
+  provider     = "prisma-client"
+  output       = "../apps/api/src/generated/prisma"
+  moduleFormat = "cjs"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+enum CrawlJobStatus {
+  QUEUED
+  RUNNING
+  COMPLETED
+  FAILED
+  CANCELLED
+}
+
+enum TopicStatus {
+  ACTIVE
+  ARCHIVED
+}
+
+enum AffiliateContentStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+model User {
+  id           String    @id @default(uuid())
+  name         String?
+  email        String    @unique
+  passwordHash String?
+  createdAt    DateTime  @default(now())
+  updatedAt    DateTime  @updatedAt
+
+  topics            Topic[]
+  templates         Template[]
+  affiliateContents AffiliateContent[]
+}
+
+model Topic {
+  id        String      @id @default(uuid())
+  keyword   String
+  status    TopicStatus @default(ACTIVE)
+  createdAt DateTime    @default(now())
+  updatedAt DateTime    @updatedAt
+
+  posts       ThreadPost[]
+  crawlJobs   CrawlJob[]
+  contents    AffiliateContent[]
+  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId      String?
+
+  @@index([userId])
+  @@index([keyword])
+}
+
+model ThreadPost {
+  id                 String   @id @default(uuid())
+  externalId         String
+  authorUsername     String
+  authorDisplayName  String?
+  authorAvatarUrl    String?
+  content            String
+  mediaUrls          String[] @default([])
+  likeCount          Int      @default(0)
+  replyCount         Int      @default(0)
+  repostCount        Int      @default(0)
+  sourceUrl          String
+  relevanceScore     Float?
+  affiliateScore     Float?
+  crawledAt          DateTime @default(now())
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@unique([topicId, externalId])
+  @@index([topicId])
+  @@index([relevanceScore])
+}
+
+model Template {
+  id         String   @id @default(uuid())
+  name       String   @unique
+  content    String
+  variables  Json?
+  isDefault  Boolean  @default(false)
+  createdAt  DateTime @default(now())
+  updatedAt  DateTime @updatedAt
+
+  affiliateContents AffiliateContent[]
+  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId            String?
+
+  @@index([userId])
+}
+
+model AffiliateContent {
+  id            String                   @id @default(uuid())
+  product       String
+  category      String?
+  context       String?
+  affiliateLink String?
+  content       String
+  status        AffiliateContentStatus   @default(DRAFT)
+  createdAt     DateTime                 @default(now())
+  updatedAt     DateTime                 @updatedAt
+
+  templateId String
+  template   Template   @relation(fields: [templateId], references: [id], onDelete: Cascade)
+
+  topicId String?
+  topic   Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
+
+  userId  String?
+  user    User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([templateId])
+  @@index([topicId])
+  @@index([userId])
+}
+
+model CrawlJob {
+  id         String         @id @default(uuid())
+  status     CrawlJobStatus @default(QUEUED)
+  progress   Int            @default(0)
+  total      Int            @default(0)
+  error      String?
+  startedAt  DateTime?
+  finishedAt DateTime?
+  createdAt  DateTime       @default(now())
+  updatedAt  DateTime       @updatedAt
+
+  topicId String
+  topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
+
+  @@index([topicId])
+  @@index([status])
+}

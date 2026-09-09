@@ -1,0 +1,52 @@
+import {
+  useMutation,
+  useQuery,
+  useQueryClient,
+} from "@tanstack/react-query";
+import type {
+  AffiliateContent,
+  AffiliateContentListItem,
+  AffiliateGenerateInput,
+} from "@aff/types";
+import { apiFetch } from "@/lib/api";
+
+const AFFILIATE_KEY = ["affiliate-contents"];
+
+export function useAffiliateContents() {
+  const queryClient = useQueryClient();
+
+  const contents = useQuery({
+    queryKey: AFFILIATE_KEY,
+    queryFn: async (): Promise<AffiliateContentListItem[]> => {
+      const data = await apiFetch<AffiliateContentListItem[]>(
+        "/affiliate",
+      );
+      if (!data) throw new Error("Affiliate contents not found");
+      return data;
+    },
+  });
+
+  const invalidate = () =>
+    queryClient.invalidateQueries({ queryKey: AFFILIATE_KEY });
+
+  const generateContent = useMutation({
+    mutationFn: async (input: AffiliateGenerateInput) => {
+      const data = await apiFetch<AffiliateContent>("/affiliate/generate", {
+        method: "POST",
+        body: JSON.stringify(input),
+      });
+      if (!data) throw new Error("Generate failed");
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+
+  const deleteContent = useMutation({
+    mutationFn: async (id: string) => {
+      await apiFetch(`/affiliate/${id}`, { method: "DELETE" });
+    },
+    onSuccess: invalidate,
+  });
+
+  return { contents, generateContent, deleteContent };
+}
