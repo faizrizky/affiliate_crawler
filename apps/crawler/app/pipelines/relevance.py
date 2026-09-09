@@ -21,6 +21,23 @@ REVIEW_WORDS = (
 )
 
 
+INDONESIA_MARKERS = frozenset(
+    {
+        "yang", "dan", "untuk", "dengan", "adalah", "bisa", "pakai", "pake",
+        "harga", "beli", "gratis", "murah", "bagus", "cara", "ini", "itu",
+        "juga", "karena", "tapi", "atau", "saya", "kita", "kalau", "sama",
+        "dari", "ke", "pada", "di", "kualitas", "rekomendasi",
+    }
+)
+
+
+def _indonesia_bonus(text: str) -> int:
+    # ponytail: function-word heuristic, not real language detection;
+    # upgrade to langdetect if ranking precision matters.
+    hits = len(set(text.split()) & INDONESIA_MARKERS)
+    return min(hits * 5, 20)
+
+
 def relevance_score(keyword: str, post: NormalizedPost) -> int:
     text = (post.content or "").lower()
     score = 0
@@ -30,6 +47,7 @@ def relevance_score(keyword: str, post: NormalizedPost) -> int:
         if len(word) > 2 and word in text:
             score += 10
     score += min(post.like_count, 1000) // 10
+    score += _indonesia_bonus(text)
     return min(score, 100)
 
 

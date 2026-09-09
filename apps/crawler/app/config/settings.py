@@ -1,10 +1,18 @@
 from __future__ import annotations
 
+from pathlib import Path
+
 from pydantic_settings import BaseSettings, SettingsConfigDict
+
+_ENV_FILE = Path(__file__).resolve().parents[2] / ".env"
 
 
 class Settings(BaseSettings):
-    model_config = SettingsConfigDict(env_prefix="CRAWLER_")
+    model_config = SettingsConfigDict(
+        env_prefix="CRAWLER_",
+        env_file=str(_ENV_FILE),
+        env_file_encoding="utf-8",
+    )
 
     crawler_port: int = 8001
     user_agent: str = (

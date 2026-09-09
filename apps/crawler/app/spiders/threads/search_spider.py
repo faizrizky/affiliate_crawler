@@ -50,6 +50,7 @@ def threads_search(keyword: str, limit: int = 20) -> list[dict]:
             parsed=len(result.posts),
             locale=settings.threads_browser_locale,
             timezone=settings.threads_browser_timezone,
+            persistent_profile=settings.threads_browser_profile is not None,
         )
         if result.posts:
             return result.posts[:limit]

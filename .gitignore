@@ -24,6 +24,7 @@ venv/
 .ruff_cache/
 
 # Playwright
+runtime/
 playwright-report/
 test-results/
 blob-report/
