@@ -1,9 +1,12 @@
 from pathlib import Path
 
-import pytest
-
-from app.exceptions import CrawlerError
-from app.platforms.threads.parser import detect_login_wall, parse_threads_html, to_int
+from app.platforms.threads.parser import (
+    ParseResult,
+    detect_empty_results,
+    detect_login_wall,
+    parse_threads_html,
+    to_int,
+)
 
 FIXTURE = Path(__file__).parent / "fixtures" / "thread_search.html"
 
@@ -18,7 +21,7 @@ def test_to_int():
 
 
 def test_parse_articles_fixture():
-    posts = parse_threads_html(FIXTURE.read_text())
+    posts = parse_threads_html(FIXTURE.read_text()).posts
     assert len(posts) == 3
     first = posts[0]
     assert first["external_id"] == "abc123"
@@ -43,7 +46,7 @@ def test_parse_next_data():
       {"text":"second","likeCount":5,"id":"y"}
     ]}}
     </script></body></html>"""
-    posts = parse_threads_html(html)
+    posts = parse_threads_html(html).posts
     assert [p["external_id"] for p in posts] == ["xyz", "y"]
     assert posts[0]["like_count"] == 42
     assert posts[0]["author_username"] == "a"
@@ -51,11 +54,63 @@ def test_parse_next_data():
     assert posts[1]["source_url"] == "https://www.threads.net/post/y"
 
 
-def test_login_wall_raises():
-    with pytest.raises(CrawlerError, match="login wall"):
-        parse_threads_html("<html><body><div>Log in to continue</div></body></html>")
+def test_parse_relay_json():
+    html = """<html><body><script type="application/json">
+    {"searchResults":{"edges":[{"node":{"thread":{"code":"abc",
+      "thread_items":[{"post":{"id":"123","code":"abc",
+        "user":{"username":"u","full_name":"U","profile_pic_url":"https://x/u.jpg"},
+        "caption":{"text":"hi there"},
+        "taken_at":1700000000,
+        "like_count":5,
+        "text_post_app_info":{"direct_reply_count":1,"repost_count":2},
+        "image_versions2":{"candidates":[{"url":"https://img/1.jpg"}]}}}]}}}]}}
+    </script></body></html>"""
+    result = parse_threads_html(html)
+    assert result.layer == "relay_json"
+    assert result.candidate_count == 1
+    post = result.posts[0]
+    assert post["external_id"] == "123"
+    assert post["author_username"] == "u"
+    assert post["content"] == "hi there"
+    assert post["media_urls"] == ["https://img/1.jpg"]
+    assert post["like_count"] == 5
+    assert post["reply_count"] == 1
+    assert post["repost_count"] == 2
+    assert post["source_url"] == "https://www.threads.com/@u/post/abc"
+    assert post["published_at"] == "2023-11-14T22:13:20Z"
+
+
+def test_parse_relay_json_empty():
+    html = '<script type="application/json">{"searchResults":{"edges":[]}}</script>'
+    result = parse_threads_html(html)
+    assert result.layer == "relay_json"
+    assert result.empty_results
+    assert result.posts == []
+
+
+def test_login_wall_flag():
+    result = parse_threads_html("<html><body><div>Log in to continue</div></body></html>")
+    assert result.login_wall
+    assert not result.posts
+
+
+def test_empty_results_flag():
+    result = parse_threads_html("<html><body>No results found</body></html>")
+    assert result.empty_results
+    assert not result.login_wall
 
 
 def test_detect_login_wall():
     assert detect_login_wall("<p>Please log in to continue</p>")
     assert not detect_login_wall("<p>hello</p>")
+
+
+def test_detect_empty_results():
+    assert detect_empty_results("<p>No results</p>")
+    assert not detect_empty_results("<p>some threads</p>")
+
+
+def test_parse_result_defaults():
+    result = ParseResult()
+    assert result.posts == []
+    assert result.layer == "none"

@@ -16,6 +16,7 @@ export interface CrawlerPost {
   replyCount: number;
   repostCount: number;
   sourceUrl: string;
+  publishedAt?: string | null;
   relevanceScore?: number | null;
   affiliateScore?: number | null;
 }

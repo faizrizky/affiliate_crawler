@@ -10,6 +10,7 @@ export interface ThreadPost {
   replyCount: number;
   repostCount: number;
   sourceUrl: string;
+  publishedAt: string | null;
   relevanceScore: number | null;
   affiliateScore: number | null;
   crawledAt: string;

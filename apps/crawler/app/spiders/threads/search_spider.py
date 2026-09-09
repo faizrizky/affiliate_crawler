@@ -1,30 +1,43 @@
 from __future__ import annotations
 
-from urllib.parse import quote_plus
+from structlog import get_logger
 
-import httpx
-
-from app.config.settings import settings
-from app.exceptions import CrawlerError
+from app.exceptions import ThreadsError, ThreadsErrorCode
+from app.platforms.threads.client import fetch_search_page
 from app.platforms.threads.parser import parse_threads_html
 
-SEARCH_URL = "https://www.threads.net/search?q={keyword}"
+log = get_logger()
 
 
-def threads_search(keyword: str, limit: int) -> list[dict]:
-    url = SEARCH_URL.format(keyword=quote_plus(keyword))
-    try:
-        response = httpx.get(
-            url,
-            headers={"User-Agent": settings.user_agent},
-            timeout=settings.request_timeout,
-            follow_redirects=True,
+def threads_search(keyword: str, limit: int = 20) -> list[dict]:
+    page = fetch_search_page(keyword)
+    result = parse_threads_html(page.html)
+    log.info(
+        "threads_search_parsed",
+        keyword=keyword,
+        status_code=page.status_code,
+        final_url=page.final_url,
+        content_length=len(page.html),
+        rendered=page.rendered,
+        layer=result.layer,
+        login_wall=result.login_wall,
+        empty_results=result.empty_results,
+        candidate_count=result.candidate_count,
+        parsed=len(result.posts),
+    )
+    if result.posts:
+        return result.posts[:limit]
+    if result.login_wall:
+        raise ThreadsError(
+            ThreadsErrorCode.LOGIN_REQUIRED,
+            "Threads login wall detected. "
+            "Set CRAWLER_THREADS_BROWSER_PROFILE to a logged-in browser profile.",
+            status_code=403,
         )
-    except httpx.HTTPError as exc:
-        raise CrawlerError(f"fetch failed: {exc}") from exc
-    if response.status_code != 200:
-        raise CrawlerError(f"Threads responded {response.status_code}")
-    posts = parse_threads_html(response.text)
-    if not posts:
-        raise CrawlerError("no threads found (possible login wall)")
-    return posts[:limit]
+    if result.empty_results:
+        return []
+    raise ThreadsError(
+        ThreadsErrorCode.UNSUPPORTED_STRUCTURE,
+        "Could not extract threads from page "
+        f"(layer={result.layer}, candidates={result.candidate_count}).",
+    )

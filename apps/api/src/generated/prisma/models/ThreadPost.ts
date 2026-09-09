@@ -53,6 +53,7 @@ export type ThreadPostMinAggregateOutputType = {
   replyCount: number | null
   repostCount: number | null
   sourceUrl: string | null
+  publishedAt: Date | null
   relevanceScore: number | null
   affiliateScore: number | null
   crawledAt: Date | null
@@ -70,6 +71,7 @@ export type ThreadPostMaxAggregateOutputType = {
   replyCount: number | null
   repostCount: number | null
   sourceUrl: string | null
+  publishedAt: Date | null
   relevanceScore: number | null
   affiliateScore: number | null
   crawledAt: Date | null
@@ -88,6 +90,7 @@ export type ThreadPostCountAggregateOutputType = {
   replyCount: number
   repostCount: number
   sourceUrl: number
+  publishedAt: number
   relevanceScore: number
   affiliateScore: number
   crawledAt: number
@@ -123,6 +126,7 @@ export type ThreadPostMinAggregateInputType = {
   replyCount?: true
   repostCount?: true
   sourceUrl?: true
+  publishedAt?: true
   relevanceScore?: true
   affiliateScore?: true
   crawledAt?: true
@@ -140,6 +144,7 @@ export type ThreadPostMaxAggregateInputType = {
   replyCount?: true
   repostCount?: true
   sourceUrl?: true
+  publishedAt?: true
   relevanceScore?: true
   affiliateScore?: true
   crawledAt?: true
@@ -158,6 +163,7 @@ export type ThreadPostCountAggregateInputType = {
   replyCount?: true
   repostCount?: true
   sourceUrl?: true
+  publishedAt?: true
   relevanceScore?: true
   affiliateScore?: true
   crawledAt?: true
@@ -263,6 +269,7 @@ export type ThreadPostGroupByOutputType = {
   replyCount: number
   repostCount: number
   sourceUrl: string
+  publishedAt: Date | null
   relevanceScore: number | null
   affiliateScore: number | null
   crawledAt: Date
@@ -304,6 +311,7 @@ export type ThreadPostWhereInput = {
   replyCount?: Prisma.IntFilter<"ThreadPost"> | number
   repostCount?: Prisma.IntFilter<"ThreadPost"> | number
   sourceUrl?: Prisma.StringFilter<"ThreadPost"> | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"ThreadPost"> | Date | string | null
   relevanceScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   affiliateScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   crawledAt?: Prisma.DateTimeFilter<"ThreadPost"> | Date | string
@@ -323,6 +331,7 @@ export type ThreadPostOrderByWithRelationInput = {
   replyCount?: Prisma.SortOrder
   repostCount?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
   affiliateScore?: Prisma.SortOrderInput | Prisma.SortOrder
   crawledAt?: Prisma.SortOrder
@@ -346,6 +355,7 @@ export type ThreadPostWhereUniqueInput = Prisma.AtLeast<{
   replyCount?: Prisma.IntFilter<"ThreadPost"> | number
   repostCount?: Prisma.IntFilter<"ThreadPost"> | number
   sourceUrl?: Prisma.StringFilter<"ThreadPost"> | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"ThreadPost"> | Date | string | null
   relevanceScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   affiliateScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   crawledAt?: Prisma.DateTimeFilter<"ThreadPost"> | Date | string
@@ -365,6 +375,7 @@ export type ThreadPostOrderByWithAggregationInput = {
   replyCount?: Prisma.SortOrder
   repostCount?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   relevanceScore?: Prisma.SortOrderInput | Prisma.SortOrder
   affiliateScore?: Prisma.SortOrderInput | Prisma.SortOrder
   crawledAt?: Prisma.SortOrder
@@ -391,6 +402,7 @@ export type ThreadPostScalarWhereWithAggregatesInput = {
   replyCount?: Prisma.IntWithAggregatesFilter<"ThreadPost"> | number
   repostCount?: Prisma.IntWithAggregatesFilter<"ThreadPost"> | number
   sourceUrl?: Prisma.StringWithAggregatesFilter<"ThreadPost"> | string
+  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"ThreadPost"> | Date | string | null
   relevanceScore?: Prisma.FloatNullableWithAggregatesFilter<"ThreadPost"> | number | null
   affiliateScore?: Prisma.FloatNullableWithAggregatesFilter<"ThreadPost"> | number | null
   crawledAt?: Prisma.DateTimeWithAggregatesFilter<"ThreadPost"> | Date | string
@@ -409,6 +421,7 @@ export type ThreadPostCreateInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -427,6 +440,7 @@ export type ThreadPostUncheckedCreateInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -445,6 +459,7 @@ export type ThreadPostUpdateInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -463,6 +478,7 @@ export type ThreadPostUncheckedUpdateInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -481,6 +497,7 @@ export type ThreadPostCreateManyInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -499,6 +516,7 @@ export type ThreadPostUpdateManyMutationInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -516,6 +534,7 @@ export type ThreadPostUncheckedUpdateManyInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -557,6 +576,7 @@ export type ThreadPostCountOrderByAggregateInput = {
   replyCount?: Prisma.SortOrder
   repostCount?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
   relevanceScore?: Prisma.SortOrder
   affiliateScore?: Prisma.SortOrder
   crawledAt?: Prisma.SortOrder
@@ -582,6 +602,7 @@ export type ThreadPostMaxOrderByAggregateInput = {
   replyCount?: Prisma.SortOrder
   repostCount?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
   relevanceScore?: Prisma.SortOrder
   affiliateScore?: Prisma.SortOrder
   crawledAt?: Prisma.SortOrder
@@ -599,6 +620,7 @@ export type ThreadPostMinOrderByAggregateInput = {
   replyCount?: Prisma.SortOrder
   repostCount?: Prisma.SortOrder
   sourceUrl?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
   relevanceScore?: Prisma.SortOrder
   affiliateScore?: Prisma.SortOrder
   crawledAt?: Prisma.SortOrder
@@ -672,6 +694,10 @@ export type IntFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
+}
+
 export type NullableFloatFieldUpdateOperationsInput = {
   set?: number | null
   increment?: number
@@ -692,6 +718,7 @@ export type ThreadPostCreateWithoutTopicInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -709,6 +736,7 @@ export type ThreadPostUncheckedCreateWithoutTopicInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -755,6 +783,7 @@ export type ThreadPostScalarWhereInput = {
   replyCount?: Prisma.IntFilter<"ThreadPost"> | number
   repostCount?: Prisma.IntFilter<"ThreadPost"> | number
   sourceUrl?: Prisma.StringFilter<"ThreadPost"> | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"ThreadPost"> | Date | string | null
   relevanceScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   affiliateScore?: Prisma.FloatNullableFilter<"ThreadPost"> | number | null
   crawledAt?: Prisma.DateTimeFilter<"ThreadPost"> | Date | string
@@ -773,6 +802,7 @@ export type ThreadPostCreateManyTopicInput = {
   replyCount?: number
   repostCount?: number
   sourceUrl: string
+  publishedAt?: Date | string | null
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
@@ -790,6 +820,7 @@ export type ThreadPostUpdateWithoutTopicInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -807,6 +838,7 @@ export type ThreadPostUncheckedUpdateWithoutTopicInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -824,6 +856,7 @@ export type ThreadPostUncheckedUpdateManyWithoutTopicInput = {
   replyCount?: Prisma.IntFieldUpdateOperationsInput | number
   repostCount?: Prisma.IntFieldUpdateOperationsInput | number
   sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -843,6 +876,7 @@ export type ThreadPostSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   replyCount?: boolean
   repostCount?: boolean
   sourceUrl?: boolean
+  publishedAt?: boolean
   relevanceScore?: boolean
   affiliateScore?: boolean
   crawledAt?: boolean
@@ -862,6 +896,7 @@ export type ThreadPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Ex
   replyCount?: boolean
   repostCount?: boolean
   sourceUrl?: boolean
+  publishedAt?: boolean
   relevanceScore?: boolean
   affiliateScore?: boolean
   crawledAt?: boolean
@@ -881,6 +916,7 @@ export type ThreadPostSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Ex
   replyCount?: boolean
   repostCount?: boolean
   sourceUrl?: boolean
+  publishedAt?: boolean
   relevanceScore?: boolean
   affiliateScore?: boolean
   crawledAt?: boolean
@@ -900,13 +936,14 @@ export type ThreadPostSelectScalar = {
   replyCount?: boolean
   repostCount?: boolean
   sourceUrl?: boolean
+  publishedAt?: boolean
   relevanceScore?: boolean
   affiliateScore?: boolean
   crawledAt?: boolean
   topicId?: boolean
 }
 
-export type ThreadPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "externalId" | "authorUsername" | "authorDisplayName" | "authorAvatarUrl" | "content" | "mediaUrls" | "likeCount" | "replyCount" | "repostCount" | "sourceUrl" | "relevanceScore" | "affiliateScore" | "crawledAt" | "topicId", ExtArgs["result"]["threadPost"]>
+export type ThreadPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "externalId" | "authorUsername" | "authorDisplayName" | "authorAvatarUrl" | "content" | "mediaUrls" | "likeCount" | "replyCount" | "repostCount" | "sourceUrl" | "publishedAt" | "relevanceScore" | "affiliateScore" | "crawledAt" | "topicId", ExtArgs["result"]["threadPost"]>
 export type ThreadPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   topic?: boolean | Prisma.TopicDefaultArgs<ExtArgs>
 }
@@ -934,6 +971,7 @@ export type $ThreadPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
     replyCount: number
     repostCount: number
     sourceUrl: string
+    publishedAt: Date | null
     relevanceScore: number | null
     affiliateScore: number | null
     crawledAt: Date
@@ -1373,6 +1411,7 @@ export interface ThreadPostFieldRefs {
   readonly replyCount: Prisma.FieldRef<"ThreadPost", 'Int'>
   readonly repostCount: Prisma.FieldRef<"ThreadPost", 'Int'>
   readonly sourceUrl: Prisma.FieldRef<"ThreadPost", 'String'>
+  readonly publishedAt: Prisma.FieldRef<"ThreadPost", 'DateTime'>
   readonly relevanceScore: Prisma.FieldRef<"ThreadPost", 'Float'>
   readonly affiliateScore: Prisma.FieldRef<"ThreadPost", 'Float'>
   readonly crawledAt: Prisma.FieldRef<"ThreadPost", 'DateTime'>

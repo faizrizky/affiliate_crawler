@@ -15,6 +15,14 @@ import { SearchProgress } from "./search-progress";
 import { ThreadCardSkeleton } from "./thread-card-skeleton";
 import { ThreadList } from "./thread-list";
 
+const CRAWL_ERROR_MESSAGES: Record<string, string> = {
+  THREADS_NO_RESULTS: "Tidak ada Threads ditemukan untuk topik ini.",
+  THREADS_LOGIN_REQUIRED: "Threads membutuhkan session yang terautentikasi.",
+  THREADS_REQUEST_FAILED: "Crawler sedang tidak tersedia.",
+  THREADS_RENDER_FAILED: "Crawler sedang tidak tersedia.",
+};
+const FALLBACK_ERROR_MESSAGE = "Terjadi kesalahan saat mencari Threads.";
+
 export function SearchSection() {
   const { phase, job, error, searchKeyword, submit } = useSearch();
   const openGenerate = useGenerateStore((s) => s.open);
@@ -44,9 +52,10 @@ export function SearchSection() {
           <CardContent className="flex items-start gap-3 p-5">
             <TriangleAlert className="mt-0.5 h-5 w-5 shrink-0 text-destructive" />
             <div role="alert">
-              <p className="text-sm font-semibold">Search failed</p>
+              <p className="text-sm font-semibold">Pencarian gagal</p>
               <p className="mt-1 text-sm text-muted-foreground">
-                {error?.message}
+                {CRAWL_ERROR_MESSAGES[error?.message ?? ""] ??
+                  FALLBACK_ERROR_MESSAGE}
               </p>
             </div>
           </CardContent>
@@ -81,10 +90,10 @@ export function SearchSection() {
           ) : (
             <EmptyState
               icon={SearchX}
-              title="No posts found"
+              title="Tidak ada Threads ditemukan"
               description={
                 searchKeyword
-                  ? `No posts were found for "${searchKeyword}".`
+                  ? `Tidak ada post untuk "${searchKeyword}".`
                   : undefined
               }
             />

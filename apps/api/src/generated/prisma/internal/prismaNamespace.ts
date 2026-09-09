@@ -941,6 +941,7 @@ export const ThreadPostScalarFieldEnum = {
   replyCount: 'replyCount',
   repostCount: 'repostCount',
   sourceUrl: 'sourceUrl',
+  publishedAt: 'publishedAt',
   relevanceScore: 'relevanceScore',
   affiliateScore: 'affiliateScore',
   crawledAt: 'crawledAt',

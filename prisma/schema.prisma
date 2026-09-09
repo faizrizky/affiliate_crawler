@@ -69,6 +69,7 @@ model ThreadPost {
   replyCount         Int      @default(0)
   repostCount        Int      @default(0)
   sourceUrl          String
+  publishedAt        DateTime?
   relevanceScore     Float?
   affiliateScore     Float?
   crawledAt          DateTime @default(now())

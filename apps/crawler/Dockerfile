@@ -6,6 +6,7 @@ COPY pyproject.toml ./
 COPY app ./app
 
 RUN pip install --no-cache-dir .
+RUN playwright install --with-deps chromium
 
 EXPOSE 8001
 

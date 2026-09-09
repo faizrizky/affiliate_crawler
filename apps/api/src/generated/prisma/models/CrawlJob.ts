@@ -523,10 +523,6 @@ export type EnumCrawlJobStatusFieldUpdateOperationsInput = {
   set?: $Enums.CrawlJobStatus
 }
 
-export type NullableDateTimeFieldUpdateOperationsInput = {
-  set?: Date | string | null
-}
-
 export type CrawlJobCreateWithoutTopicInput = {
   id?: string
   status?: $Enums.CrawlJobStatus

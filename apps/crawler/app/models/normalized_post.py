@@ -17,5 +17,6 @@ class NormalizedPost(BaseModel):
     reply_count: int = 0
     repost_count: int = 0
     source_url: str
+    published_at: str | None = None
     relevance_score: int | None = None
     affiliate_score: int | None = None

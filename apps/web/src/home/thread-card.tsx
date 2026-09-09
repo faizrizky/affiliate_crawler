@@ -52,7 +52,8 @@ export function ThreadCard({
               {post.authorDisplayName ?? post.authorUsername}
             </p>
             <p className="truncate text-xs text-muted-foreground">
-              @{post.authorUsername} · {formatTimeAgo(post.crawledAt)}
+              @{post.authorUsername} ·{" "}
+              {formatTimeAgo(post.publishedAt ?? post.crawledAt)}
             </p>
           </div>
         </div>

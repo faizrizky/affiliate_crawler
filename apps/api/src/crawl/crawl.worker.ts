@@ -37,15 +37,28 @@ export class CrawlWorker implements OnModuleDestroy {
             },
           );
           if (!res.ok) {
-            throw new Error(`Crawler responded ${res.status}`);
+            let code = "THREADS_REQUEST_FAILED";
+            try {
+              const body = (await res.json()) as { code?: string };
+              if (body.code) code = body.code;
+            } catch {
+              // body bukan JSON, pakai kode default
+            }
+            throw new Error(code);
           }
           result = (await res.json()) as CrawlResult;
         } catch (err) {
+          const code =
+            err instanceof Error &&
+            err.name !== "AbortError" &&
+            err.message.startsWith("THREADS_")
+              ? err.message
+              : "THREADS_REQUEST_FAILED";
           await prisma.crawlJob.update({
             where: { id: dbJobId },
             data: {
               status: "FAILED",
-              error: err instanceof Error ? err.message : String(err),
+              error: code,
               finishedAt: new Date(),
             },
           });
@@ -95,6 +108,7 @@ export class CrawlWorker implements OnModuleDestroy {
             replyCount: p.replyCount ?? 0,
             repostCount: p.repostCount ?? 0,
             sourceUrl: p.sourceUrl,
+            publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
             relevanceScore: p.relevanceScore ?? null,
             affiliateScore: p.affiliateScore ?? null,
           },
@@ -107,6 +121,7 @@ export class CrawlWorker implements OnModuleDestroy {
             replyCount: p.replyCount ?? 0,
             repostCount: p.repostCount ?? 0,
             sourceUrl: p.sourceUrl,
+            publishedAt: p.publishedAt ? new Date(p.publishedAt) : null,
             // undefined omits the field from UPDATE: a re-crawl without scores
             // keeps the stored ones instead of wiping them
             relevanceScore: p.relevanceScore ?? undefined,

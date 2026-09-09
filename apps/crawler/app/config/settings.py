@@ -12,6 +12,10 @@ class Settings(BaseSettings):
         "AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36"
     )
     request_timeout: float = 20.0
+    threads_use_browser: bool = True
+    threads_browser_profile: str | None = None
+    threads_browser_timeout: float = 30.0
+    threads_content_wait: float = 15.0
 
 
 settings = Settings()
