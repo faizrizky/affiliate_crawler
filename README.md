@@ -38,6 +38,23 @@ python3.12 -m venv .venv
 .venv/bin/uvicorn app.main:app --port 8001
 ```
 
+## Auth
+
+All API endpoints require `Authorization: Bearer <token>` except `GET /health`
+and `POST /auth/login`. The web app shows a login page and attaches the token
+to every request automatically.
+
+```bash
+curl -X POST http://localhost:3001/auth/login \
+  -H 'Content-Type: application/json' \
+  -d '{"email":"admin@example.com","password":"change-me"}'
+# → { "token": "...", "user": { "id", "email", "name" } }
+```
+
+`pnpm db:seed` upserts the admin user from `ADMIN_EMAIL` / `ADMIN_PASSWORD`
+in `.env` (plus two default templates). Tokens are JWTs signed with
+`JWT_SECRET`, valid 7 days. Logout is client-side (token discarded).
+
 ## Docker
 
 ```bash
@@ -66,5 +83,5 @@ fails with a clear error message instead of returning fake data.
 
 ## Tests
 
-- API/web: `pnpm test` (per-app)
 - Crawler: `cd apps/crawler && .venv/bin/pytest` (offline, fixture-based)
+- API/web: no automated suite yet; `pnpm lint` + `pnpm build` are the gate
