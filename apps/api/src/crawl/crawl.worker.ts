@@ -64,20 +64,31 @@ export class CrawlWorker implements OnModuleDestroy {
             err.message.startsWith("THREADS_")
               ? err.message
               : "THREADS_REQUEST_FAILED";
-          await prisma.crawlJob.update({
-            where: { id: dbJobId },
-            data: {
-              status: "FAILED",
-              error: code,
-              finishedAt: new Date(),
-            },
-          });
-          // Gagal permanen (login wall / memang tidak ada hasil): jangan
-          // re-throw agar BullMQ tidak retry. App membaca status dari Prisma
-          // (FAILED), bukan dari state queue.
-          if (NON_RETRYABLE_CODES.has(code)) {
+          const nonRetryable = NON_RETRYABLE_CODES.has(code);
+          // Mirrors BullMQ shouldRetryJob (retry while attemptsMade+1 <
+          // opts.attempts): mark the DB FAILED only for a permanent error or
+          // the final attempt. A mid-run transient failure leaves the job
+          // RUNNING so the frontend keeps polling while BullMQ retries.
+          const isLastAttempt =
+            job.attemptsMade >= (job.opts.attempts ?? 1) - 1;
+          if (nonRetryable || isLastAttempt) {
+            await prisma.crawlJob.update({
+              where: { id: dbJobId },
+              data: {
+                status: "FAILED",
+                error: code,
+                finishedAt: new Date(),
+              },
+            });
+          }
+          // Gagal permanen (login wall / memang tidak ada hasil): kembalikan
+          // tanpa re-throw agar BullMQ tidak retry. App membaca status dari
+          // Prisma (FAILED), bukan dari state queue.
+          if (nonRetryable) {
             return;
           }
+          // Re-throw: final attempt -> BullMQ marks failed (DB already FAILED);
+          // earlier attempt -> BullMQ retries while the DB stays RUNNING.
           throw err;
         }
         await prisma.crawlJob.update({

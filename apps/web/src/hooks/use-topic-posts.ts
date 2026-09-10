@@ -7,9 +7,11 @@ export function useTopicPosts(
   enabled: boolean,
   page: number,
   pageSize: number,
+  refetchMs?: number,
+  refreshKey?: unknown,
 ) {
   return useQuery({
-    queryKey: ["topic-posts", topicId, page, pageSize],
+    queryKey: ["topic-posts", topicId, page, pageSize, refreshKey],
     queryFn: async (): Promise<ThreadPostList> => {
       const data = await apiFetch<ThreadPostList>(
         `/topics/${topicId}/posts?page=${page}&pageSize=${pageSize}`,
@@ -18,5 +20,6 @@ export function useTopicPosts(
       return data;
     },
     enabled: Boolean(topicId) && enabled,
+    refetchInterval: refetchMs,
   });
 }

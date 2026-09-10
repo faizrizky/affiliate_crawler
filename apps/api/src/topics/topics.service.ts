@@ -2,6 +2,15 @@ import { Injectable, NotFoundException } from "@nestjs/common";
 import { PrismaService } from "../prisma/prisma.service";
 import { CrawlService } from "../crawl/crawl.service";
 
+// WIB (UTC+7) has no DST. Returns the UTC instant of midnight today in WIB so
+// `publishedAt >= since` selects "today's" posts for Indonesian users.
+const WIB_OFFSET_MS = 7 * 60 * 60 * 1000;
+const startOfTodayWib = () => {
+  const wibNow = new Date(Date.now() + WIB_OFFSET_MS);
+  wibNow.setUTCHours(0, 0, 0, 0);
+  return new Date(wibNow.getTime() - WIB_OFFSET_MS);
+};
+
 @Injectable()
 export class TopicsService {
   constructor(
@@ -51,17 +60,26 @@ export class TopicsService {
     if (!topic) {
       throw new NotFoundException("Topic not found");
     }
+    // Only surface today's posts that actually matched the keyword: tight
+    // relevance (score > 0) + newest first within today.
+    const since = startOfTodayWib();
+    const where = {
+      topicId: id,
+      publishedAt: { gte: since },
+      relevanceScore: { gt: 0 },
+    };
     const [posts, total] = await Promise.all([
       this.prisma.threadPost.findMany({
-        where: { topicId: id },
+        where,
         orderBy: [
+          { publishedAt: { sort: "desc", nulls: "last" } },
           { relevanceScore: { sort: "desc", nulls: "last" } },
           { crawledAt: "desc" },
         ],
         skip: (page - 1) * pageSize,
         take: pageSize,
       }),
-      this.prisma.threadPost.count({ where: { topicId: id } }),
+      this.prisma.threadPost.count({ where }),
     ]);
     return {
       posts,

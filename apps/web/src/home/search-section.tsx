@@ -30,16 +30,16 @@ export function SearchSection() {
   const { page, setPage, pageSize, setPageSize } = usePagination(
     activeTopicId ?? null,
   );
-  const showPosts =
-    Boolean(activeTopicId) && phase !== "starting" && phase !== "crawling";
+  const loading = phase === "starting" || phase === "crawling";
+  const showPosts = Boolean(activeTopicId) && phase !== "starting";
   const posts = useTopicPosts(
     activeTopicId ?? undefined,
     showPosts,
     page,
     pageSize,
+    loading ? 3000 : undefined,
+    phase,
   );
-
-  const loading = phase === "starting" || phase === "crawling";
 
   return (
     <div className="flex flex-col gap-6">
@@ -64,7 +64,7 @@ export function SearchSection() {
 
       {showPosts && (
         <>
-          {posts.isLoading ? (
+          {posts.isLoading || (loading && !posts.data?.posts.length) ? (
             <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
               {Array.from({ length: 4 }).map((_, i) => (
                 <ThreadCardSkeleton key={i} />

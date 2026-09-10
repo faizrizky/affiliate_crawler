@@ -12,12 +12,19 @@ def make(**kw) -> NormalizedPost:
 
 def test_relevance_phrase_and_words():
     post = make(content="the best serum review for dry skin", like_count=0)
-    assert relevance_score("dry skin", post) == 70
+    assert relevance_score("dry skin", post) == 90
 
 
-def test_relevance_likes_cap():
+def test_relevance_requires_keyword_match():
+    # high likes no longer inflate relevance; the keyword must appear
     post = make(content="unrelated", like_count=1200)
-    assert relevance_score("dry skin", post) == 100
+    assert relevance_score("dry skin", post) == 0
+
+
+def test_relevance_partial_word_match():
+    # only one keyword word present -> partial score, not the full phrase
+    post = make(content="dry face serum", like_count=0)
+    assert relevance_score("dry skin", post) == 15
 
 
 def test_relevance_no_match():

@@ -21,33 +21,19 @@ REVIEW_WORDS = (
 )
 
 
-INDONESIA_MARKERS = frozenset(
-    {
-        "yang", "dan", "untuk", "dengan", "adalah", "bisa", "pakai", "pake",
-        "harga", "beli", "gratis", "murah", "bagus", "cara", "ini", "itu",
-        "juga", "karena", "tapi", "atau", "saya", "kita", "kalau", "sama",
-        "dari", "ke", "pada", "di", "kualitas", "rekomendasi",
-    }
-)
-
-
-def _indonesia_bonus(text: str) -> int:
-    # ponytail: function-word heuristic, not real language detection;
-    # upgrade to langdetect if ranking precision matters.
-    hits = len(set(text.split()) & INDONESIA_MARKERS)
-    return min(hits * 5, 20)
-
-
 def relevance_score(keyword: str, post: NormalizedPost) -> int:
+    # Relevance = keyword match only. Engagement (likes/replies) is
+    # deliberately excluded: a viral unrelated post must not outrank a
+    # relevant one. 60 for the exact phrase, +15 per keyword word present.
     text = (post.content or "").lower()
-    score = 0
-    if keyword.strip().lower() in text:
-        score += 50
-    for word in keyword.lower().split():
-        if len(word) > 2 and word in text:
-            score += 10
-    score += min(post.like_count, 1000) // 10
-    score += _indonesia_bonus(text)
+    kw = keyword.strip().lower()
+    if not kw or not text:
+        return 0
+    words = [w for w in kw.split() if len(w) > 2]
+    if not words and kw not in text:
+        return 0
+    score = 60 if kw in text else 0
+    score += sum(1 for w in words if w in text) * 15
     return min(score, 100)
 
 
