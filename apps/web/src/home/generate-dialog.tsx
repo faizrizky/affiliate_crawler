@@ -88,6 +88,23 @@ export function GenerateDialog() {
     else close();
   };
 
+  const applyToThreads = async () => {
+    if (!preview) return;
+    // Buka composer dulu (masih di dalam user gesture agar tidak diblok popup),
+    // lalu copy hasil template supaya tinggal Ctrl+V di Threads.
+    window.open(
+      "https://www.threads.net/composer",
+      "_blank",
+      "noopener,noreferrer",
+    );
+    try {
+      await navigator.clipboard.writeText(preview);
+      toast.success("Copied — paste it into Threads");
+    } catch {
+      toast.error("Could not copy to clipboard");
+    }
+  };
+
   const onSubmit = async (data: FormData) => {
     if (!post || !templateId) return;
     try {
@@ -210,6 +227,14 @@ export function GenerateDialog() {
                 disabled={generateContent.isPending}
               >
                 Cancel
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={applyToThreads}
+                disabled={!preview}
+              >
+                Open in Threads
               </Button>
               <Button type="submit" disabled={generateContent.isPending}>
                 {generateContent.isPending ? "Saving…" : "Save draft"}
