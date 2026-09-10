@@ -34,9 +34,27 @@ class FakePage:
     def content(self):
         return self.context.html
 
+    def on(self, event, handler=None):
+        pass
+
+    def remove_listener(self, event, handler=None):
+        pass
+
     def close(self):
         self.closed = True
         self.context.closed_pages += 1
+
+
+class _FakeStatePage:
+    """Page stub whose evaluate() walks a fixed list of states (for _wait_for_page_state)."""
+
+    def __init__(self, states):
+        self.states = states
+        self.calls = 0
+
+    def evaluate(self, script):
+        self.calls += 1
+        return self.states[min(self.calls - 1, len(self.states) - 1)]
 
 
 class FakeContext:
@@ -276,3 +294,15 @@ def test_no_proxy_in_context_options_when_unset(monkeypatch):
     monkeypatch.setattr(settings, "threads_proxy_server", None)
     options = BrowserSession().context_options()
     assert "proxy" not in options
+
+
+def test_empty_final_only_when_search_request_settles(monkeypatch):
+    # 'empty' harus ditahan selama ada request data search in-flight (count=1),
+    # lalu final begitu count turun ke 0 — konfirmasi network-idle.
+    monkeypatch.setattr(settings, "threads_content_wait", 10.0)
+    monkeypatch.setattr(client_module.time, "sleep", lambda delay: None)
+    page = _FakeStatePage(["empty"])
+    counts = iter([1, 0])
+    state = client_module._wait_for_page_state(page, lambda: next(counts, 0))
+    assert state == "empty"
+    assert page.calls == 2

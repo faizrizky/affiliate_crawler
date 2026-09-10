@@ -28,9 +28,9 @@ export class CrawlWorker implements OnModuleDestroy {
       async (job) => {
         const { dbJobId, topicId, keyword, limit } = job.data;
         // CRAWLER_TIMEOUT (detik) = budget API menunggu crawler; harus >=
-        // worst-case crawler (~135s+). Fallback 180 sinkron dengan default di
+        // worst-case crawler (~228s+). Fallback 300 sinkron dengan default di
         // src/config/env.validation.ts.
-        const timeout = Number(config.get("CRAWLER_TIMEOUT") ?? 180);
+        const timeout = Number(config.get("CRAWLER_TIMEOUT") ?? 300);
         await prisma.crawlJob.update({
           where: { id: dbJobId },
           data: { status: "RUNNING", startedAt: new Date(), progress: 10 },

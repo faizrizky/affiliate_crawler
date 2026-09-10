@@ -63,6 +63,8 @@ def threads_search(keyword: str, limit: int = 20) -> list[dict]:
                 status_code=403,
             )
         if result.empty_results:
+            # 'empty' sudah dikonfirmasi network-idle upstream (client menunggu
+            # request data search selesai sebelum final), jadi [] adalah final.
             return []
         ambiguous = ThreadsError(
             ThreadsErrorCode.UNSUPPORTED_STRUCTURE,

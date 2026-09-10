@@ -58,8 +58,24 @@ class FetchedPage:
     page_state: str = "unknown"
 
 
-def _wait_for_page_state(page: Any) -> str:
+# State yang terminal dan boleh langsung final tanpa konfirmasi network-idle:
+# login/challenge (perlu raise) dan articles (sudah ada hasil). 'relay'/'empty'
+# menunggu request data search selesai (lihat _wait_for_page_state).
+_IMMEDIATE_FINAL = {"login", "challenge", "articles"}
+
+
+def _log_settle(state: str, started: float, *, via_deadline: bool) -> None:
+    log.info(
+        "threads_page_state_settle",
+        state=state,
+        wait_seconds=round(time.monotonic() - started, 3),
+        via_deadline=via_deadline,
+    )
+
+
+def _wait_for_page_state(page: Any, in_flight_count: Callable[[], int]) -> str:
     deadline = time.monotonic() + settings.threads_content_wait
+    started = time.monotonic()
     state = "loading"
     last_logged: str | None = None
     while True:
@@ -70,7 +86,16 @@ def _wait_for_page_state(page: Any) -> str:
         if state != last_logged:
             log.debug("threads_page_state", state=state)
             last_logged = state
-        if state != "loading" or time.monotonic() >= deadline:
+        if state in _IMMEDIATE_FINAL:
+            _log_settle(state, started, via_deadline=False)
+            return state
+        # 'relay'/'empty' hanya final saat request data search sudah selesai,
+        # supaya 'empty' tidak dipanen di tengah load (gagal intermittent).
+        if state != "loading" and in_flight_count() == 0:
+            _log_settle(state, started, via_deadline=False)
+            return state
+        if time.monotonic() >= deadline:
+            _log_settle(state, started, via_deadline=True)
             return state
         time.sleep(0.5)
 
@@ -150,7 +175,35 @@ class BrowserSession:
             self.start()
         context, owned = self.acquire()
         page = context.new_page()
+        inflight = {"count": 0}
+        pattern = settings.threads_search_request_pattern
+        listeners: list[tuple[str, Callable[..., None]]] = []
         try:
+            if pattern:
+                def _matches(target: str) -> bool:
+                    return pattern in target
+
+                def _on_request(request: Any) -> None:
+                    if _matches(request.url):
+                        inflight["count"] += 1
+
+                def _on_finished(response: Any) -> None:
+                    if _matches(response.request.url):
+                        inflight["count"] = max(0, inflight["count"] - 1)
+
+                def _on_failed(request: Any) -> None:
+                    if _matches(request.url):
+                        inflight["count"] = max(0, inflight["count"] - 1)
+
+                page.on("request", _on_request)
+                page.on("requestfinished", _on_finished)
+                page.on("requestfailed", _on_failed)
+                listeners = [
+                    ("request", _on_request),
+                    ("requestfinished", _on_finished),
+                    ("requestfailed", _on_failed),
+                ]
+
             try:
                 page.goto(
                     url,
@@ -170,7 +223,7 @@ class BrowserSession:
                     "Redirected to Threads login page.",
                     status_code=403,
                 )
-            state = _wait_for_page_state(page)
+            state = _wait_for_page_state(page, lambda: inflight["count"])
             if state == "login":
                 raise ThreadsError(
                     ThreadsErrorCode.LOGIN_REQUIRED,
@@ -193,6 +246,11 @@ class BrowserSession:
                 page_state=state,
             )
         finally:
+            for event, handler in listeners:
+                try:
+                    page.remove_listener(event, handler)
+                except Exception:
+                    pass
             page.close()
             if owned:
                 context.close()

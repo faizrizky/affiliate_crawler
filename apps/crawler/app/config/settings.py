@@ -25,11 +25,17 @@ class Settings(BaseSettings):
     threads_proxy_server: str | None = None
     threads_proxy_username: str | None = None
     threads_proxy_password: str | None = None
+    # Pattern URL request data pencarian Threads (substring match). Dipakai untuk
+    # konfirmasi network-idle: state 'relay'/'empty' baru final saat tidak ada
+    # request yang URL-nya memuat pattern ini masih in-flight. Default 'ajax/bz'
+    # (endpoint Comet data search); crn 'BarcelonaSearchResultsColumnRoute' terlalu
+    # brittle (berubah per rilis, beda varian logged-in/out) sehingga tidak dipakai.
+    threads_search_request_pattern: str = "ajax/bz"
     # API-side CRAWLER_TIMEOUT (apps/api/src/config/env.validation.ts) harus >=
-    # worst-case: threads_search_attempts × (threads_browser_timeout +
-    # threads_content_wait) + backoff. Naikkan salah satu, cek yang lainnya.
+    # worst-case: threads_search_attempts(3) × (threads_browser_timeout(30s) +
+    # threads_content_wait(45s)) + backoff ≈ 228s+. Naikkan salah satu, cek lainnya.
     threads_browser_timeout: float = 30.0
-    threads_content_wait: float = 15.0
+    threads_content_wait: float = 45.0
     threads_search_attempts: int = 3
     threads_retry_backoff_seconds: float = 1.0
     threads_browser_locale: str = "id-ID"
