@@ -126,6 +126,30 @@ def test_limit_respected(monkeypatch):
     assert len(spider.threads_search("gatal", limit=3)) == 3
 
 
+def test_multitext_phrase_fallback_to_first_word(monkeypatch):
+    pages = [
+        make_page(relay_html("[]")),
+        make_page(relay_html(f"[{POST}]")),
+    ]
+    calls = run_search(monkeypatch, pages)
+    posts = spider.threads_search("toner kulit kering")
+    assert calls["fetch"] == 2
+    assert [p["external_id"] for p in posts] == ["123"]
+    assert calls["sleeps"] == []
+
+
+def test_multitext_phrase_no_fallback_when_results(monkeypatch):
+    run_search(monkeypatch, [make_page(relay_html(f"[{POST}]"))])
+    posts = spider.threads_search("toner kulit kering")
+    assert [p["external_id"] for p in posts] == ["123"]
+
+
+def test_multitext_phrase_fallback_empty_stays_empty(monkeypatch):
+    calls = run_search(monkeypatch, [make_page(relay_html("[]"))] * 2)
+    assert spider.threads_search("toner kulit kering") == []
+    assert calls["fetch"] == 2
+
+
 def test_proxy_server_logged_not_credentials(monkeypatch):
     from structlog.testing import capture_logs
 

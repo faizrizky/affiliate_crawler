@@ -17,6 +17,18 @@ def _backoff_delay(attempt: int) -> float:
 
 
 def threads_search(keyword: str, limit: int = 20) -> list[dict]:
+    posts = _search_once(keyword, limit)
+    if not posts and " " in keyword:
+        # ponytail: SSR /search?q= match frasa persis (multi-kata sering
+        # kosong), UI Threads match per-kata/semantik. Fallback ke kata
+        # terdepan; pipeline relevansi tetap ranking terhadap keyword penuh.
+        fallback = keyword.split()[0]
+        log.info("threads_search_phrase_fallback", keyword=keyword, fallback=fallback)
+        posts = _search_once(fallback, limit)
+    return posts
+
+
+def _search_once(keyword: str, limit: int) -> list[dict]:
     attempts = max(1, settings.threads_search_attempts)
     ambiguous: ThreadsError | None = None
     for attempt in range(1, attempts + 1):

@@ -187,8 +187,9 @@ class BrowserSession:
                     if _matches(request.url):
                         inflight["count"] += 1
 
-                def _on_finished(response: Any) -> None:
-                    if _matches(response.request.url):
+                def _on_finished(request: Any) -> None:
+                    # Event requestfinished membawa objek Request (bukan Response).
+                    if _matches(request.url):
                         inflight["count"] = max(0, inflight["count"] - 1)
 
                 def _on_failed(request: Any) -> None:
