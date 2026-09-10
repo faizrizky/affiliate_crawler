@@ -25,6 +25,9 @@ class Settings(BaseSettings):
     threads_proxy_server: str | None = None
     threads_proxy_username: str | None = None
     threads_proxy_password: str | None = None
+    # API-side CRAWLER_TIMEOUT (apps/api/src/config/env.validation.ts) harus >=
+    # worst-case: threads_search_attempts × (threads_browser_timeout +
+    # threads_content_wait) + backoff. Naikkan salah satu, cek yang lainnya.
     threads_browser_timeout: float = 30.0
     threads_content_wait: float = 15.0
     threads_search_attempts: int = 3

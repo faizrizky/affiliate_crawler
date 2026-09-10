@@ -79,6 +79,17 @@ export class TopicsService {
     const topic =
       existing ??
       (await this.prisma.topic.create({ data: { keyword, userId } }));
+    const activeJob = await this.prisma.crawlJob.findFirst({
+      where: { topicId: topic.id, status: { in: ["QUEUED", "RUNNING"] } },
+      orderBy: { createdAt: "desc" },
+    });
+    if (activeJob) {
+      return {
+        topicId: topic.id,
+        jobId: activeJob.id,
+        status: activeJob.status,
+      };
+    }
     const job = await this.crawl.enqueue(topic.id, keyword, limit);
     return { topicId: topic.id, jobId: job.id, status: job.status };
   }

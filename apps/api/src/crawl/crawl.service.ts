@@ -26,12 +26,14 @@ export class CrawlService {
       data: { topicId, status: "QUEUED" },
     });
     try {
-      await this.queue.add("search", {
-        dbJobId: job.id,
-        topicId,
-        keyword,
-        limit,
-      } satisfies CrawlJobData);
+      await this.queue.add(
+        "search",
+        { dbJobId: job.id, topicId, keyword, limit } satisfies CrawlJobData,
+        {
+          attempts: 3,
+          backoff: { type: "exponential", delay: 2000 },
+        },
+      );
     } catch (err) {
       await this.prisma.crawlJob.update({
         where: { id: job.id },

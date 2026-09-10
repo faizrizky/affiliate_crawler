@@ -6,6 +6,13 @@ import { RedisService } from "../jobs/redis.service";
 import { CrawlJobData, CrawlResult } from "./crawl.types";
 import { CRAWL_QUEUE } from "./crawl.service";
 
+// Error code yang tidak mungkin berhasil jika diulang (login wall / memang
+// tidak ada hasil) — processor return tanpa re-throw agar BullMQ tidak retry.
+const NON_RETRYABLE_CODES = new Set([
+  "THREADS_LOGIN_REQUIRED",
+  "THREADS_NO_RESULTS",
+]);
+
 @Injectable()
 export class CrawlWorker implements OnModuleDestroy {
   private readonly logger = new Logger(CrawlWorker.name);
@@ -20,10 +27,13 @@ export class CrawlWorker implements OnModuleDestroy {
       CRAWL_QUEUE,
       async (job) => {
         const { dbJobId, topicId, keyword, limit } = job.data;
-        const timeout = Number(config.get("CRAWLER_TIMEOUT") ?? 60);
+        // CRAWLER_TIMEOUT (detik) = budget API menunggu crawler; harus >=
+        // worst-case crawler (~135s+). Fallback 180 sinkron dengan default di
+        // src/config/env.validation.ts.
+        const timeout = Number(config.get("CRAWLER_TIMEOUT") ?? 180);
         await prisma.crawlJob.update({
           where: { id: dbJobId },
-          data: { status: "RUNNING", startedAt: new Date() },
+          data: { status: "RUNNING", startedAt: new Date(), progress: 10 },
         });
         let result: CrawlResult;
         try {
@@ -62,8 +72,18 @@ export class CrawlWorker implements OnModuleDestroy {
               finishedAt: new Date(),
             },
           });
+          // Gagal permanen (login wall / memang tidak ada hasil): jangan
+          // re-throw agar BullMQ tidak retry. App membaca status dari Prisma
+          // (FAILED), bukan dari state queue.
+          if (NON_RETRYABLE_CODES.has(code)) {
+            return;
+          }
           throw err;
         }
+        await prisma.crawlJob.update({
+          where: { id: dbJobId },
+          data: { progress: 70 },
+        });
         await this.persistPosts(prisma, topicId, result);
         await prisma.crawlJob.update({
           where: { id: dbJobId },
@@ -78,7 +98,10 @@ export class CrawlWorker implements OnModuleDestroy {
           `Job ${dbJobId} completed with ${result.posts.length} posts`,
         );
       },
-      { connection: redis.client, concurrency: 1 },
+      {
+        connection: redis.client,
+        concurrency: Number(config.get("CRAWLER_CONCURRENCY") ?? 4),
+      },
     );
     this.worker.on("failed", (job, err) => {
       this.logger.error(`Job ${job?.id} failed: ${err.message}`);
