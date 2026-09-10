@@ -63,6 +63,7 @@ def parse_threads_html(html: str) -> ParseResult:
         log.debug(
             "threads_parse_no_posts_content",
             html_length=len(html),
+            html_head=html[:500],
             content_markers=matched,
         )
     return ParseResult(
@@ -89,11 +90,17 @@ def detect_empty_results(html: str) -> bool:
 
 def _from_relay_json(html: str) -> ParseResult:
     for match in RELAY_SCRIPT_RE.finditer(html):
-        if '"searchResults"' not in match.group(1):
+        raw = match.group(1)
+        if '"searchResults"' not in raw:
             continue
         try:
-            data = json.loads(match.group(1))
-        except json.JSONDecodeError:
+            data = json.loads(raw)
+        except json.JSONDecodeError as exc:
+            log.debug(
+                "threads_relay_json_decode_failed",
+                script_length=len(raw),
+                position=exc.pos,
+            )
             continue
         found = _find_search_results(data)
         if found is None:

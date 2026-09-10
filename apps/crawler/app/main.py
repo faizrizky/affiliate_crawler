@@ -5,6 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 from structlog import get_logger
 
 from app.config.settings import settings
@@ -83,7 +84,18 @@ def crawl(job: CrawlJobRequest) -> dict | JSONResponse:
                 "retryable": True,
             },
         )
-    posts = dedupe([normalize(item) for item in raw])
+    normalized = []
+    for item in raw:
+        try:
+            normalized.append(normalize(item))
+        except ValidationError as exc:
+            log.warning(
+                "crawl_normalize_failed",
+                keyword=job.keyword,
+                keys=sorted(item.keys()) if isinstance(item, dict) else None,
+                reason="; ".join(f"{'.'.join(str(p) for p in e['loc'])}: {e['type']}" for e in exc.errors()),
+            )
+    posts = dedupe(normalized)
     for post in posts:
         post.relevance_score = relevance_score(job.keyword, post)
         post.affiliate_score = affiliate_score(post)

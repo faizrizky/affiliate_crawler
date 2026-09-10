@@ -20,8 +20,24 @@ SEARCH_URL = "https://www.threads.com/search?q={keyword}"
 
 PAGE_STATE_JS = """
 () => {
+  const isSettledRelay = (node) => {
+    if (node === null || typeof node !== 'object') return false;
+    if (Array.isArray(node)) {
+      for (const item of node) if (isSettledRelay(item)) return true;
+      return false;
+    }
+    const sr = node.searchResults;
+    if (sr && typeof sr === 'object' && !Array.isArray(sr) && Array.isArray(sr.edges)) return true;
+    for (const value of Object.values(node)) if (isSettledRelay(value)) return true;
+    return false;
+  };
   const scripts = Array.from(document.querySelectorAll('script[type="application/json"]'));
-  if (scripts.some((s) => s.textContent.includes('"searchResults"'))) return 'relay';
+  for (const s of scripts) {
+    if (!s.textContent.includes('"searchResults"')) continue;
+    let data;
+    try { data = JSON.parse(s.textContent); } catch { continue; }
+    if (isSettledRelay(data)) return 'relay';
+  }
   if (document.querySelector('article')) return 'articles';
   if (window.location.pathname.includes('/login') || document.querySelector('input[type="password"]')) return 'login';
   const text = ((document.body && document.body.innerText) || '').toLowerCase();
@@ -45,7 +61,7 @@ class FetchedPage:
 def _wait_for_page_state(page: Any) -> str:
     deadline = time.monotonic() + settings.threads_content_wait
     state = "loading"
-    last_logged = state
+    last_logged: str | None = None
     while True:
         try:
             state = str(page.evaluate(PAGE_STATE_JS) or "loading")
