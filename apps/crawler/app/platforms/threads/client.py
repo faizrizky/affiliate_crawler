@@ -8,13 +8,15 @@ from typing import Any, Callable
 from urllib.parse import quote_plus, urlparse
 
 import httpx
+from structlog import get_logger
 
 from app.config.settings import settings
 from app.exceptions import ThreadsError, ThreadsErrorCode
+from app.platforms.threads.selectors import CONTENT_MARKERS
+
+log = get_logger()
 
 SEARCH_URL = "https://www.threads.com/search?q={keyword}"
-
-CONTENT_MARKERS = ('"searchResults"', "__NEXT_DATA__", "<article", "data-testid")
 
 PAGE_STATE_JS = """
 () => {
@@ -43,14 +45,30 @@ class FetchedPage:
 def _wait_for_page_state(page: Any) -> str:
     deadline = time.monotonic() + settings.threads_content_wait
     state = "loading"
+    last_logged = state
     while True:
         try:
             state = str(page.evaluate(PAGE_STATE_JS) or "loading")
         except Exception:
             state = "loading"
+        if state != last_logged:
+            log.debug("threads_page_state", state=state)
+            last_logged = state
         if state != "loading" or time.monotonic() >= deadline:
             return state
         time.sleep(0.5)
+
+
+def _proxy_options() -> dict[str, Any] | None:
+    if not settings.threads_proxy_server:
+        return None
+    proxy: dict[str, Any] = {"server": settings.threads_proxy_server}
+    if settings.threads_proxy_username:
+        proxy["username"] = settings.threads_proxy_username
+    if settings.threads_proxy_password:
+        proxy["password"] = settings.threads_proxy_password
+    log.debug("threads_proxy_configured", proxy_server=settings.threads_proxy_server)
+    return proxy
 
 
 class BrowserSession:
@@ -67,12 +85,16 @@ class BrowserSession:
         self.profile: str | None = None
 
     def context_options(self) -> dict[str, Any]:
-        return dict(
+        options = dict(
             user_agent=settings.user_agent,
             locale=settings.threads_browser_locale,
             timezone_id=settings.threads_browser_timezone,
             extra_http_headers={"Accept-Language": settings.threads_accept_language},
         )
+        proxy = _proxy_options()
+        if proxy is not None:
+            options["proxy"] = proxy
+        return options
 
     def start(self) -> None:
         try:

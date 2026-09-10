@@ -258,3 +258,21 @@ def test_ephemeral_context_closed_per_fetch(monkeypatch):
     session.fetch(URL)
     assert ("context_close",) in fake.events
     assert session.browser.closed is False
+
+
+def test_proxy_in_context_options_when_configured(monkeypatch):
+    monkeypatch.setattr(settings, "threads_proxy_server", "http://proxy.example:8080")
+    monkeypatch.setattr(settings, "threads_proxy_username", "proxyuser")
+    monkeypatch.setattr(settings, "threads_proxy_password", "proxypass")
+    options = BrowserSession().context_options()
+    assert options["proxy"] == {
+        "server": "http://proxy.example:8080",
+        "username": "proxyuser",
+        "password": "proxypass",
+    }
+
+
+def test_no_proxy_in_context_options_when_unset(monkeypatch):
+    monkeypatch.setattr(settings, "threads_proxy_server", None)
+    options = BrowserSession().context_options()
+    assert "proxy" not in options

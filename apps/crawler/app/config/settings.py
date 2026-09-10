@@ -22,6 +22,9 @@ class Settings(BaseSettings):
     request_timeout: float = 20.0
     threads_use_browser: bool = True
     threads_browser_profile: str | None = None
+    threads_proxy_server: str | None = None
+    threads_proxy_username: str | None = None
+    threads_proxy_password: str | None = None
     threads_browser_timeout: float = 30.0
     threads_content_wait: float = 15.0
     threads_search_attempts: int = 3

@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import os
 from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
@@ -18,8 +19,26 @@ from app.spiders.threads.search_spider import threads_search
 log = get_logger()
 
 
+def _check_profile() -> None:
+    profile = settings.threads_browser_profile
+    if not profile:
+        return
+    if not os.path.isdir(profile):
+        raise RuntimeError(
+            f"Threads browser profile directory does not exist: {profile}. "
+            "Provision a logged-in profile before starting the crawler."
+        )
+    if not os.listdir(profile):
+        raise RuntimeError(
+            f"Threads browser profile directory is empty: {profile}. "
+            "Provision a logged-in profile before starting the crawler."
+        )
+    log.info("threads_profile_ready", profile=profile)
+
+
 @asynccontextmanager
 async def lifespan(_: FastAPI):
+    _check_profile()
     yield
     shutdown_browser()
 

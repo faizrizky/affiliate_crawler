@@ -6,7 +6,16 @@ from dataclasses import dataclass, field
 from datetime import datetime, timezone
 from urllib.parse import urljoin
 
-from app.platforms.threads.selectors import ARTICLE_SELECTORS, EMPTY_RESULT_MARKERS, LOGIN_WALL_MARKERS
+from structlog import get_logger
+
+from app.platforms.threads.selectors import (
+    ARTICLE_SELECTORS,
+    CONTENT_MARKERS,
+    EMPTY_RESULT_MARKERS,
+    LOGIN_WALL_MARKERS,
+)
+
+log = get_logger()
 
 NEXT_DATA_RE = re.compile(
     r'<script[^>]*id="__NEXT_DATA__"[^>]*type="application/json"[^>]*>(.*?)</script>',
@@ -49,6 +58,13 @@ def parse_threads_html(html: str) -> ParseResult:
     result = _from_articles(html)
     if result.posts:
         return result
+    matched = [marker for marker in CONTENT_MARKERS if marker in html]
+    if matched:
+        log.debug(
+            "threads_parse_no_posts_content",
+            html_length=len(html),
+            content_markers=matched,
+        )
     return ParseResult(
         login_wall=detect_login_wall(html),
         empty_results=detect_empty_results(html),

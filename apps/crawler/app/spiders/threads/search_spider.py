@@ -51,6 +51,7 @@ def threads_search(keyword: str, limit: int = 20) -> list[dict]:
             locale=settings.threads_browser_locale,
             timezone=settings.threads_browser_timezone,
             persistent_profile=settings.threads_browser_profile is not None,
+            proxy_server=settings.threads_proxy_server,
         )
         if result.posts:
             return result.posts[:limit]
@@ -77,6 +78,8 @@ def threads_search(keyword: str, limit: int = 20) -> list[dict]:
                 keyword=keyword,
                 attempt=attempt,
                 page_state=page.page_state,
+                rendered=page.rendered,
+                final_url=page.final_url,
                 delay=delay,
             )
             time.sleep(delay)

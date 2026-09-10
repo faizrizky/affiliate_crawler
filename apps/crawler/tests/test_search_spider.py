@@ -124,3 +124,21 @@ def test_limit_respected(monkeypatch):
     )
     run_search(monkeypatch, [make_page(relay_html(f"[{edges}]"))])
     assert len(spider.threads_search("gatal", limit=3)) == 3
+
+
+def test_proxy_server_logged_not_credentials(monkeypatch):
+    from structlog.testing import capture_logs
+
+    run_search(monkeypatch, [make_page(relay_html(f"[{POST}]"))])
+    monkeypatch.setattr(settings, "threads_proxy_server", "http://proxy.example:8080")
+    monkeypatch.setattr(settings, "threads_proxy_username", "proxyuser")
+    monkeypatch.setattr(settings, "threads_proxy_password", "proxypass")
+    with capture_logs() as logs:
+        spider.threads_search("gatal")
+    attempt_logs = [entry for entry in logs if entry["event"] == "threads_search_attempt"]
+    assert attempt_logs
+    for entry in attempt_logs:
+        assert entry["proxy_server"] == "http://proxy.example:8080"
+        flat = " ".join(str(value) for value in entry.values())
+        assert "proxyuser" not in flat
+        assert "proxypass" not in flat
