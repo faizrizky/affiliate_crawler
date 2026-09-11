@@ -169,6 +169,8 @@ class _Handler(socketserver.BaseRequestHandler):
             log.debug("socks_relay_closed", error=str(exc))
         finally:
             for sock in (client, upstream):
+                if sock is None:
+                    continue
                 try:
                     sock.close()
                 except OSError:
