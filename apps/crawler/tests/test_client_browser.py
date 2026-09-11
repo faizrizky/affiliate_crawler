@@ -12,6 +12,12 @@ URL = "https://www.threads.com/search?q=gatal"
 RELAY_HTML = '<html><body><script type="application/json">{"searchResults":{"edges":[]}}</script></body></html>'
 
 
+@pytest.fixture(autouse=True)
+def _login_disabled_by_default(monkeypatch):
+    # Unit test fetch() memakai fake page; login butuh browser sungguhan.
+    monkeypatch.setattr(settings, "threads_username", None)
+
+
 def relay_html() -> str:
     return RELAY_HTML
 
@@ -94,14 +100,14 @@ class FakeChromium:
     def __init__(self, fake):
         self.fake = fake
 
-    def launch(self, headless=None):
-        self.fake.events.append(("launch",))
+    def launch(self, headless=None, args=None):
+        self.fake.events.append(("launch", args))
         if self.fake.launch_error:
             raise Exception("executable not found")
         return FakeBrowser(self.fake)
 
-    def launch_persistent_context(self, profile, headless=None, **options):
-        self.fake.events.append(("launch_persistent", profile, options))
+    def launch_persistent_context(self, profile, headless=None, args=None, **options):
+        self.fake.events.append(("launch_persistent", profile, args, options))
         if self.fake.launch_error:
             raise Exception("profile locked")
         return FakeContext(self.fake)
@@ -145,14 +151,14 @@ def test_profile_launches_persistent_context(monkeypatch, tmp_path):
     session.start()
     assert session.context is not None
     assert session.browser is None
-    assert ("launch_persistent", profile, session.context_options()) in fake.events
+    assert ("launch_persistent", profile, ["--disable-quic"], session.context_options()) in fake.events
 
 
 def test_without_profile_launches_browser(monkeypatch):
     fake = install_fake(monkeypatch, None)
     session = BrowserSession()
     session.fetch(URL)
-    assert ("launch",) in fake.events
+    assert ("launch", ["--disable-quic"]) in fake.events
     assert fake.last_context_options is not None
 
 
@@ -306,3 +312,20 @@ def test_empty_final_only_when_search_request_settles(monkeypatch):
     state = client_module._wait_for_page_state(page, lambda: next(counts, 0))
     assert state == "empty"
     assert page.calls == 2
+
+
+def test_ensure_login_noop_without_credentials(monkeypatch):
+    # Tanpa CRAWLER_THREADS_USERNAME, ensure_login harus no-op tanpa launch browser.
+    monkeypatch.setattr(settings, "threads_username", None)
+    session = BrowserSession()
+    session.ensure_login()
+    assert session.playwright is None
+    assert session._logged_in is False
+
+
+def test_ensure_login_skips_when_already_logged_in(monkeypatch):
+    monkeypatch.setattr(settings, "threads_username", "u")
+    session = BrowserSession()
+    session._logged_in = True
+    session.ensure_login()
+    assert session.playwright is None

@@ -25,6 +25,10 @@ class Settings(BaseSettings):
     threads_proxy_server: str | None = None
     threads_proxy_username: str | None = None
     threads_proxy_password: str | None = None
+    # Akun IG/Threads untuk login — pencarian Threads butuh sesi login agar
+    # hasil lengkap. Session tersimpan di profil persisten (login sekali).
+    threads_username: str | None = None
+    threads_password: str | None = None
     # Pattern URL request data pencarian Threads (substring match). Dipakai untuk
     # konfirmasi network-idle: state 'relay'/'empty' baru final saat tidak ada
     # request yang URL-nya memuat pattern ini masih in-flight. Default 'ajax/bz'

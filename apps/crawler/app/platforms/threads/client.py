@@ -12,11 +12,13 @@ from structlog import get_logger
 
 from app.config.settings import settings
 from app.exceptions import ThreadsError, ThreadsErrorCode
+from app.platforms.threads import socks_relay
 from app.platforms.threads.selectors import CONTENT_MARKERS
 
 log = get_logger()
 
 SEARCH_URL = "https://www.threads.com/search?q={keyword}"
+LOGIN_URL = "https://www.threads.com/login"
 
 PAGE_STATE_JS = """
 () => {
@@ -103,12 +105,25 @@ def _wait_for_page_state(page: Any, in_flight_count: Callable[[], int]) -> str:
 def _proxy_options() -> dict[str, Any] | None:
     if not settings.threads_proxy_server:
         return None
-    proxy: dict[str, Any] = {"server": settings.threads_proxy_server}
-    if settings.threads_proxy_username:
-        proxy["username"] = settings.threads_proxy_username
-    if settings.threads_proxy_password:
-        proxy["password"] = settings.threads_proxy_password
-    log.debug("threads_proxy_configured", proxy_server=settings.threads_proxy_server)
+    server = settings.threads_proxy_server
+    username = settings.threads_proxy_username
+    password = settings.threads_proxy_password
+    # proxy socks5 tanpa auth: arahkan ke relay lokal agar DNS diresolve di
+    # sisi kami (DNS proxy upstream tidak bisa diandalkan). Proxy ber-credential
+    # tetap direct karena relay hanya berbicara metode no-auth.
+    if (
+        socks_relay.port is not None
+        and urlparse(server).scheme in {"socks5", "socks5h"}
+        and not username
+        and not password
+    ):
+        server = f"socks5://127.0.0.1:{socks_relay.port}"
+    proxy: dict[str, Any] = {"server": server}
+    if username:
+        proxy["username"] = username
+    if password:
+        proxy["password"] = password
+    log.debug("threads_proxy_configured", proxy_server=server)
     return proxy
 
 
@@ -124,6 +139,7 @@ class BrowserSession:
         self.browser: Any = None
         self.context: Any = None
         self.profile: str | None = None
+        self._logged_in = False
 
     def context_options(self) -> dict[str, Any]:
         options = dict(
@@ -171,9 +187,100 @@ class BrowserSession:
             return self.context, False
         return self.browser.new_context(**self.context_options()), True
 
+    def ensure_login(self) -> None:
+        """Login IG/Threads sekali per proses; profil persisten menyimpan session.
+
+        ponytail: deteksi via probe URL (bukan sniff cookie). Challenge IG
+        tidak bisa diselesaikan headless — raise CHALLENGE supaya operator
+        tahu profil perlu login ulang secara manual.
+        """
+        if self._logged_in or not settings.threads_username:
+            return
+        if self.playwright is None:
+            self.start()
+        context, owned = self.acquire()
+        page = context.new_page()
+        try:
+            # commit: halaman login IG berat, DCL bisa >30s; polling di bawah yang
+            # menunggu form siap
+            page.goto(LOGIN_URL, wait_until="commit",
+                      timeout=settings.threads_browser_timeout * 1000)
+            deadline = time.monotonic() + 20
+            while time.monotonic() < deadline:
+                if page.query_selector('input[type="password"]'):
+                    break
+                if "/login" not in (page.url or ""):
+                    self._logged_in = True
+                    log.info("threads_login_already_authenticated", url=page.url)
+                    return
+                time.sleep(0.5)
+            username = page.query_selector('input[name="username"]') or page.query_selector('input[type="text"]')
+            password = page.query_selector('input[type="password"]')
+            if not (username and password):
+                body = (page.inner_text("body") or "").lower()
+                if any(m in body for m in ("verifying", "unusual activity", "selesaikan")):
+                    raise ThreadsError(
+                        ThreadsErrorCode.CHALLENGE,
+                        "challenge page saat login; selesaikan manual lalu restart crawler",
+                        status_code=503,
+                    )
+                raise ThreadsError(
+                    ThreadsErrorCode.LOGIN_REQUIRED,
+                    f"login form tidak ditemukan di {page.url}",
+                    status_code=403,
+                )
+            username.fill(settings.threads_username)
+            password.fill(settings.threads_password or "")
+            # CTA login adalah div[role=button] (bukan <button>); form punya
+            # <input type=submit> tersembunyi yang dipicu lewat React
+            page.click('form div[role="button"]')
+            try:
+                page.wait_for_url(lambda u: "/login" not in u, timeout=30_000)
+            except Exception:
+                body = (page.inner_text("body") or "").lower()
+                if any(m in body for m in ("unusual activity", "verifying", "selesaikan", "confirm this is you")):
+                    raise ThreadsError(
+                        ThreadsErrorCode.CHALLENGE,
+                        "IG challenge setelah submit login; selesaikan manual lalu restart crawler",
+                        status_code=503,
+                    )
+                raise ThreadsError(
+                    ThreadsErrorCode.LOGIN_REQUIRED,
+                    f"login gagal, stuck di {page.url}",
+                    status_code=403,
+                )
+            page.goto("https://www.threads.com/", wait_until="commit",
+                      timeout=settings.threads_browser_timeout * 1000)
+            # tanpa sesi valid, threads.com home redirect ke /login — tunggu URL
+            # stabil lalu cek login wall
+            last_url, settled = page.url or "", 0
+            deadline = time.monotonic() + 15
+            while time.monotonic() < deadline:
+                url = page.url or ""
+                if "/login" in url or page.query_selector('input[type="password"]'):
+                    raise ThreadsError(
+                        ThreadsErrorCode.LOGIN_REQUIRED,
+                        "login submitted tapi threads.com masih meminta login",
+                        status_code=403,
+                    )
+                if url == last_url:
+                    settled += 1
+                    if settled >= 2:
+                        break
+                else:
+                    last_url, settled = url, 0
+                time.sleep(0.5)
+            self._logged_in = True
+            log.info("threads_login_ok", final_url=page.url)
+        finally:
+            page.close()
+            if owned:
+                context.close()
+
     def fetch(self, url: str) -> FetchedPage:
         if self.playwright is None:
             self.start()
+        self.ensure_login()
         context, owned = self.acquire()
         page = context.new_page()
         inflight = {"count": 0}
@@ -274,6 +381,7 @@ class BrowserSession:
         self.browser = None
         self.playwright = None
         self.profile = None
+        self._logged_in = False
 
 
 class BrowserWorker:

@@ -14,6 +14,7 @@ from app.pipelines.dedupe import dedupe
 from app.pipelines.normalize import normalize
 from app.pipelines.relevance import affiliate_score, relevance_score
 from app.platforms.threads.client import shutdown_browser
+from app.platforms.threads import socks_relay
 from app.queue.jobs import CrawlJobRequest
 from app.spiders.threads.search_spider import threads_search
 
@@ -40,7 +41,10 @@ def _check_profile() -> None:
 @asynccontextmanager
 async def lifespan(_: FastAPI):
     _check_profile()
+    if settings.threads_proxy_server:
+        socks_relay.start(settings.threads_proxy_server)
     yield
+    socks_relay.stop()
     shutdown_browser()
 
 
