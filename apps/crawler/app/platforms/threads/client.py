@@ -150,11 +150,12 @@ class BrowserSession:
         try:
             if settings.threads_browser_profile:
                 self.profile = settings.threads_browser_profile
+                # socks5 proxy tanpa UDP associate: matikan QUIC/H3 (ERR_CONNECTION_RESET)
                 self.context = self.playwright.chromium.launch_persistent_context(
-                    self.profile, headless=True, **self.context_options()
+                    self.profile, headless=True, args=["--disable-quic"], **self.context_options()
                 )
             else:
-                self.browser = self.playwright.chromium.launch(headless=True)
+                self.browser = self.playwright.chromium.launch(headless=True, args=["--disable-quic"])
         except Exception as exc:
             self.close()
             raise ThreadsError(
