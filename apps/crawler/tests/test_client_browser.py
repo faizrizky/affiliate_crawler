@@ -34,11 +34,28 @@ class FakePage:
             raise Exception("net::ERR_TIMED_OUT")
         self.url = self.context.redirect_to or self.context.fake.default_redirect_to or url
 
-    def evaluate(self, script):
+    def evaluate(self, script, arg=None):
+        if arg is not None:
+            # SESSION_STATE_JS: kembalikan marker sesuai setelan fake context.
+            return {
+                "authenticated": list(self.context.authenticated_markers),
+                "unauthenticated": list(self.context.unauthenticated_markers),
+            }
         return self.context.state
 
     def content(self):
         return self.context.html
+
+    def query_selector(self, selector):
+        if selector == 'input[type="password"]' and self.context.password_input:
+            return object()
+        return None
+
+    def fill(self, *args, **kwargs):  # pragma: no cover - harus tidak pernah dipanggil
+        self.context.events.append(("fill", args))
+
+    def click(self, *args, **kwargs):  # pragma: no cover - harus tidak pernah dipanggil
+        self.context.events.append(("click", args))
 
     def on(self, event, handler=None):
         pass
@@ -73,6 +90,9 @@ class FakeContext:
         self.redirect_to = None
         self.closed_pages = 0
         self.closed = False
+        self.password_input = fake.default_password_input
+        self.authenticated_markers: list[str] = list(fake.default_authenticated_markers)
+        self.unauthenticated_markers: list[str] = list(fake.default_unauthenticated_markers)
 
     def new_page(self):
         return FakePage(self)
@@ -130,6 +150,9 @@ class FakePlaywrightWorld:
         self.launch_error = None
         self.last_context_options = None
         self.default_state = "relay"
+        self.default_unauthenticated_markers: list[str] = []
+        self.default_authenticated_markers: list[str] = []
+        self.default_password_input = False
         self.default_redirect_to = None
         self.playwright = FakePlaywright(self)
 
@@ -203,6 +226,8 @@ def test_redirect_to_login_raises(monkeypatch):
 def test_empty_state_returned(monkeypatch):
     fake = install_fake(monkeypatch, None)
     fake.default_state = "empty"
+    # Sesi dipercaya -> 'empty' memang keyword tanpa hasil (bukan SESSION_DEGRADED).
+    fake.default_authenticated_markers = list(client_module.AUTHENTICATED_MARKERS)
     page = BrowserSession().fetch(URL)
     assert isinstance(page, FetchedPage)
     assert page.page_state == "empty"
@@ -329,3 +354,100 @@ def test_ensure_login_skips_when_already_logged_in(monkeypatch):
     session._logged_in = True
     session.ensure_login()
     assert session.playwright is None
+
+
+def test_empty_page_without_trusted_session_raises_session_degraded(monkeypatch):
+    """Halaman search normal + kosong + tombol login = sesi degraded, bukan 'no results'."""
+    fake = install_fake(monkeypatch, None)
+    fake.default_state = "empty"
+    fake.default_unauthenticated_markers = ['[aria-label="Login"]']
+    with pytest.raises(ThreadsError) as exc_info:
+        BrowserSession().fetch(URL)
+    assert exc_info.value.code == ThreadsErrorCode.SESSION_DEGRADED
+    assert exc_info.value.retryable is True
+
+
+def test_empty_page_with_trusted_session_is_not_degraded(monkeypatch):
+    """Marker positif hadir -> 'empty' memang keyword tanpa hasil, bukan degraded."""
+    fake = install_fake(monkeypatch, None)
+    fake.default_state = "empty"
+    fake.default_authenticated_markers = ['[data-x="compose"]']
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", ['[data-x="compose"]'])
+    page = BrowserSession().fetch(URL)
+    assert page.page_state == "empty"
+    assert page.session_trusted is True
+
+
+def test_session_trust_undecided_when_no_markers_configured(monkeypatch):
+    fake = install_fake(monkeypatch, None)
+    fake.default_state = "empty"
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", [])
+    page = BrowserSession().fetch(URL)
+    assert page.session_trusted is None
+    assert page.page_state == "empty"
+
+
+def test_ensure_login_never_submits_credentials(monkeypatch):
+    """Kredensial tidak pernah diisi/di-submit — login wajib manual (anti-2FA-trigger)."""
+    fake = install_fake(monkeypatch, None)
+    monkeypatch.setattr(settings, "threads_username", "u")
+    monkeypatch.setattr(settings, "threads_password", "p")
+    fake.default_unauthenticated_markers = ['[aria-label="Login"]']
+    session = BrowserSession()
+    with pytest.raises(ThreadsError) as exc_info:
+        session.ensure_login()
+    assert exc_info.value.code == ThreadsErrorCode.LOGIN_REQUIRED
+    assert not [event for event in fake.events if event[0] in {"fill", "click"}]
+    assert session._logged_in is False
+
+
+def test_ensure_login_raises_on_hard_login_wall(monkeypatch):
+    fake = install_fake(monkeypatch, None)
+    monkeypatch.setattr(settings, "threads_username", "u")
+    fake.default_password_input = True
+    fake.default_redirect_to = "https://www.threads.com/login"
+    with pytest.raises(ThreadsError) as exc_info:
+        BrowserSession().ensure_login()
+    assert exc_info.value.code == ThreadsErrorCode.LOGIN_REQUIRED
+    assert not [event for event in fake.events if event[0] in {"fill", "click"}]
+
+
+def test_ensure_login_accepts_trusted_session(monkeypatch):
+    fake = install_fake(monkeypatch, None)
+    monkeypatch.setattr(settings, "threads_username", "u")
+    fake.default_authenticated_markers = ['[data-x="compose"]']
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", ['[data-x="compose"]'])
+    session = BrowserSession()
+    session.ensure_login()
+    assert session._logged_in is True
+
+
+def test_ensure_login_does_not_block_when_markers_undecided(monkeypatch):
+    """AUTHENTICATED_MARKERS kosong + tidak ada tombol login -> crawl tetap jalan."""
+    install_fake(monkeypatch, None)
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", [])
+    monkeypatch.setattr(settings, "threads_username", "u")
+    session = BrowserSession()
+    session.ensure_login()
+    assert session._logged_in is True
+
+
+def test_configured_markers_are_valid_css():
+    """':text()' dkk (pseudo Playwright) akan dilempar querySelector -> marker mati diam."""
+    import re
+
+    for selector in (
+        *client_module.AUTHENTICATED_MARKERS,
+        *client_module.UNAUTHENTICATED_MARKERS,
+    ):
+        assert not re.search(r":(text|has-text|visible)\b", selector), selector
+
+
+def test_real_markers_detect_logged_in_session(monkeypatch):
+    """Marker produksi (href /insights/ dan /saved/) menandai sesi tepercaya."""
+    fake = install_fake(monkeypatch, None)
+    fake.default_state = "articles"
+    fake.default_authenticated_markers = ['a[href="/insights/"]']
+    page = BrowserSession().fetch(URL)
+    assert page.session_trusted is True
+    assert page.session_markers == ('a[href="/insights/"]',)

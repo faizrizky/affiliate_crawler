@@ -12,6 +12,11 @@ from app.platforms.threads.parser import parse_threads_html
 log = get_logger()
 
 
+# Sesi yang benar-benar degraded tidak sembuh dengan diulang; satu retry cukup
+# untuk menyingkirkan kebetulan (render belum selesai), setelah itu naikkan.
+SESSION_DEGRADED_ATTEMPTS = 2
+
+
 def _backoff_delay(attempt: int) -> float:
     return settings.threads_retry_backoff_seconds * (2 ** (attempt - 1))
 
@@ -31,10 +36,30 @@ def threads_search(keyword: str, limit: int = 20) -> list[dict]:
 def _search_once(keyword: str, limit: int) -> list[dict]:
     attempts = max(1, settings.threads_search_attempts)
     ambiguous: ThreadsError | None = None
+    degraded_attempts = 0
     for attempt in range(1, attempts + 1):
         try:
             page = fetch_search_page(keyword)
         except ThreadsError as exc:
+            if exc.code == ThreadsErrorCode.SESSION_DEGRADED:
+                degraded_attempts += 1
+                if degraded_attempts >= SESSION_DEGRADED_ATTEMPTS:
+                    log.warning(
+                        "threads_search_session_degraded",
+                        keyword=keyword,
+                        attempt=attempt,
+                        attempts_used=degraded_attempts,
+                    )
+                    raise
+                delay = _backoff_delay(attempt)
+                log.warning(
+                    "threads_search_session_degraded_retry",
+                    keyword=keyword,
+                    attempt=attempt,
+                    delay=delay,
+                )
+                time.sleep(delay)
+                continue
             if exc.retryable and attempt < attempts:
                 delay = _backoff_delay(attempt)
                 log.warning(
@@ -74,6 +99,36 @@ def _search_once(keyword: str, limit: int) -> list[dict]:
                 "Set CRAWLER_THREADS_BROWSER_PROFILE to a logged-in browser profile.",
                 status_code=403,
             )
+        if page.session_trusted is False:
+            # Struktur halaman normal tapi sesi tidak dipercaya dan tidak ada
+            # satu pun post yang terparse: jangan pura-pura "tidak ada hasil".
+            degraded_attempts += 1
+            degraded = ThreadsError(
+                ThreadsErrorCode.SESSION_DEGRADED,
+                "Threads served a normal search page without a trusted session "
+                f"and no results (markers={list(page.session_markers) or 'none'}). "
+                "Log the browser profile in again; retrying will not help.",
+                retryable=True,
+                status_code=403,
+            )
+            if degraded_attempts >= SESSION_DEGRADED_ATTEMPTS:
+                log.warning(
+                    "threads_search_session_degraded",
+                    keyword=keyword,
+                    attempt=attempt,
+                    empty_results=result.empty_results,
+                    markers=list(page.session_markers),
+                )
+                raise degraded
+            delay = _backoff_delay(attempt)
+            log.warning(
+                "threads_search_session_degraded_retry",
+                keyword=keyword,
+                attempt=attempt,
+                delay=delay,
+            )
+            time.sleep(delay)
+            continue
         if result.empty_results:
             # 'empty' sudah dikonfirmasi network-idle upstream (client menunggu
             # request data search selesai sebelum final), jadi [] adalah final.

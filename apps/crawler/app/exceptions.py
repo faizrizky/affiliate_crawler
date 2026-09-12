@@ -9,6 +9,11 @@ class ThreadsErrorCode:
     REQUEST_FAILED = "THREADS_REQUEST_FAILED"
     RENDER_FAILED = "THREADS_RENDER_FAILED"
     CHALLENGE = "THREADS_CHALLENGE"
+    # Struktur halaman normal (tidak ada redirect /login, tidak ada form
+    # password) tapi sesi tidak dipercaya Threads: hasil search kosong/terbatas
+    # padahal akun yang benar-benar login mengembalikan hasil. Beda dari
+    # LOGIN_REQUIRED yang merupakan hard wall.
+    SESSION_DEGRADED = "THREADS_SESSION_DEGRADED"
     UNSUPPORTED_STRUCTURE = "THREADS_UNSUPPORTED_STRUCTURE"
 
 

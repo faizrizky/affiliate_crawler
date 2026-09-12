@@ -166,3 +166,62 @@ def test_proxy_server_logged_not_credentials(monkeypatch):
         flat = " ".join(str(value) for value in entry.values())
         assert "proxyuser" not in flat
         assert "proxypass" not in flat
+
+
+def degraded_page(html: str) -> FetchedPage:
+    page = make_page(html)
+    page.session_trusted = False
+    page.session_markers = ('[aria-label="Login"]',)
+    return page
+
+
+def session_degraded_error() -> ThreadsError:
+    return ThreadsError(
+        ThreadsErrorCode.SESSION_DEGRADED,
+        "degraded",
+        retryable=True,
+        status_code=403,
+    )
+
+
+def test_session_degraded_from_fetch_retries_once_then_raises(monkeypatch):
+    calls = run_search(
+        monkeypatch,
+        [session_degraded_error(), session_degraded_error(), session_degraded_error()],
+    )
+    with pytest.raises(ThreadsError) as exc_info:
+        spider.threads_search("gatal")
+    assert exc_info.value.code == ThreadsErrorCode.SESSION_DEGRADED
+    # 1 percobaan + 1 retry, tidak sampai attempts(3)
+    assert calls["fetch"] == 2
+    assert len(calls["sleeps"]) == 1
+
+
+def test_session_degraded_recovers_on_retry(monkeypatch):
+    calls = run_search(
+        monkeypatch,
+        [session_degraded_error(), make_page(relay_html(f"[{POST}]"))],
+    )
+    posts = spider.threads_search("gatal")
+    assert [p["external_id"] for p in posts] == ["123"]
+    assert calls["fetch"] == 2
+
+
+def test_empty_page_untrusted_session_raises_instead_of_empty_list(monkeypatch):
+    """Sesi tidak dipercaya + nol hasil tidak boleh diam-diam jadi []."""
+    calls = run_search(
+        monkeypatch,
+        [degraded_page(relay_html("[]")), degraded_page(relay_html("[]"))],
+    )
+    with pytest.raises(ThreadsError) as exc_info:
+        spider.threads_search("gatal")
+    assert exc_info.value.code == ThreadsErrorCode.SESSION_DEGRADED
+    assert calls["fetch"] == 2
+
+
+def test_trusted_session_empty_still_returns_empty_list(monkeypatch):
+    page = make_page(relay_html("[]"))
+    page.session_trusted = True
+    calls = run_search(monkeypatch, [page])
+    assert spider.threads_search("xkqzjvwrt98765") == []
+    assert calls["fetch"] == 1

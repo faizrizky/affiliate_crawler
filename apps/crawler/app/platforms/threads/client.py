@@ -13,11 +13,16 @@ from structlog import get_logger
 from app.config.settings import settings
 from app.exceptions import ThreadsError, ThreadsErrorCode
 from app.platforms.threads import socks_relay
-from app.platforms.threads.selectors import CONTENT_MARKERS
+from app.platforms.threads.selectors import (
+    AUTHENTICATED_MARKERS,
+    CONTENT_MARKERS,
+    UNAUTHENTICATED_MARKERS,
+)
 
 log = get_logger()
 
 SEARCH_URL = "https://www.threads.com/search?q={keyword}"
+HOME_URL = "https://www.threads.com/"
 LOGIN_URL = "https://www.threads.com/login"
 
 PAGE_STATE_JS = """
@@ -51,6 +56,49 @@ PAGE_STATE_JS = """
 """
 
 
+SESSION_STATE_JS = """
+(markers) => {
+  const present = (list) => list.filter((sel) => {
+    try { return document.querySelector(sel) !== null; } catch { return false; }
+  });
+  return {
+    authenticated: present(markers.authenticated),
+    unauthenticated: present(markers.unauthenticated),
+  };
+}
+"""
+
+
+def session_trust(page: Any) -> tuple[bool | None, list[str]]:
+    """Return (trusted, markers_seen).
+
+    trusted is True/False when the DOM answers it, None when neither list can
+    decide (no positive marker configured and no login affordance on screen).
+    """
+    try:
+        found = page.evaluate(
+            SESSION_STATE_JS,
+            {
+                "authenticated": list(AUTHENTICATED_MARKERS),
+                "unauthenticated": list(UNAUTHENTICATED_MARKERS),
+            },
+        ) or {}
+    except Exception:
+        return None, []
+    authenticated = list(found.get("authenticated") or [])
+    unauthenticated = list(found.get("unauthenticated") or [])
+    if unauthenticated:
+        return False, unauthenticated
+    if authenticated:
+        return True, authenticated
+    # Tidak ada penanda login DAN daftar penanda positif terisi -> sesi tidak
+    # dipercaya. Kalau daftar positif masih kosong, biarkan undecided daripada
+    # menuduh sesi rusak tanpa bukti.
+    if AUTHENTICATED_MARKERS:
+        return False, []
+    return None, []
+
+
 @dataclass
 class FetchedPage:
     html: str
@@ -58,6 +106,9 @@ class FetchedPage:
     status_code: int
     rendered: bool
     page_state: str = "unknown"
+    # None = tidak bisa disimpulkan dari DOM (lihat session_trust)
+    session_trusted: bool | None = None
+    session_markers: tuple[str, ...] = ()
 
 
 # State yang terminal dan boleh langsung final tanpa konfirmasi network-idle:
@@ -188,11 +239,19 @@ class BrowserSession:
         return self.browser.new_context(**self.context_options()), True
 
     def ensure_login(self) -> None:
-        """Login IG/Threads sekali per proses; profil persisten menyimpan session.
+        """Verifikasi sesi profil persisten — TIDAK PERNAH mengisi/submit form login.
 
-        ponytail: deteksi via probe URL (bukan sniff cookie). Challenge IG
-        tidak bisa diselesaikan headless — raise CHALLENGE supaya operator
-        tahu profil perlu login ulang secara manual.
+        ponytail: auto-login (isi username+password lalu klik submit) dihapus
+        2026-09-12. Submit otomatis yang berulang — tiap restart proses dan tiap
+        crawl selama sesi belum valid, lewat proxy yang bisa berganti IP — adalah
+        pemicu klasik checkpoint 2FA Instagram, dan mengulanginya justru membuat
+        akun makin dicurigai. Login dilakukan MANUAL sekali lewat VNC ke profil
+        persisten; kode di sini hanya memeriksa hasilnya lalu berhenti dengan
+        LOGIN_REQUIRED bila sesi tidak valid.
+
+        CRAWLER_THREADS_USERNAME sekarang berfungsi sebagai saklar pemeriksaan
+        ini (bukan kredensial yang dipakai login); CRAWLER_THREADS_PASSWORD tidak
+        lagi dibaca oleh alur login mana pun.
         """
         if self._logged_in or not settings.threads_username:
             return
@@ -201,81 +260,65 @@ class BrowserSession:
         context, owned = self.acquire()
         page = context.new_page()
         try:
-            # commit: halaman login IG berat, DCL bisa >30s; polling di bawah yang
-            # menunggu form siap
-            page.goto(LOGIN_URL, wait_until="commit",
-                      timeout=settings.threads_browser_timeout * 1000)
-            deadline = time.monotonic() + 20
-            while time.monotonic() < deadline:
-                if page.query_selector('input[type="password"]'):
-                    break
-                if "/login" not in (page.url or ""):
-                    self._logged_in = True
-                    log.info("threads_login_already_authenticated", url=page.url)
-                    return
-                time.sleep(0.5)
-            username = page.query_selector('input[name="username"]') or page.query_selector('input[type="text"]')
-            password = page.query_selector('input[type="password"]')
-            if not (username and password):
-                body = (page.inner_text("body") or "").lower()
-                if any(m in body for m in ("verifying", "unusual activity", "selesaikan")):
-                    raise ThreadsError(
-                        ThreadsErrorCode.CHALLENGE,
-                        "challenge page saat login; selesaikan manual lalu restart crawler",
-                        status_code=503,
-                    )
+            page.goto(
+                HOME_URL,
+                wait_until="domcontentloaded",
+                timeout=settings.threads_browser_timeout * 1000,
+            )
+            trusted, markers = self._probe_session(page)
+            final_url = page.url or HOME_URL
+            hard_wall = "/login" in urlparse(final_url).path or bool(
+                page.query_selector('input[type="password"]')
+            )
+            if hard_wall:
                 raise ThreadsError(
                     ThreadsErrorCode.LOGIN_REQUIRED,
-                    f"login form tidak ditemukan di {page.url}",
+                    "Profil browser belum login (Threads menampilkan login wall). "
+                    "Login manual sekali ke profil persisten "
+                    f"({settings.threads_browser_profile}) lalu jalankan "
+                    "scripts/check_session.py untuk memastikan. "
+                    "Crawler tidak akan mencoba login sendiri.",
                     status_code=403,
                 )
-            username.fill(settings.threads_username)
-            password.fill(settings.threads_password or "")
-            # CTA login adalah div[role=button] (bukan <button>); form punya
-            # <input type=submit> tersembunyi yang dipicu lewat React
-            page.click('form div[role="button"]')
-            try:
-                page.wait_for_url(lambda u: "/login" not in u, timeout=30_000)
-            except Exception:
-                body = (page.inner_text("body") or "").lower()
-                if any(m in body for m in ("unusual activity", "verifying", "selesaikan", "confirm this is you")):
-                    raise ThreadsError(
-                        ThreadsErrorCode.CHALLENGE,
-                        "IG challenge setelah submit login; selesaikan manual lalu restart crawler",
-                        status_code=503,
-                    )
+            if trusted is False:
                 raise ThreadsError(
                     ThreadsErrorCode.LOGIN_REQUIRED,
-                    f"login gagal, stuck di {page.url}",
+                    "Profil browser tidak dalam keadaan login "
+                    f"(markers={list(markers) or 'tombol login terdeteksi'}). "
+                    "Login manual sekali ke profil persisten "
+                    f"({settings.threads_browser_profile}); "
+                    "crawler tidak akan mencoba login sendiri.",
                     status_code=403,
                 )
-            page.goto("https://www.threads.com/", wait_until="commit",
-                      timeout=settings.threads_browser_timeout * 1000)
-            # tanpa sesi valid, threads.com home redirect ke /login — tunggu URL
-            # stabil lalu cek login wall
-            last_url, settled = page.url or "", 0
-            deadline = time.monotonic() + 15
-            while time.monotonic() < deadline:
-                url = page.url or ""
-                if "/login" in url or page.query_selector('input[type="password"]'):
-                    raise ThreadsError(
-                        ThreadsErrorCode.LOGIN_REQUIRED,
-                        "login submitted tapi threads.com masih meminta login",
-                        status_code=403,
-                    )
-                if url == last_url:
-                    settled += 1
-                    if settled >= 2:
-                        break
-                else:
-                    last_url, settled = url, 0
-                time.sleep(0.5)
+            # trusted True, atau None (belum bisa disimpulkan karena
+            # AUTHENTICATED_MARKERS masih kosong) — jangan blokir crawl hanya
+            # karena penanda positif belum terpasang.
             self._logged_in = True
-            log.info("threads_login_ok", final_url=page.url)
+            log.info(
+                "threads_session_verified",
+                final_url=final_url,
+                session_trusted=trusted,
+                markers=list(markers),
+            )
         finally:
             page.close()
             if owned:
                 context.close()
+
+    @staticmethod
+    def _probe_session(page: Any) -> tuple[bool | None, tuple[str, ...]]:
+        """Tunggu nav selesai render lalu baca penanda sesi (read-only)."""
+        deadline = time.monotonic() + min(15.0, settings.threads_content_wait)
+        trusted: bool | None = None
+        markers: list[str] = []
+        while time.monotonic() < deadline:
+            trusted, markers = session_trust(page)
+            if trusted is not None:
+                break
+            if page.query_selector('input[type="password"]'):
+                break
+            time.sleep(0.5)
+        return trusted, tuple(markers)
 
     def fetch(self, url: str) -> FetchedPage:
         if self.playwright is None:
@@ -347,12 +390,34 @@ class BrowserSession:
                     status_code=503,
                 )
             time.sleep(0.5)
+            trusted, markers = session_trust(page)
+            log.info(
+                "threads_session_trust",
+                page_state=state,
+                session_trusted=trusted,
+                markers=markers,
+                positive_markers_configured=len(AUTHENTICATED_MARKERS),
+            )
+            if state == "empty" and trusted is False:
+                # Halaman search normal (bukan redirect /login, bukan form
+                # password) tapi kosong DAN sesi tidak dipercaya: ini bukan
+                # "keyword tanpa hasil".
+                raise ThreadsError(
+                    ThreadsErrorCode.SESSION_DEGRADED,
+                    "Threads returned an empty search page with no trusted session "
+                    f"(markers={markers or 'none'}). Log the browser profile in again; "
+                    "retrying will not help.",
+                    retryable=True,
+                    status_code=403,
+                )
             return FetchedPage(
                 html=page.content(),
                 final_url=final_url,
                 status_code=200,
                 rendered=True,
                 page_state=state,
+                session_trusted=trusted,
+                session_markers=tuple(markers),
             )
         finally:
             for event, handler in listeners:
