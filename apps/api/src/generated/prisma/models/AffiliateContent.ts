@@ -38,6 +38,7 @@ export type AffiliateContentMinAggregateOutputType = {
   topicId: string | null
   userId: string | null
   threadPostId: string | null
+  linkId: string | null
 }
 
 export type AffiliateContentMaxAggregateOutputType = {
@@ -54,6 +55,7 @@ export type AffiliateContentMaxAggregateOutputType = {
   topicId: string | null
   userId: string | null
   threadPostId: string | null
+  linkId: string | null
 }
 
 export type AffiliateContentCountAggregateOutputType = {
@@ -70,6 +72,7 @@ export type AffiliateContentCountAggregateOutputType = {
   topicId: number
   userId: number
   threadPostId: number
+  linkId: number
   _all: number
 }
 
@@ -88,6 +91,7 @@ export type AffiliateContentMinAggregateInputType = {
   topicId?: true
   userId?: true
   threadPostId?: true
+  linkId?: true
 }
 
 export type AffiliateContentMaxAggregateInputType = {
@@ -104,6 +108,7 @@ export type AffiliateContentMaxAggregateInputType = {
   topicId?: true
   userId?: true
   threadPostId?: true
+  linkId?: true
 }
 
 export type AffiliateContentCountAggregateInputType = {
@@ -120,6 +125,7 @@ export type AffiliateContentCountAggregateInputType = {
   topicId?: true
   userId?: true
   threadPostId?: true
+  linkId?: true
   _all?: true
 }
 
@@ -209,6 +215,7 @@ export type AffiliateContentGroupByOutputType = {
   topicId: string | null
   userId: string | null
   threadPostId: string | null
+  linkId: string | null
   _count: AffiliateContentCountAggregateOutputType | null
   _min: AffiliateContentMinAggregateOutputType | null
   _max: AffiliateContentMaxAggregateOutputType | null
@@ -246,10 +253,12 @@ export type AffiliateContentWhereInput = {
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   threadPostId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  linkId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   template?: Prisma.XOR<Prisma.TemplateScalarRelationFilter, Prisma.TemplateWhereInput>
   topic?: Prisma.XOR<Prisma.TopicNullableScalarRelationFilter, Prisma.TopicWhereInput> | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   threadPost?: Prisma.XOR<Prisma.ThreadPostNullableScalarRelationFilter, Prisma.ThreadPostWhereInput> | null
+  link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
 }
 
 export type AffiliateContentOrderByWithRelationInput = {
@@ -266,10 +275,12 @@ export type AffiliateContentOrderByWithRelationInput = {
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   threadPostId?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   template?: Prisma.TemplateOrderByWithRelationInput
   topic?: Prisma.TopicOrderByWithRelationInput
   user?: Prisma.UserOrderByWithRelationInput
   threadPost?: Prisma.ThreadPostOrderByWithRelationInput
+  link?: Prisma.AffiliateLinkOrderByWithRelationInput
 }
 
 export type AffiliateContentWhereUniqueInput = Prisma.AtLeast<{
@@ -289,10 +300,12 @@ export type AffiliateContentWhereUniqueInput = Prisma.AtLeast<{
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   threadPostId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  linkId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   template?: Prisma.XOR<Prisma.TemplateScalarRelationFilter, Prisma.TemplateWhereInput>
   topic?: Prisma.XOR<Prisma.TopicNullableScalarRelationFilter, Prisma.TopicWhereInput> | null
   user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
   threadPost?: Prisma.XOR<Prisma.ThreadPostNullableScalarRelationFilter, Prisma.ThreadPostWhereInput> | null
+  link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
 }, "id">
 
 export type AffiliateContentOrderByWithAggregationInput = {
@@ -309,6 +322,7 @@ export type AffiliateContentOrderByWithAggregationInput = {
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
   threadPostId?: Prisma.SortOrderInput | Prisma.SortOrder
+  linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.AffiliateContentCountOrderByAggregateInput
   _max?: Prisma.AffiliateContentMaxOrderByAggregateInput
   _min?: Prisma.AffiliateContentMinOrderByAggregateInput
@@ -331,6 +345,7 @@ export type AffiliateContentScalarWhereWithAggregatesInput = {
   topicId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
   threadPostId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
+  linkId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
 }
 
 export type AffiliateContentCreateInput = {
@@ -347,6 +362,7 @@ export type AffiliateContentCreateInput = {
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
+  link?: Prisma.AffiliateLinkCreateNestedOneWithoutAffiliateContentsInput
 }
 
 export type AffiliateContentUncheckedCreateInput = {
@@ -363,6 +379,7 @@ export type AffiliateContentUncheckedCreateInput = {
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateInput = {
@@ -379,6 +396,7 @@ export type AffiliateContentUpdateInput = {
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
+  link?: Prisma.AffiliateLinkUpdateOneWithoutAffiliateContentsNestedInput
 }
 
 export type AffiliateContentUncheckedUpdateInput = {
@@ -395,6 +413,7 @@ export type AffiliateContentUncheckedUpdateInput = {
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentCreateManyInput = {
@@ -411,6 +430,7 @@ export type AffiliateContentCreateManyInput = {
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateManyMutationInput = {
@@ -439,6 +459,7 @@ export type AffiliateContentUncheckedUpdateManyInput = {
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentListRelationFilter = {
@@ -465,6 +486,7 @@ export type AffiliateContentCountOrderByAggregateInput = {
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   threadPostId?: Prisma.SortOrder
+  linkId?: Prisma.SortOrder
 }
 
 export type AffiliateContentMaxOrderByAggregateInput = {
@@ -481,6 +503,7 @@ export type AffiliateContentMaxOrderByAggregateInput = {
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   threadPostId?: Prisma.SortOrder
+  linkId?: Prisma.SortOrder
 }
 
 export type AffiliateContentMinOrderByAggregateInput = {
@@ -497,6 +520,7 @@ export type AffiliateContentMinOrderByAggregateInput = {
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
   threadPostId?: Prisma.SortOrder
+  linkId?: Prisma.SortOrder
 }
 
 export type AffiliateContentCreateNestedManyWithoutUserInput = {
@@ -667,6 +691,48 @@ export type AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput = {
   deleteMany?: Prisma.AffiliateContentScalarWhereInput | Prisma.AffiliateContentScalarWhereInput[]
 }
 
+export type AffiliateContentCreateNestedManyWithoutLinkInput = {
+  create?: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput> | Prisma.AffiliateContentCreateWithoutLinkInput[] | Prisma.AffiliateContentUncheckedCreateWithoutLinkInput[]
+  connectOrCreate?: Prisma.AffiliateContentCreateOrConnectWithoutLinkInput | Prisma.AffiliateContentCreateOrConnectWithoutLinkInput[]
+  createMany?: Prisma.AffiliateContentCreateManyLinkInputEnvelope
+  connect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+}
+
+export type AffiliateContentUncheckedCreateNestedManyWithoutLinkInput = {
+  create?: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput> | Prisma.AffiliateContentCreateWithoutLinkInput[] | Prisma.AffiliateContentUncheckedCreateWithoutLinkInput[]
+  connectOrCreate?: Prisma.AffiliateContentCreateOrConnectWithoutLinkInput | Prisma.AffiliateContentCreateOrConnectWithoutLinkInput[]
+  createMany?: Prisma.AffiliateContentCreateManyLinkInputEnvelope
+  connect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+}
+
+export type AffiliateContentUpdateManyWithoutLinkNestedInput = {
+  create?: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput> | Prisma.AffiliateContentCreateWithoutLinkInput[] | Prisma.AffiliateContentUncheckedCreateWithoutLinkInput[]
+  connectOrCreate?: Prisma.AffiliateContentCreateOrConnectWithoutLinkInput | Prisma.AffiliateContentCreateOrConnectWithoutLinkInput[]
+  upsert?: Prisma.AffiliateContentUpsertWithWhereUniqueWithoutLinkInput | Prisma.AffiliateContentUpsertWithWhereUniqueWithoutLinkInput[]
+  createMany?: Prisma.AffiliateContentCreateManyLinkInputEnvelope
+  set?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  disconnect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  delete?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  connect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  update?: Prisma.AffiliateContentUpdateWithWhereUniqueWithoutLinkInput | Prisma.AffiliateContentUpdateWithWhereUniqueWithoutLinkInput[]
+  updateMany?: Prisma.AffiliateContentUpdateManyWithWhereWithoutLinkInput | Prisma.AffiliateContentUpdateManyWithWhereWithoutLinkInput[]
+  deleteMany?: Prisma.AffiliateContentScalarWhereInput | Prisma.AffiliateContentScalarWhereInput[]
+}
+
+export type AffiliateContentUncheckedUpdateManyWithoutLinkNestedInput = {
+  create?: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput> | Prisma.AffiliateContentCreateWithoutLinkInput[] | Prisma.AffiliateContentUncheckedCreateWithoutLinkInput[]
+  connectOrCreate?: Prisma.AffiliateContentCreateOrConnectWithoutLinkInput | Prisma.AffiliateContentCreateOrConnectWithoutLinkInput[]
+  upsert?: Prisma.AffiliateContentUpsertWithWhereUniqueWithoutLinkInput | Prisma.AffiliateContentUpsertWithWhereUniqueWithoutLinkInput[]
+  createMany?: Prisma.AffiliateContentCreateManyLinkInputEnvelope
+  set?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  disconnect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  delete?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  connect?: Prisma.AffiliateContentWhereUniqueInput | Prisma.AffiliateContentWhereUniqueInput[]
+  update?: Prisma.AffiliateContentUpdateWithWhereUniqueWithoutLinkInput | Prisma.AffiliateContentUpdateWithWhereUniqueWithoutLinkInput[]
+  updateMany?: Prisma.AffiliateContentUpdateManyWithWhereWithoutLinkInput | Prisma.AffiliateContentUpdateManyWithWhereWithoutLinkInput[]
+  deleteMany?: Prisma.AffiliateContentScalarWhereInput | Prisma.AffiliateContentScalarWhereInput[]
+}
+
 export type EnumAffiliateContentStatusFieldUpdateOperationsInput = {
   set?: $Enums.AffiliateContentStatus
 }
@@ -684,6 +750,7 @@ export type AffiliateContentCreateWithoutUserInput = {
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
+  link?: Prisma.AffiliateLinkCreateNestedOneWithoutAffiliateContentsInput
 }
 
 export type AffiliateContentUncheckedCreateWithoutUserInput = {
@@ -699,6 +766,7 @@ export type AffiliateContentUncheckedCreateWithoutUserInput = {
   templateId: string
   topicId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentCreateOrConnectWithoutUserInput = {
@@ -744,6 +812,7 @@ export type AffiliateContentScalarWhereInput = {
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   threadPostId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  linkId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
 }
 
 export type AffiliateContentCreateWithoutTopicInput = {
@@ -759,6 +828,7 @@ export type AffiliateContentCreateWithoutTopicInput = {
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
+  link?: Prisma.AffiliateLinkCreateNestedOneWithoutAffiliateContentsInput
 }
 
 export type AffiliateContentUncheckedCreateWithoutTopicInput = {
@@ -774,6 +844,7 @@ export type AffiliateContentUncheckedCreateWithoutTopicInput = {
   templateId: string
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentCreateOrConnectWithoutTopicInput = {
@@ -815,6 +886,7 @@ export type AffiliateContentCreateWithoutThreadPostInput = {
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
+  link?: Prisma.AffiliateLinkCreateNestedOneWithoutAffiliateContentsInput
 }
 
 export type AffiliateContentUncheckedCreateWithoutThreadPostInput = {
@@ -830,6 +902,7 @@ export type AffiliateContentUncheckedCreateWithoutThreadPostInput = {
   templateId: string
   topicId?: string | null
   userId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentCreateOrConnectWithoutThreadPostInput = {
@@ -871,6 +944,7 @@ export type AffiliateContentCreateWithoutTemplateInput = {
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
+  link?: Prisma.AffiliateLinkCreateNestedOneWithoutAffiliateContentsInput
 }
 
 export type AffiliateContentUncheckedCreateWithoutTemplateInput = {
@@ -886,6 +960,7 @@ export type AffiliateContentUncheckedCreateWithoutTemplateInput = {
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentCreateOrConnectWithoutTemplateInput = {
@@ -914,6 +989,64 @@ export type AffiliateContentUpdateManyWithWhereWithoutTemplateInput = {
   data: Prisma.XOR<Prisma.AffiliateContentUpdateManyMutationInput, Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateInput>
 }
 
+export type AffiliateContentCreateWithoutLinkInput = {
+  id?: string
+  product: string
+  category?: string | null
+  context?: string | null
+  affiliateLink?: string | null
+  content: string
+  status?: $Enums.AffiliateContentStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
+  topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
+  user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
+  threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
+}
+
+export type AffiliateContentUncheckedCreateWithoutLinkInput = {
+  id?: string
+  product: string
+  category?: string | null
+  context?: string | null
+  affiliateLink?: string | null
+  content: string
+  status?: $Enums.AffiliateContentStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  templateId: string
+  topicId?: string | null
+  userId?: string | null
+  threadPostId?: string | null
+}
+
+export type AffiliateContentCreateOrConnectWithoutLinkInput = {
+  where: Prisma.AffiliateContentWhereUniqueInput
+  create: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput>
+}
+
+export type AffiliateContentCreateManyLinkInputEnvelope = {
+  data: Prisma.AffiliateContentCreateManyLinkInput | Prisma.AffiliateContentCreateManyLinkInput[]
+  skipDuplicates?: boolean
+}
+
+export type AffiliateContentUpsertWithWhereUniqueWithoutLinkInput = {
+  where: Prisma.AffiliateContentWhereUniqueInput
+  update: Prisma.XOR<Prisma.AffiliateContentUpdateWithoutLinkInput, Prisma.AffiliateContentUncheckedUpdateWithoutLinkInput>
+  create: Prisma.XOR<Prisma.AffiliateContentCreateWithoutLinkInput, Prisma.AffiliateContentUncheckedCreateWithoutLinkInput>
+}
+
+export type AffiliateContentUpdateWithWhereUniqueWithoutLinkInput = {
+  where: Prisma.AffiliateContentWhereUniqueInput
+  data: Prisma.XOR<Prisma.AffiliateContentUpdateWithoutLinkInput, Prisma.AffiliateContentUncheckedUpdateWithoutLinkInput>
+}
+
+export type AffiliateContentUpdateManyWithWhereWithoutLinkInput = {
+  where: Prisma.AffiliateContentScalarWhereInput
+  data: Prisma.XOR<Prisma.AffiliateContentUpdateManyMutationInput, Prisma.AffiliateContentUncheckedUpdateManyWithoutLinkInput>
+}
+
 export type AffiliateContentCreateManyUserInput = {
   id?: string
   product: string
@@ -927,6 +1060,7 @@ export type AffiliateContentCreateManyUserInput = {
   templateId: string
   topicId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateWithoutUserInput = {
@@ -942,6 +1076,7 @@ export type AffiliateContentUpdateWithoutUserInput = {
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
+  link?: Prisma.AffiliateLinkUpdateOneWithoutAffiliateContentsNestedInput
 }
 
 export type AffiliateContentUncheckedUpdateWithoutUserInput = {
@@ -957,6 +1092,7 @@ export type AffiliateContentUncheckedUpdateWithoutUserInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentUncheckedUpdateManyWithoutUserInput = {
@@ -972,6 +1108,7 @@ export type AffiliateContentUncheckedUpdateManyWithoutUserInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentCreateManyTopicInput = {
@@ -987,6 +1124,7 @@ export type AffiliateContentCreateManyTopicInput = {
   templateId: string
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateWithoutTopicInput = {
@@ -1002,6 +1140,7 @@ export type AffiliateContentUpdateWithoutTopicInput = {
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
+  link?: Prisma.AffiliateLinkUpdateOneWithoutAffiliateContentsNestedInput
 }
 
 export type AffiliateContentUncheckedUpdateWithoutTopicInput = {
@@ -1017,6 +1156,7 @@ export type AffiliateContentUncheckedUpdateWithoutTopicInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentUncheckedUpdateManyWithoutTopicInput = {
@@ -1032,6 +1172,7 @@ export type AffiliateContentUncheckedUpdateManyWithoutTopicInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentCreateManyThreadPostInput = {
@@ -1047,6 +1188,7 @@ export type AffiliateContentCreateManyThreadPostInput = {
   templateId: string
   topicId?: string | null
   userId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateWithoutThreadPostInput = {
@@ -1062,6 +1204,7 @@ export type AffiliateContentUpdateWithoutThreadPostInput = {
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
+  link?: Prisma.AffiliateLinkUpdateOneWithoutAffiliateContentsNestedInput
 }
 
 export type AffiliateContentUncheckedUpdateWithoutThreadPostInput = {
@@ -1077,6 +1220,7 @@ export type AffiliateContentUncheckedUpdateWithoutThreadPostInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentUncheckedUpdateManyWithoutThreadPostInput = {
@@ -1092,6 +1236,7 @@ export type AffiliateContentUncheckedUpdateManyWithoutThreadPostInput = {
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentCreateManyTemplateInput = {
@@ -1107,6 +1252,7 @@ export type AffiliateContentCreateManyTemplateInput = {
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
+  linkId?: string | null
 }
 
 export type AffiliateContentUpdateWithoutTemplateInput = {
@@ -1122,6 +1268,7 @@ export type AffiliateContentUpdateWithoutTemplateInput = {
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
+  link?: Prisma.AffiliateLinkUpdateOneWithoutAffiliateContentsNestedInput
 }
 
 export type AffiliateContentUncheckedUpdateWithoutTemplateInput = {
@@ -1137,6 +1284,7 @@ export type AffiliateContentUncheckedUpdateWithoutTemplateInput = {
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 export type AffiliateContentUncheckedUpdateManyWithoutTemplateInput = {
@@ -1149,6 +1297,71 @@ export type AffiliateContentUncheckedUpdateManyWithoutTemplateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type AffiliateContentCreateManyLinkInput = {
+  id?: string
+  product: string
+  category?: string | null
+  context?: string | null
+  affiliateLink?: string | null
+  content: string
+  status?: $Enums.AffiliateContentStatus
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  templateId: string
+  topicId?: string | null
+  userId?: string | null
+  threadPostId?: string | null
+}
+
+export type AffiliateContentUpdateWithoutLinkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  product?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  context?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affiliateLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
+  topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
+  user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
+  threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
+}
+
+export type AffiliateContentUncheckedUpdateWithoutLinkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  product?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  context?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affiliateLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  templateId?: Prisma.StringFieldUpdateOperationsInput | string
+  topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+}
+
+export type AffiliateContentUncheckedUpdateManyWithoutLinkInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  product?: Prisma.StringFieldUpdateOperationsInput | string
+  category?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  context?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affiliateLink?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1170,10 +1383,12 @@ export type AffiliateContentSelect<ExtArgs extends runtime.Types.Extensions.Inte
   topicId?: boolean
   userId?: boolean
   threadPostId?: boolean
+  linkId?: boolean
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }, ExtArgs["result"]["affiliateContent"]>
 
 export type AffiliateContentSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1190,10 +1405,12 @@ export type AffiliateContentSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   topicId?: boolean
   userId?: boolean
   threadPostId?: boolean
+  linkId?: boolean
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }, ExtArgs["result"]["affiliateContent"]>
 
 export type AffiliateContentSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1210,10 +1427,12 @@ export type AffiliateContentSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   topicId?: boolean
   userId?: boolean
   threadPostId?: boolean
+  linkId?: boolean
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }, ExtArgs["result"]["affiliateContent"]>
 
 export type AffiliateContentSelectScalar = {
@@ -1230,26 +1449,30 @@ export type AffiliateContentSelectScalar = {
   topicId?: boolean
   userId?: boolean
   threadPostId?: boolean
+  linkId?: boolean
 }
 
-export type AffiliateContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "product" | "category" | "context" | "affiliateLink" | "content" | "status" | "createdAt" | "updatedAt" | "templateId" | "topicId" | "userId" | "threadPostId", ExtArgs["result"]["affiliateContent"]>
+export type AffiliateContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "product" | "category" | "context" | "affiliateLink" | "content" | "status" | "createdAt" | "updatedAt" | "templateId" | "topicId" | "userId" | "threadPostId" | "linkId", ExtArgs["result"]["affiliateContent"]>
 export type AffiliateContentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }
 export type AffiliateContentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }
 export type AffiliateContentIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
   user?: boolean | Prisma.AffiliateContent$userArgs<ExtArgs>
   threadPost?: boolean | Prisma.AffiliateContent$threadPostArgs<ExtArgs>
+  link?: boolean | Prisma.AffiliateContent$linkArgs<ExtArgs>
 }
 
 export type $AffiliateContentPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1259,6 +1482,7 @@ export type $AffiliateContentPayload<ExtArgs extends runtime.Types.Extensions.In
     topic: Prisma.$TopicPayload<ExtArgs> | null
     user: Prisma.$UserPayload<ExtArgs> | null
     threadPost: Prisma.$ThreadPostPayload<ExtArgs> | null
+    link: Prisma.$AffiliateLinkPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1274,6 +1498,7 @@ export type $AffiliateContentPayload<ExtArgs extends runtime.Types.Extensions.In
     topicId: string | null
     userId: string | null
     threadPostId: string | null
+    linkId: string | null
   }, ExtArgs["result"]["affiliateContent"]>
   composites: {}
 }
@@ -1672,6 +1897,7 @@ export interface Prisma__AffiliateContentClient<T, Null = never, ExtArgs extends
   topic<T extends Prisma.AffiliateContent$topicArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateContent$topicArgs<ExtArgs>>): Prisma.Prisma__TopicClient<runtime.Types.Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   user<T extends Prisma.AffiliateContent$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateContent$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   threadPost<T extends Prisma.AffiliateContent$threadPostArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateContent$threadPostArgs<ExtArgs>>): Prisma.Prisma__ThreadPostClient<runtime.Types.Result.GetResult<Prisma.$ThreadPostPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  link<T extends Prisma.AffiliateContent$linkArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateContent$linkArgs<ExtArgs>>): Prisma.Prisma__AffiliateLinkClient<runtime.Types.Result.GetResult<Prisma.$AffiliateLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1714,6 +1940,7 @@ export interface AffiliateContentFieldRefs {
   readonly topicId: Prisma.FieldRef<"AffiliateContent", 'String'>
   readonly userId: Prisma.FieldRef<"AffiliateContent", 'String'>
   readonly threadPostId: Prisma.FieldRef<"AffiliateContent", 'String'>
+  readonly linkId: Prisma.FieldRef<"AffiliateContent", 'String'>
 }
     
 
@@ -2169,6 +2396,25 @@ export type AffiliateContent$threadPostArgs<ExtArgs extends runtime.Types.Extens
    */
   include?: Prisma.ThreadPostInclude<ExtArgs> | null
   where?: Prisma.ThreadPostWhereInput
+}
+
+/**
+ * AffiliateContent.link
+ */
+export type AffiliateContent$linkArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AffiliateLink
+   */
+  select?: Prisma.AffiliateLinkSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AffiliateLink
+   */
+  omit?: Prisma.AffiliateLinkOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AffiliateLinkInclude<ExtArgs> | null
+  where?: Prisma.AffiliateLinkWhereInput
 }
 
 /**

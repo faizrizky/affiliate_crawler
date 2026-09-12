@@ -1,6 +1,6 @@
 "use client";
 
-import type { AffiliateLink } from "@aff/types";
+import type { AffiliateLinkListItem } from "@aff/types";
 import { AnimatePresence, motion } from "framer-motion";
 import { ExternalLink, Link2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
@@ -8,6 +8,8 @@ import { toast } from "sonner";
 import { listItem, listStagger } from "@/animations/list-motion";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { EmptyState } from "@/common/empty-state";
+import { SelectCheckbox } from "@/common/select-checkbox";
+import { SelectionBar } from "@/common/selection-bar";
 import { useClientPagination } from "@/hooks/use-client-pagination";
 import { useLinks } from "@/hooks/use-links";
 import { formatTimeAgo } from "@/lib/utils";
@@ -17,16 +19,81 @@ import { Card } from "@/ui/card";
 import { Skeleton } from "@/ui/skeleton";
 import { LinkEditor } from "./link-editor";
 
+/** Modal hapus harus jujur soal dampaknya: referensi jadi kosong, bukan ikut terhapus. */
+function deleteDescription(link: AffiliateLinkListItem): string {
+  const templates = link._count?.templates ?? 0;
+  const drafts = link._count?.affiliateContents ?? 0;
+  const used: string[] = [];
+  if (templates > 0) used.push(`${templates} template`);
+  if (drafts > 0) used.push(`${drafts} draft`);
+  if (used.length === 0) {
+    return `"${link.name}" akan dihapus permanen.`;
+  }
+  return (
+    `"${link.name}" dipakai ${used.join(" dan ")}. ` +
+    "Kalau dihapus, link pada template/draft itu jadi kosong (isinya tidak ikut terhapus), " +
+    "dan teks draft yang sudah digenerate tetap utuh."
+  );
+}
+
+function bulkDeleteDescription(links: AffiliateLinkListItem[]): string {
+  const templates = links.reduce((n, l) => n + (l._count?.templates ?? 0), 0);
+  const drafts = links.reduce(
+    (n, l) => n + (l._count?.affiliateContents ?? 0),
+    0,
+  );
+  const used: string[] = [];
+  if (templates > 0) used.push(`${templates} template`);
+  if (drafts > 0) used.push(`${drafts} draft`);
+  if (used.length === 0) {
+    return "Link yang dipilih akan dihapus permanen.";
+  }
+  return (
+    `Link yang dipilih dipakai ${used.join(" dan ")}. ` +
+    "Kalau dihapus, link pada template/draft itu jadi kosong (isinya tidak ikut terhapus), " +
+    "dan teks draft yang sudah digenerate tetap utuh."
+  );
+}
+
 export function LinkList() {
   const { links, deleteLink } = useLinks();
   const [editorOpen, setEditorOpen] = useState(false);
-  const [editing, setEditing] = useState<AffiliateLink | null>(null);
-  const [deleteTarget, setDeleteTarget] = useState<AffiliateLink | null>(null);
+  const [editing, setEditing] = useState<AffiliateLinkListItem | null>(null);
+  const [deleteTarget, setDeleteTarget] =
+    useState<AffiliateLinkListItem | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const list = links.data?.links ?? [];
   const { page, setPage, pageSize, setPageSize, totalPages, visible } =
     useClientPagination(list, "links");
 
-  const openEditor = (link: AffiliateLink | null) => {
+  const selected = list.filter((link) => selectedIds.includes(link.id));
+
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+
+  const deleteSelected = async () => {
+    setBulkDeleting(true);
+    // allSettled: satu link gagal dihapus tidak boleh membatalkan sisanya —
+    // laporkan apa adanya biar user tahu mana yang masih ada.
+    const results = await Promise.allSettled(
+      selected.map((link) => deleteLink.mutateAsync(link.id)),
+    );
+    const failed = results.filter((r) => r.status === "rejected").length;
+    setBulkDeleting(false);
+    setBulkDeleteOpen(false);
+    setSelectedIds([]);
+    if (failed === 0) {
+      toast.success(`${results.length} link dihapus`);
+    } else {
+      toast.error(`${failed} dari ${results.length} link gagal dihapus`);
+    }
+  };
+
+  const openEditor = (link: AffiliateLinkListItem | null) => {
     setEditing(link);
     setEditorOpen(true);
   };
@@ -70,7 +137,17 @@ export function LinkList() {
             >
               {visible.map((link) => (
                 <motion.li key={link.id} variants={listItem}>
-                  <Card className="flex flex-wrap items-center gap-x-4 gap-y-3 border-transparent p-4 shadow-[0_10px_30px_-22px_rgba(140,30,60,0.45)] sm:p-5">
+                  <Card
+                    onClick={() => toggleSelect(link.id)}
+                    className={`flex cursor-pointer flex-wrap items-center gap-x-4 gap-y-3 border-transparent p-4 shadow-[0_10px_30px_-22px_rgba(140,30,60,0.45)] sm:p-5 ${
+                      selectedIds.includes(link.id) ? "ring-2 ring-primary" : ""
+                    }`}
+                  >
+                    <SelectCheckbox
+                      checked={selectedIds.includes(link.id)}
+                      onToggle={() => toggleSelect(link.id)}
+                      label={link.name}
+                    />
                     <div
                       aria-hidden
                       className="flex h-11 w-11 shrink-0 items-center justify-center rounded-full bg-secondary text-secondary-foreground"
@@ -85,6 +162,7 @@ export function LinkList() {
                         href={link.url}
                         target="_blank"
                         rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
                         className="mt-0.5 inline-flex max-w-full items-center gap-1 truncate text-xs font-medium text-primary hover:underline"
                       >
                         <ExternalLink className="h-3 w-3 shrink-0" />
@@ -99,7 +177,10 @@ export function LinkList() {
                         type="button"
                         title="Edit link"
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => openEditor(link)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          openEditor(link);
+                        }}
                         className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
                       >
                         <Pencil className="h-4 w-4" />
@@ -108,7 +189,10 @@ export function LinkList() {
                         type="button"
                         title="Hapus link"
                         whileTap={{ scale: 0.9 }}
-                        onClick={() => setDeleteTarget(link)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          setDeleteTarget(link);
+                        }}
                         className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-destructive"
                       >
                         <Trash2 className="h-4 w-4" />
@@ -142,6 +226,28 @@ export function LinkList() {
         />
       )}
 
+      <SelectionBar count={selected.length} onCancel={() => setSelectedIds([])}>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setBulkDeleteOpen(true)}
+        >
+          Hapus
+        </Button>
+      </SelectionBar>
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title={`Hapus ${selected.length} link?`}
+        description={bulkDeleteDescription(selected)}
+        confirmLabel="Hapus"
+        cancelLabel="Batal"
+        destructive
+        loading={bulkDeleting}
+        onConfirm={deleteSelected}
+      />
+
       <LinkEditor
         open={editorOpen}
         link={editing}
@@ -155,12 +261,9 @@ export function LinkList() {
         open={deleteTarget != null}
         onOpenChange={(open) => !open && setDeleteTarget(null)}
         title="Hapus link?"
-        description={
-          deleteTarget
-            ? `"${deleteTarget.name}" akan dihapus permanen.`
-            : undefined
-        }
+        description={deleteTarget ? deleteDescription(deleteTarget) : undefined}
         confirmLabel="Hapus"
+        cancelLabel="Batal"
         destructive
         loading={deleteLink.isPending}
         onConfirm={confirmDelete}

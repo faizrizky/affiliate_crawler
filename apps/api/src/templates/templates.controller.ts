@@ -22,6 +22,12 @@ class TemplateCreateDto {
   @IsString()
   @IsNotEmpty()
   content: string;
+
+  // Wajib untuk template baru. Kolomnya tetap nullable di DB karena template
+  // lama dibuat sebelum katalog link ada.
+  @IsString()
+  @IsNotEmpty()
+  linkId: string;
 }
 
 class TemplateUpdateDto {
@@ -35,6 +41,11 @@ class TemplateUpdateDto {
   @IsString()
   @IsNotEmpty()
   content?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  linkId?: string;
 }
 
 function extractVariables(content: string): string[] {
@@ -58,7 +69,13 @@ export class TemplatesController {
   @Post()
   create(@Body() dto: TemplateCreateDto, @CurrentUser() user: JwtPayload) {
     const variables = extractVariables(dto.content);
-    return this.templates.create(dto.name, dto.content, variables, user.sub);
+    return this.templates.create(
+      dto.name,
+      dto.content,
+      variables,
+      dto.linkId,
+      user.sub,
+    );
   }
 
   @Patch(":id")

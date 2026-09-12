@@ -98,7 +98,13 @@ model Template {
   user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId            String?
 
+  // Nullable karena template lama dibuat sebelum katalog link ada; API
+  // mewajibkan linkId pada create/update baru.
+  linkId String?
+  link   AffiliateLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
+
   @@index([userId])
+  @@index([linkId])
 }
 
 // Katalog link produk affiliate yang dipakai ulang lintas template/draft.
@@ -114,6 +120,11 @@ model AffiliateLink {
 
   userId String?
   user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  // Hapus link tidak menghapus template/draft: referensinya di-set NULL.
+  // Teks draft tetap utuh karena URL-nya sudah tertanam saat digenerate.
+  templates         Template[]
+  affiliateContents AffiliateContent[]
 
   @@index([userId])
 }
@@ -141,10 +152,14 @@ model AffiliateContent {
   threadPostId String?
   threadPost   ThreadPost? @relation(fields: [threadPostId], references: [id], onDelete: SetNull)
 
+  linkId String?
+  link   AffiliateLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
+
   @@index([templateId])
   @@index([topicId])
   @@index([userId])
   @@index([threadPostId])
+  @@index([linkId])
 }
 
 model CrawlJob {

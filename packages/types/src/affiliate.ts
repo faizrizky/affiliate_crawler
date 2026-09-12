@@ -13,6 +13,7 @@ export interface AffiliateContent {
   templateId: string;
   topicId: string | null;
   threadPostId: string | null;
+  linkId: string | null;
 }
 
 export interface AffiliateContentListItem extends AffiliateContent {
@@ -20,6 +21,12 @@ export interface AffiliateContentListItem extends AffiliateContent {
     id: string;
     name: string;
   };
+  /** null kalau link-nya sudah dihapus; affiliateLink menyimpan URL snapshot. */
+  link: {
+    id: string;
+    name: string;
+    url: string;
+  } | null;
   threadPost: {
     id: string;
     sourceUrl: string;
@@ -41,22 +48,22 @@ export interface AffiliateContentUpdateInput {
 
 export interface AffiliateGenerateInput {
   templateId: string;
+  linkId: string;
   topicId?: string;
   threadPostId?: string;
   product: string;
   category?: string;
   context?: string;
-  affiliateLink?: string;
 }
 
 export interface AffiliateGenerateBatchInput {
   templateId: string;
+  linkId: string;
   threadPostIds: string[];
   topicId?: string;
   product: string;
   category?: string;
   context?: string;
-  affiliateLink?: string;
 }
 
 export interface AffiliateGenerateBatchResult {

@@ -14,6 +14,11 @@ export class LinksService {
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
+        // Dipakai modal hapus: user diberi tahu berapa template/draft yang
+        // referensinya akan jadi NULL sebelum menghapus.
+        include: {
+          _count: { select: { templates: true, affiliateContents: true } },
+        },
       }),
       this.prisma.affiliateLink.count(),
     ]);
@@ -61,9 +66,9 @@ export class LinksService {
 
   async remove(id: string) {
     await this.get(id);
-    // Link belum direferensikan Template/AffiliateContent (lihat schema), jadi
-    // tidak ada pengecekan 409 "masih dipakai" di sini. Tambahkan saat relasi
-    // linkId dipasang.
+    // Tidak memblokir saat link masih dipakai: relasi di Template dan
+    // AffiliateContent memakai onDelete: SetNull, dan UI sudah menampilkan
+    // jumlah pemakaian di modal konfirmasi sebelum sampai ke sini.
     await this.prisma.affiliateLink.delete({ where: { id } });
   }
 

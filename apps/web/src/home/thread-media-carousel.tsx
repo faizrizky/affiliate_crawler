@@ -1,6 +1,7 @@
 "use client";
 
 import { useRef, useState } from "react";
+import { proxiedImage } from "@/lib/image";
 
 export function ThreadMediaCarousel({
   urls,
@@ -44,7 +45,7 @@ export function ThreadMediaCarousel({
     ) : (
       <img
         key={url}
-        src={url}
+        src={proxiedImage(url) ?? url}
         alt={alt}
         loading="lazy"
         onError={() => setFailed((m) => ({ ...m, [i]: true }))}

@@ -1034,7 +1034,8 @@ export const TemplateScalarFieldEnum = {
   isDefault: 'isDefault',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt',
-  userId: 'userId'
+  userId: 'userId',
+  linkId: 'linkId'
 } as const
 
 export type TemplateScalarFieldEnum = (typeof TemplateScalarFieldEnum)[keyof typeof TemplateScalarFieldEnum]
@@ -1065,7 +1066,8 @@ export const AffiliateContentScalarFieldEnum = {
   templateId: 'templateId',
   topicId: 'topicId',
   userId: 'userId',
-  threadPostId: 'threadPostId'
+  threadPostId: 'threadPostId',
+  linkId: 'linkId'
 } as const
 
 export type AffiliateContentScalarFieldEnum = (typeof AffiliateContentScalarFieldEnum)[keyof typeof AffiliateContentScalarFieldEnum]

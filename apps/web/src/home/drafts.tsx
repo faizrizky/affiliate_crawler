@@ -16,6 +16,7 @@ import { CopyButton } from "@/common/copy-button";
 import { EditDraftDialog, STATUS_LABELS } from "@/home/edit-draft-dialog";
 import { useAffiliateContents } from "@/hooks/use-affiliate";
 import { copyText } from "@/lib/clipboard";
+import { proxiedImage } from "@/lib/image";
 import { cn, formatTimeAgo } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
@@ -32,7 +33,7 @@ function Avatar({ draft }: { draft: AffiliateContentListItem }) {
     draft.threadPost?.authorDisplayName ??
     draft.threadPost?.authorUsername ??
     draft.product;
-  const url = draft.threadPost?.authorAvatarUrl;
+  const url = proxiedImage(draft.threadPost?.authorAvatarUrl);
 
   if (url && !failed) {
     return (
@@ -166,6 +167,14 @@ export function Drafts() {
                     <p className="mt-0.5 truncate text-xs text-muted-foreground">
                       {draft.template.name} · {formatTimeAgo(draft.createdAt)}
                     </p>
+                    {draft.link && (
+                      <p
+                        className="mt-0.5 truncate text-xs font-medium text-primary"
+                        title={draft.link.url}
+                      >
+                        {draft.link.name}
+                      </p>
+                    )}
                   </div>
 
                   <div className="order-last w-full min-w-0 xl:order-4 xl:w-auto xl:flex-1">

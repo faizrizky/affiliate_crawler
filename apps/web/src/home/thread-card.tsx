@@ -15,6 +15,7 @@ import {
 } from "lucide-react";
 import { useState } from "react";
 import { listItem } from "@/animations/list-motion";
+import { proxiedImage } from "@/lib/image";
 import { formatCount, formatTimeAgo } from "@/lib/utils";
 import { Card } from "@/ui/card";
 import { ThreadMediaCarousel } from "./thread-media-carousel";
@@ -35,6 +36,7 @@ export function ThreadCard({
   onToggleSelect?: (postId: string) => void;
 }) {
   const [avatarFailed, setAvatarFailed] = useState(false);
+  const avatar = proxiedImage(post.authorAvatarUrl);
   const media = post.mediaUrls ?? [];
   const name = post.authorDisplayName ?? post.authorUsername;
   const initials = name.slice(0, 2).toUpperCase();
@@ -78,9 +80,9 @@ export function ThreadCard({
         )}
 
         <div className={`flex items-center gap-3 ${selectMode ? "pl-7" : ""}`}>
-          {post.authorAvatarUrl && !avatarFailed ? (
+          {avatar && !avatarFailed ? (
             <img
-              src={post.authorAvatarUrl}
+              src={avatar}
               alt={name}
               loading="lazy"
               onError={() => setAvatarFailed(true)}

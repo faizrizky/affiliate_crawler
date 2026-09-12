@@ -18,10 +18,12 @@ import {
 } from "@/ui/dialog";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
+import { LinkSelector } from "@/links/link-selector";
 import { Textarea } from "@/ui/textarea";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Max 100 characters"),
+  linkId: z.string().min(1, "Pilih link produk"),
   content: z
     .string()
     .trim()
@@ -38,20 +40,24 @@ export function TemplateEditor() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", content: "" },
+    defaultValues: { name: "", content: "", linkId: "" },
   });
   const {
     register,
     reset,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors, isSubmitting },
   } = form;
+  const linkId = watch("linkId");
 
   useEffect(() => {
     if (editorOpen) {
       reset({
         name: editingTemplate?.name ?? "",
         content: editingTemplate?.content ?? "",
+        linkId: editingTemplate?.linkId ?? "",
       });
     }
   }, [editorOpen, editingTemplate, reset]);
@@ -115,6 +121,15 @@ export function TemplateEditor() {
               </p>
             )}
           </div>
+          <LinkSelector
+            id="template-link"
+            value={linkId}
+            onChange={(next) =>
+              setValue("linkId", next, { shouldValidate: true })
+            }
+            error={errors.linkId?.message}
+          />
+
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closeEditor}>
               Cancel

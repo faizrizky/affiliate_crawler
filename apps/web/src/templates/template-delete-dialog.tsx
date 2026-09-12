@@ -4,6 +4,7 @@ import { toast } from "sonner";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { useTemplates } from "@/hooks/use-templates";
 import { useTemplateStore } from "@/stores/template-store";
+import { describeTemplateDelete } from "./template-delete-copy";
 
 export function TemplateDeleteDialog() {
   const deleteTarget = useTemplateStore((s) => s.deleteTarget);
@@ -16,9 +17,7 @@ export function TemplateDeleteDialog() {
       onOpenChange={(open) => !open && setDeleteTarget(null)}
       title="Delete template?"
       description={
-        deleteTarget
-          ? `"${deleteTarget.name}" will be permanently deleted.`
-          : undefined
+        deleteTarget ? describeTemplateDelete([deleteTarget]) : undefined
       }
       confirmLabel="Delete"
       destructive

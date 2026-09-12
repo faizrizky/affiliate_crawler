@@ -3,7 +3,11 @@ import {
   useQuery,
   useQueryClient,
 } from "@tanstack/react-query";
-import type { Template } from "@aff/types";
+import type {
+  Template,
+  TemplateCreateInput,
+  TemplateUpdateInput,
+} from "@aff/types";
 import { apiFetch } from "@/lib/api";
 
 const TEMPLATES_KEY = ["templates"];
@@ -24,7 +28,7 @@ export function useTemplates() {
     queryClient.invalidateQueries({ queryKey: TEMPLATES_KEY });
 
   const createTemplate = useMutation({
-    mutationFn: async (input: { name: string; content: string }) => {
+    mutationFn: async (input: TemplateCreateInput) => {
       const data = await apiFetch<Template>("/templates", {
         method: "POST",
         body: JSON.stringify(input),
@@ -36,11 +40,7 @@ export function useTemplates() {
   });
 
   const updateTemplate = useMutation({
-    mutationFn: async (input: {
-      id: string;
-      name?: string;
-      content?: string;
-    }) => {
+    mutationFn: async (input: TemplateUpdateInput & { id: string }) => {
       const { id, ...body } = input;
       const data = await apiFetch<Template>(`/templates/${id}`, {
         method: "PATCH",

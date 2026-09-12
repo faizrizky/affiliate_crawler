@@ -29,6 +29,11 @@ class GenerateContentDto {
   @IsNotEmpty()
   templateId: string;
 
+  // Wajib: link produk diambil dari katalog AffiliateLink, bukan teks bebas.
+  @IsString()
+  @IsNotEmpty()
+  linkId: string;
+
   @IsOptional()
   @IsString()
   @IsNotEmpty()
@@ -63,6 +68,10 @@ class GenerateBatchDto {
   @IsString()
   @IsNotEmpty()
   templateId: string;
+
+  @IsString()
+  @IsNotEmpty()
+  linkId: string;
 
   @IsArray()
   @ArrayNotEmpty()
@@ -157,6 +166,12 @@ export class AffiliateController {
     if (!template) {
       throw new NotFoundException("Template not found");
     }
+    const link = await this.prisma.affiliateLink.findUnique({
+      where: { id: dto.linkId },
+    });
+    if (!link) {
+      throw new NotFoundException("Link not found");
+    }
 
     let topicId = dto.topicId;
 
@@ -177,20 +192,23 @@ export class AffiliateController {
       }
     }
 
+    // affiliateLink tetap disimpan sebagai snapshot URL saat generate: draft
+    // harus tetap terbaca walau link-nya kelak dihapus (linkId jadi NULL).
     return this.prisma.affiliateContent.create({
       data: {
         product: dto.product,
         category: dto.category,
         context: dto.context,
-        affiliateLink: dto.affiliateLink,
-        content: renderTemplate(template.content, dto),
+        affiliateLink: link.url,
+        content: renderTemplate(template.content, { ...dto, affiliateLink: link.url }),
         status: "DRAFT",
         templateId: dto.templateId,
+        linkId: link.id,
         topicId,
         threadPostId: dto.threadPostId,
         userId: user.sub,
       },
-      include: { template: true },
+      include: { template: true, link: true },
     });
   }
 
@@ -205,6 +223,12 @@ export class AffiliateController {
     });
     if (!template) {
       throw new NotFoundException("Template not found");
+    }
+    const link = await this.prisma.affiliateLink.findUnique({
+      where: { id: dto.linkId },
+    });
+    if (!link) {
+      throw new NotFoundException("Link not found");
     }
 
     if (dto.topicId) {
@@ -230,15 +254,19 @@ export class AffiliateController {
             product: dto.product,
             category: dto.category,
             context: dto.context,
-            affiliateLink: dto.affiliateLink,
-            content: renderTemplate(template.content, dto),
+            affiliateLink: link.url,
+            content: renderTemplate(template.content, {
+              ...dto,
+              affiliateLink: link.url,
+            }),
             status: "DRAFT",
             templateId: dto.templateId,
+            linkId: link.id,
             topicId: post.topicId ?? dto.topicId,
             threadPostId: post.id,
             userId: user.sub,
           },
-          include: { template: true },
+          include: { template: true, link: true },
         }),
       ),
     );
@@ -252,6 +280,7 @@ export class AffiliateController {
       orderBy: { createdAt: "desc" },
       include: {
         template: { select: { id: true, name: true } },
+        link: { select: { id: true, name: true, url: true } },
         threadPost: {
           select: {
             id: true,

@@ -11,6 +11,7 @@ import {
   WandSparkles,
 } from "lucide-react";
 import { useState } from "react";
+import { proxiedImage } from "@/lib/image";
 import { formatCount, formatTimeAgo } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import {
@@ -35,6 +36,7 @@ export function ThreadPreviewDialog({
 }) {
   const [avatarFailed, setAvatarFailed] = useState(false);
   const name = post?.authorDisplayName ?? post?.authorUsername ?? "";
+  const avatar = proxiedImage(post?.authorAvatarUrl);
 
   return (
     <Dialog open={post != null} onOpenChange={onOpenChange}>
@@ -50,9 +52,9 @@ export function ThreadPreviewDialog({
 
             <div className="flex max-h-[60vh] flex-col gap-3 overflow-y-auto pr-1">
               <div className="flex items-center gap-3">
-                {post.authorAvatarUrl && !avatarFailed ? (
+                {avatar && !avatarFailed ? (
                   <img
-                    src={post.authorAvatarUrl}
+                    src={avatar}
                     alt={name}
                     loading="lazy"
                     onError={() => setAvatarFailed(true)}
@@ -109,26 +111,24 @@ export function ThreadPreviewDialog({
                   </span>
                 )}
               </div>
-
-              <a
-                href={post.sourceUrl}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="inline-flex items-center gap-1.5 text-xs font-medium text-muted-foreground transition-colors hover:text-foreground"
-              >
-                <ExternalLink className="h-3.5 w-3.5" />
-                View on Threads
-              </a>
             </div>
 
-            <DialogFooter>
-              <Button variant="outline" onClick={() => onOpenChange(false)}>
-                Tutup
+            <DialogFooter className="flex-wrap items-center justify-between gap-3">
+              <Button variant="outline" asChild>
+                <a href={post.sourceUrl} target="_blank" rel="noopener noreferrer">
+                  <ExternalLink />
+                  View on Threads
+                </a>
               </Button>
-              <Button onClick={() => onSelectTemplate(post)}>
-                <WandSparkles />
-                Select Template
-              </Button>
+              <div className="flex items-center gap-2">
+                <Button variant="ghost" onClick={() => onOpenChange(false)}>
+                  Tutup
+                </Button>
+                <Button onClick={() => onSelectTemplate(post)}>
+                  <WandSparkles />
+                  Select Template
+                </Button>
+              </div>
             </DialogFooter>
           </>
         )}

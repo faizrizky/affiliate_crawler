@@ -6,6 +6,8 @@ import { useState } from "react";
 import { toast } from "sonner";
 import { useAffiliateContents } from "@/hooks/use-affiliate";
 import { useTemplates } from "@/hooks/use-templates";
+import { useLinks } from "@/hooks/use-links";
+import { LinkSelector } from "@/links/link-selector";
 import { renderTemplate } from "@/lib/template";
 import { Button } from "@/ui/button";
 import {
@@ -19,24 +21,22 @@ import {
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
 
+// Link tidak lagi teks bebas: diambil dari katalog lewat LinkSelector.
 const OPTIONAL_FIELDS = [
   { key: "category", variable: "category", label: "Kategori" },
   { key: "context", variable: "context", label: "Konteks" },
-  { key: "affiliateLink", variable: "affiliate_link", label: "Link Affiliate" },
 ] as const;
 
 type Values = {
   product: string;
   category: string;
   context: string;
-  affiliateLink: string;
 };
 
 const EMPTY_VALUES: Values = {
   product: "",
   category: "",
   context: "",
-  affiliateLink: "",
 };
 
 export function ApplyTemplateDialog({
@@ -54,9 +54,12 @@ export function ApplyTemplateDialog({
   const { templates } = useTemplates();
   const { generateContent, generateBatchContent } = useAffiliateContents();
   const templateList = templates.data ?? [];
+  const { links } = useLinks();
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
+  const [selectedLinkId, setSelectedLinkId] = useState("");
   const [values, setValues] = useState<Values>(EMPTY_VALUES);
   const [productError, setProductError] = useState(false);
+  const [linkError, setLinkError] = useState(false);
 
   const template =
     templateList.find((t) => t.id === selectedTemplateId) ??
@@ -71,12 +74,16 @@ export function ApplyTemplateDialog({
       )
     : OPTIONAL_FIELDS;
 
+  // Link default ikut template yang dipilih, tapi user tetap boleh menggantinya.
+  const linkId = selectedLinkId || template?.linkId || "";
+  const link = (links.data?.links ?? []).find((l) => l.id === linkId);
+
   const preview = template
     ? renderTemplate(template.content, {
         product: values.product,
         category: values.category,
         context: values.context,
-        affiliate_link: values.affiliateLink,
+        affiliate_link: link?.url ?? "",
       })
     : "";
 
@@ -91,12 +98,16 @@ export function ApplyTemplateDialog({
       setProductError(true);
       return;
     }
+    if (!linkId) {
+      setLinkError(true);
+      return;
+    }
     const payload = {
       templateId: template.id,
+      linkId,
       product: values.product.trim(),
       category: values.category.trim() || undefined,
       context: values.context.trim() || undefined,
-      affiliateLink: values.affiliateLink.trim() || undefined,
     };
     const onSuccess = (n: number) => {
       toast.success(`${n} draft dibuat`, {
@@ -180,6 +191,16 @@ export function ApplyTemplateDialog({
                 </p>
               )}
             </div>
+
+            <LinkSelector
+              id="generate-link"
+              value={linkId}
+              onChange={(next) => {
+                setSelectedLinkId(next);
+                if (next) setLinkError(false);
+              }}
+              error={linkError ? "Pilih link produk dulu" : undefined}
+            />
 
             {visibleFields.map((f) => (
               <div key={f.key} className="flex flex-col gap-1.5">

@@ -16,6 +16,7 @@ export function ConfirmDialog({
   title,
   description,
   confirmLabel = "Confirm",
+  cancelLabel = "Cancel",
   destructive,
   loading,
   onConfirm,
@@ -25,6 +26,7 @@ export function ConfirmDialog({
   title: string;
   description?: string;
   confirmLabel?: string;
+  cancelLabel?: string;
   destructive?: boolean;
   loading?: boolean;
   onConfirm: () => void;
@@ -42,7 +44,7 @@ export function ConfirmDialog({
             disabled={loading}
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            {cancelLabel}
           </Button>
           <Button
             variant={destructive ? "destructive" : "default"}
