@@ -34,4 +34,7 @@ async function proxy(req: NextRequest) {
 export const GET = proxy;
 export const POST = proxy;
 export const PUT = proxy;
+// PATCH dipakai update template dan update link; tanpa ekspor ini Next
+// membalas 405 sebelum request sampai ke API.
+export const PATCH = proxy;
 export const DELETE = proxy;

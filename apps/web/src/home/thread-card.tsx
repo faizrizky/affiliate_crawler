@@ -22,12 +22,14 @@ import { ThreadMediaCarousel } from "./thread-media-carousel";
 export function ThreadCard({
   post,
   onApplyTemplate,
+  onOpenPreview,
   selectMode = false,
   selected = false,
   onToggleSelect,
 }: {
   post: ThreadPost;
   onApplyTemplate?: (post: ThreadPost) => void;
+  onOpenPreview?: (post: ThreadPost) => void;
   selectMode?: boolean;
   selected?: boolean;
   onToggleSelect?: (postId: string) => void;
@@ -42,12 +44,21 @@ export function ThreadCard({
     onToggleSelect?.(post.id);
   };
 
+  // Select mode: klik = pilih. Di luar itu: klik = buka preview (Flow A).
+  const cardClick = selectMode
+    ? onToggleSelect
+      ? toggle
+      : undefined
+    : onOpenPreview
+      ? () => onOpenPreview(post)
+      : undefined;
+
   return (
     <motion.li variants={listItem} className="h-full">
       <Card
-        onClick={selectMode && onToggleSelect ? toggle : undefined}
+        onClick={cardClick}
         className={`relative flex h-full flex-col border-transparent p-6 shadow-[0_10px_30px_-18px_rgba(140,30,60,0.45)] ${
-          selectMode ? "cursor-pointer" : ""
+          cardClick ? "cursor-pointer" : ""
         } ${selected ? "ring-2 ring-primary" : ""}`}
       >
         {selectMode && (
@@ -150,7 +161,10 @@ export function ThreadCard({
           {onApplyTemplate && !selectMode && (
             <button
               type="button"
-              onClick={() => onApplyTemplate(post)}
+              onClick={(e) => {
+                e.stopPropagation();
+                onApplyTemplate(post);
+              }}
               className="inline-flex shrink-0 items-center gap-1.5 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
             >
               <WandSparkles className="h-3.5 w-3.5" />

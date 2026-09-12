@@ -1,12 +1,12 @@
 "use client";
 
-import { FileText, Home } from "lucide-react";
+import { FileText, Home, Inbox, Link2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const ICONS = [Home, FileText];
+const ICONS = [Home, FileText, Link2, Inbox];
 
 export function BottomNav() {
   const pathname = usePathname();
@@ -25,12 +25,12 @@ export function BottomNav() {
               href={item.href}
               aria-current={active ? "page" : undefined}
               className={cn(
-                "flex flex-1 flex-col items-center gap-1 rounded-2xl py-1 text-xs font-semibold transition-colors",
+                "flex flex-1 flex-col items-center gap-1 rounded-2xl px-1 py-1 text-[11px] font-semibold transition-colors",
                 active ? "text-primary" : "text-muted-foreground",
               )}
             >
               <Icon
-                className={cn("h-6 w-6", active && "fill-primary/15")}
+                className={cn("h-5 w-5", active && "fill-primary/15")}
                 strokeWidth={active ? 2.4 : 2}
               />
               {item.label}

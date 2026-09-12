@@ -1,12 +1,12 @@
 "use client";
 
-import { FileText, Home } from "lucide-react";
+import { FileText, Home, Inbox, Link2 } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
 
-const ICONS = [Home, FileText];
+const ICONS = [Home, FileText, Link2, Inbox];
 
 export function DesktopSidebar() {
   const pathname = usePathname();

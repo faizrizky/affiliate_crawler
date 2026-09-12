@@ -401,6 +401,7 @@ export const ModelName = {
   Topic: 'Topic',
   ThreadPost: 'ThreadPost',
   Template: 'Template',
+  AffiliateLink: 'AffiliateLink',
   AffiliateContent: 'AffiliateContent',
   CrawlJob: 'CrawlJob'
 } as const
@@ -418,7 +419,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "topic" | "threadPost" | "template" | "affiliateContent" | "crawlJob"
+    modelProps: "user" | "topic" | "threadPost" | "template" | "affiliateLink" | "affiliateContent" | "crawlJob"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -718,6 +719,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    AffiliateLink: {
+      payload: Prisma.$AffiliateLinkPayload<ExtArgs>
+      fields: Prisma.AffiliateLinkFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.AffiliateLinkFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.AffiliateLinkFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        findFirst: {
+          args: Prisma.AffiliateLinkFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.AffiliateLinkFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        findMany: {
+          args: Prisma.AffiliateLinkFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>[]
+        }
+        create: {
+          args: Prisma.AffiliateLinkCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        createMany: {
+          args: Prisma.AffiliateLinkCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.AffiliateLinkCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>[]
+        }
+        delete: {
+          args: Prisma.AffiliateLinkDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        update: {
+          args: Prisma.AffiliateLinkUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        deleteMany: {
+          args: Prisma.AffiliateLinkDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.AffiliateLinkUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.AffiliateLinkUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>[]
+        }
+        upsert: {
+          args: Prisma.AffiliateLinkUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$AffiliateLinkPayload>
+        }
+        aggregate: {
+          args: Prisma.AffiliateLinkAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateAffiliateLink>
+        }
+        groupBy: {
+          args: Prisma.AffiliateLinkGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AffiliateLinkGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.AffiliateLinkCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AffiliateLinkCountAggregateOutputType> | number
+        }
+      }
+    }
     AffiliateContent: {
       payload: Prisma.$AffiliateContentPayload<ExtArgs>
       fields: Prisma.AffiliateContentFieldRefs
@@ -963,6 +1038,18 @@ export const TemplateScalarFieldEnum = {
 } as const
 
 export type TemplateScalarFieldEnum = (typeof TemplateScalarFieldEnum)[keyof typeof TemplateScalarFieldEnum]
+
+
+export const AffiliateLinkScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type AffiliateLinkScalarFieldEnum = (typeof AffiliateLinkScalarFieldEnum)[keyof typeof AffiliateLinkScalarFieldEnum]
 
 
 export const AffiliateContentScalarFieldEnum = {
@@ -1320,6 +1407,7 @@ export type GlobalOmitConfig = {
   topic?: Prisma.TopicOmit
   threadPost?: Prisma.ThreadPostOmit
   template?: Prisma.TemplateOmit
+  affiliateLink?: Prisma.AffiliateLinkOmit
   affiliateContent?: Prisma.AffiliateContentOmit
   crawlJob?: Prisma.CrawlJobOmit
 }

@@ -38,6 +38,7 @@ model User {
   topics            Topic[]
   templates         Template[]
   affiliateContents AffiliateContent[]
+  affiliateLinks    AffiliateLink[]
 }
 
 model Topic {
@@ -96,6 +97,23 @@ model Template {
   affiliateContents AffiliateContent[]
   user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
   userId            String?
+
+  @@index([userId])
+}
+
+// Katalog link produk affiliate yang dipakai ulang lintas template/draft.
+// Berdiri sendiri untuk sekarang: belum ada relasi ke Template/AffiliateContent
+// (lihat keputusan "Link berdiri sendiri dulu"), jadi menghapus link tidak
+// memengaruhi konten yang sudah digenerate.
+model AffiliateLink {
+  id        String   @id @default(uuid())
+  name      String   @unique
+  url       String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String?
+  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
 
   @@index([userId])
 }

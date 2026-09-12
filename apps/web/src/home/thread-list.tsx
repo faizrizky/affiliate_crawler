@@ -8,12 +8,14 @@ import { ThreadCard } from "./thread-card";
 export function ThreadList({
   posts,
   onApplyTemplate,
+  onOpenPreview,
   selectMode = false,
   selectedIds = [],
   onToggleSelect,
 }: {
   posts: ThreadPost[];
   onApplyTemplate?: (post: ThreadPost) => void;
+  onOpenPreview?: (post: ThreadPost) => void;
   selectMode?: boolean;
   selectedIds?: string[];
   onToggleSelect?: (postId: string) => void;
@@ -30,6 +32,7 @@ export function ThreadList({
           key={post.id}
           post={post}
           onApplyTemplate={onApplyTemplate}
+          onOpenPreview={onOpenPreview}
           selectMode={selectMode}
           selected={selectedIds.includes(post.id)}
           onToggleSelect={onToggleSelect}

@@ -18,6 +18,7 @@ import { ApplyTemplateDialog } from "./apply-template-dialog";
 import { SearchBar } from "./search-bar";
 import { SearchProgress } from "./search-progress";
 import { ThreadCardSkeleton } from "./thread-card-skeleton";
+import { ThreadPreviewDialog } from "./thread-preview-dialog";
 import { ThreadList } from "./thread-list";
 
 const CRAWL_ERROR_MESSAGES: Record<string, string> = {
@@ -40,6 +41,7 @@ export function SearchSection() {
   const [dialog, setDialog] = useState<
     { mode: "single" | "batch"; posts: ThreadPost[] } | null
   >(null);
+  const [previewPost, setPreviewPost] = useState<ThreadPost | null>(null);
   const loading = phase === "starting" || phase === "crawling";
   const showPosts = Boolean(activeTopicId) && phase !== "starting";
   const posts = useTopicPosts(
@@ -123,6 +125,7 @@ export function SearchSection() {
                 onApplyTemplate={(post) =>
                   setDialog({ mode: "single", posts: [post] })
                 }
+                onOpenPreview={setPreviewPost}
                 selectMode={selectMode}
                 selectedIds={selectedIds}
                 onToggleSelect={toggleSelect}
@@ -191,6 +194,15 @@ export function SearchSection() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <ThreadPreviewDialog
+        post={previewPost}
+        onOpenChange={(open) => !open && setPreviewPost(null)}
+        onSelectTemplate={(post) => {
+          setPreviewPost(null);
+          setDialog({ mode: "single", posts: [post] });
+        }}
+      />
 
       {dialog && (
         <ApplyTemplateDialog

@@ -55,6 +55,7 @@ export const ModelName = {
   Topic: 'Topic',
   ThreadPost: 'ThreadPost',
   Template: 'Template',
+  AffiliateLink: 'AffiliateLink',
   AffiliateContent: 'AffiliateContent',
   CrawlJob: 'CrawlJob'
 } as const
@@ -133,6 +134,18 @@ export const TemplateScalarFieldEnum = {
 } as const
 
 export type TemplateScalarFieldEnum = (typeof TemplateScalarFieldEnum)[keyof typeof TemplateScalarFieldEnum]
+
+
+export const AffiliateLinkScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  url: 'url',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt',
+  userId: 'userId'
+} as const
+
+export type AffiliateLinkScalarFieldEnum = (typeof AffiliateLinkScalarFieldEnum)[keyof typeof AffiliateLinkScalarFieldEnum]
 
 
 export const AffiliateContentScalarFieldEnum = {
