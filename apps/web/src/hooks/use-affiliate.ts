@@ -7,6 +7,8 @@ import type {
   AffiliateContent,
   AffiliateContentListItem,
   AffiliateContentUpdateInput,
+  AffiliateGenerateBatchInput,
+  AffiliateGenerateBatchResult,
   AffiliateGenerateInput,
 } from "@aff/types";
 import { apiFetch } from "@/lib/api";
@@ -42,6 +44,18 @@ export function useAffiliateContents() {
     onSuccess: invalidate,
   });
 
+  const generateBatchContent = useMutation({
+    mutationFn: async (input: AffiliateGenerateBatchInput) => {
+      const data = await apiFetch<AffiliateGenerateBatchResult>(
+        "/affiliate/generate-batch",
+        { method: "POST", body: JSON.stringify(input) },
+      );
+      if (!data) throw new Error("Batch generate failed");
+      return data;
+    },
+    onSuccess: invalidate,
+  });
+
   const updateContent = useMutation({
     mutationFn: async ({
       id,
@@ -64,5 +78,11 @@ export function useAffiliateContents() {
     onSuccess: invalidate,
   });
 
-  return { contents, generateContent, updateContent, deleteContent };
+  return {
+    contents,
+    generateContent,
+    generateBatchContent,
+    updateContent,
+    deleteContent,
+  };
 }

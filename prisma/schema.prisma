@@ -77,6 +77,8 @@ model ThreadPost {
   topicId String
   topic   Topic  @relation(fields: [topicId], references: [id], onDelete: Cascade)
 
+  affiliateContents AffiliateContent[]
+
   @@unique([topicId, externalId])
   @@index([topicId])
   @@index([relevanceScore])
@@ -118,9 +120,13 @@ model AffiliateContent {
   userId  String?
   user    User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
 
+  threadPostId String?
+  threadPost   ThreadPost? @relation(fields: [threadPostId], references: [id], onDelete: SetNull)
+
   @@index([templateId])
   @@index([topicId])
   @@index([userId])
+  @@index([threadPostId])
 }
 
 model CrawlJob {

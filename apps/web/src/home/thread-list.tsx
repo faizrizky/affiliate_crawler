@@ -8,9 +8,15 @@ import { ThreadCard } from "./thread-card";
 export function ThreadList({
   posts,
   onApplyTemplate,
+  selectMode = false,
+  selectedIds = [],
+  onToggleSelect,
 }: {
   posts: ThreadPost[];
   onApplyTemplate?: (post: ThreadPost) => void;
+  selectMode?: boolean;
+  selectedIds?: string[];
+  onToggleSelect?: (postId: string) => void;
 }) {
   return (
     <motion.ul
@@ -24,6 +30,9 @@ export function ThreadList({
           key={post.id}
           post={post}
           onApplyTemplate={onApplyTemplate}
+          selectMode={selectMode}
+          selected={selectedIds.includes(post.id)}
+          onToggleSelect={onToggleSelect}
         />
       ))}
     </motion.ul>

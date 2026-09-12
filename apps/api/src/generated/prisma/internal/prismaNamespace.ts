@@ -977,7 +977,8 @@ export const AffiliateContentScalarFieldEnum = {
   updatedAt: 'updatedAt',
   templateId: 'templateId',
   topicId: 'topicId',
-  userId: 'userId'
+  userId: 'userId',
+  threadPostId: 'threadPostId'
 } as const
 
 export type AffiliateContentScalarFieldEnum = (typeof AffiliateContentScalarFieldEnum)[keyof typeof AffiliateContentScalarFieldEnum]

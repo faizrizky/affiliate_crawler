@@ -12,6 +12,7 @@ export interface AffiliateContent {
   updatedAt: string;
   templateId: string;
   topicId: string | null;
+  threadPostId: string | null;
 }
 
 export interface AffiliateContentListItem extends AffiliateContent {
@@ -19,6 +20,12 @@ export interface AffiliateContentListItem extends AffiliateContent {
     id: string;
     name: string;
   };
+  threadPost: {
+    id: string;
+    sourceUrl: string;
+    authorUsername: string;
+    content: string;
+  } | null;
 }
 
 export interface AffiliateContentUpdateInput {
@@ -33,8 +40,24 @@ export interface AffiliateContentUpdateInput {
 export interface AffiliateGenerateInput {
   templateId: string;
   topicId?: string;
+  threadPostId?: string;
   product: string;
   category?: string;
   context?: string;
   affiliateLink?: string;
+}
+
+export interface AffiliateGenerateBatchInput {
+  templateId: string;
+  threadPostIds: string[];
+  topicId?: string;
+  product: string;
+  category?: string;
+  context?: string;
+  affiliateLink?: string;
+}
+
+export interface AffiliateGenerateBatchResult {
+  created: AffiliateContent[];
+  skippedIds: string[];
 }

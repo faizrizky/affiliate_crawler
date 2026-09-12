@@ -3,7 +3,6 @@ import { HowItWorks } from "@/home/how-it-works";
 import { RecentTopics } from "@/home/recent-topics";
 import { SearchSection } from "@/home/search-section";
 import { Drafts } from "@/home/drafts";
-import { GenerateDialog } from "@/home/generate-dialog";
 
 export const metadata: Metadata = {
   title: "Home",
@@ -25,7 +24,6 @@ export default function HomePage() {
       <Drafts />
       <RecentTopics />
       <HowItWorks />
-      <GenerateDialog />
     </div>
   );
 }

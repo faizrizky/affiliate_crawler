@@ -11,6 +11,8 @@ import {
   Put,
 } from "@nestjs/common";
 import {
+  ArrayNotEmpty,
+  IsArray,
   IsIn,
   IsNotEmpty,
   IsOptional,
@@ -26,6 +28,46 @@ class GenerateContentDto {
   @IsString()
   @IsNotEmpty()
   templateId: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  topicId?: string;
+
+  @IsString()
+  @IsNotEmpty()
+  product: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  category?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  context?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  affiliateLink?: string;
+
+  @IsOptional()
+  @IsString()
+  @IsNotEmpty()
+  threadPostId?: string;
+}
+
+class GenerateBatchDto {
+  @IsString()
+  @IsNotEmpty()
+  templateId: string;
+
+  @IsArray()
+  @ArrayNotEmpty()
+  @IsString({ each: true })
+  threadPostIds: string[];
 
   @IsOptional()
   @IsString()
@@ -80,17 +122,21 @@ class UpdateContentDto {
   status?: AffiliateContentStatus;
 }
 
-const VARIABLE_MAP: Record<string, keyof GenerateContentDto> = {
+const VARIABLE_MAP: Record<string, keyof TemplateValues> = {
   product: "product",
   category: "category",
   context: "context",
   affiliate_link: "affiliateLink",
 };
 
-function renderTemplate(
-  content: string,
-  input: GenerateContentDto,
-): string {
+type TemplateValues = {
+  product: string;
+  category?: string;
+  context?: string;
+  affiliateLink?: string;
+};
+
+function renderTemplate(content: string, input: TemplateValues): string {
   return content.replace(/\{\{(\w+)\}\}/g, (match, key: string) => {
     const field = VARIABLE_MAP[key];
     const value = field ? input[field] : undefined;
@@ -112,9 +158,19 @@ export class AffiliateController {
       throw new NotFoundException("Template not found");
     }
 
-    if (dto.topicId) {
+    let topicId = dto.topicId;
+
+    if (dto.threadPostId) {
+      const post = await this.prisma.threadPost.findUnique({
+        where: { id: dto.threadPostId },
+      });
+      if (!post) {
+        throw new NotFoundException("Thread post not found");
+      }
+      topicId = post.topicId;
+    } else if (topicId) {
       const topic = await this.prisma.topic.findUnique({
-        where: { id: dto.topicId },
+        where: { id: topicId },
       });
       if (!topic) {
         throw new NotFoundException("Topic not found");
@@ -130,18 +186,76 @@ export class AffiliateController {
         content: renderTemplate(template.content, dto),
         status: "DRAFT",
         templateId: dto.templateId,
-        topicId: dto.topicId,
+        topicId,
+        threadPostId: dto.threadPostId,
         userId: user.sub,
       },
       include: { template: true },
     });
   }
 
+  @Post("generate-batch")
+  @HttpCode(HttpStatus.CREATED)
+  async generateBatch(
+    @Body() dto: GenerateBatchDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const template = await this.prisma.template.findUnique({
+      where: { id: dto.templateId },
+    });
+    if (!template) {
+      throw new NotFoundException("Template not found");
+    }
+
+    if (dto.topicId) {
+      const topic = await this.prisma.topic.findUnique({
+        where: { id: dto.topicId },
+      });
+      if (!topic) {
+        throw new NotFoundException("Topic not found");
+      }
+    }
+
+    const posts = await this.prisma.threadPost.findMany({
+      where: { id: { in: dto.threadPostIds } },
+    });
+    const skippedIds = dto.threadPostIds.filter(
+      (id) => !posts.some((p) => p.id === id),
+    );
+
+    const created = await Promise.all(
+      posts.map((post) =>
+        this.prisma.affiliateContent.create({
+          data: {
+            product: dto.product,
+            category: dto.category,
+            context: dto.context,
+            affiliateLink: dto.affiliateLink,
+            content: renderTemplate(template.content, dto),
+            status: "DRAFT",
+            templateId: dto.templateId,
+            topicId: post.topicId ?? dto.topicId,
+            threadPostId: post.id,
+            userId: user.sub,
+          },
+          include: { template: true },
+        }),
+      ),
+    );
+
+    return { created, skippedIds };
+  }
+
   @Get()
   async list() {
     return this.prisma.affiliateContent.findMany({
       orderBy: { createdAt: "desc" },
-      include: { template: { select: { id: true, name: true } } },
+      include: {
+        template: { select: { id: true, name: true } },
+        threadPost: {
+          select: { id: true, sourceUrl: true, authorUsername: true, content: true },
+        },
+      },
     });
   }
 

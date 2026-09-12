@@ -14,3 +14,12 @@ export const dialogMotion: Variants = {
     transition: { duration: 0.2, ease: "easeOut" },
   },
 };
+
+export const sheetMotion: Variants = {
+  hidden: { opacity: 0, y: 24 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: { duration: 0.2, ease: "easeOut" },
+  },
+};

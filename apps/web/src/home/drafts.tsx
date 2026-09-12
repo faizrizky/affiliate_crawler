@@ -1,6 +1,7 @@
 "use client";
 
 import { Copy, Pencil, Trash2 } from "lucide-react";
+import Link from "next/link";
 import { useState } from "react";
 import { toast } from "sonner";
 import type {
@@ -40,7 +41,15 @@ export function Drafts() {
 
   return (
     <section className="space-y-4">
-      <h2 className="text-lg font-semibold tracking-tight">Drafts</h2>
+      <div className="flex items-center justify-between">
+        <h2 className="text-lg font-semibold tracking-tight">Drafts</h2>
+        <Link
+          href="/queue"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Reply Queue →
+        </Link>
+      </div>
 
       <div className="grid gap-4 sm:grid-cols-2">
         {drafts.map((draft) => (

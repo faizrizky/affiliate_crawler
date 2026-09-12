@@ -317,6 +317,7 @@ export type ThreadPostWhereInput = {
   crawledAt?: Prisma.DateTimeFilter<"ThreadPost"> | Date | string
   topicId?: Prisma.StringFilter<"ThreadPost"> | string
   topic?: Prisma.XOR<Prisma.TopicScalarRelationFilter, Prisma.TopicWhereInput>
+  affiliateContents?: Prisma.AffiliateContentListRelationFilter
 }
 
 export type ThreadPostOrderByWithRelationInput = {
@@ -337,6 +338,7 @@ export type ThreadPostOrderByWithRelationInput = {
   crawledAt?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   topic?: Prisma.TopicOrderByWithRelationInput
+  affiliateContents?: Prisma.AffiliateContentOrderByRelationAggregateInput
 }
 
 export type ThreadPostWhereUniqueInput = Prisma.AtLeast<{
@@ -361,6 +363,7 @@ export type ThreadPostWhereUniqueInput = Prisma.AtLeast<{
   crawledAt?: Prisma.DateTimeFilter<"ThreadPost"> | Date | string
   topicId?: Prisma.StringFilter<"ThreadPost"> | string
   topic?: Prisma.XOR<Prisma.TopicScalarRelationFilter, Prisma.TopicWhereInput>
+  affiliateContents?: Prisma.AffiliateContentListRelationFilter
 }, "id" | "topicId_externalId">
 
 export type ThreadPostOrderByWithAggregationInput = {
@@ -426,6 +429,7 @@ export type ThreadPostCreateInput = {
   affiliateScore?: number | null
   crawledAt?: Date | string
   topic: Prisma.TopicCreateNestedOneWithoutPostsInput
+  affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutThreadPostInput
 }
 
 export type ThreadPostUncheckedCreateInput = {
@@ -445,6 +449,7 @@ export type ThreadPostUncheckedCreateInput = {
   affiliateScore?: number | null
   crawledAt?: Date | string
   topicId: string
+  affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutThreadPostInput
 }
 
 export type ThreadPostUpdateInput = {
@@ -464,6 +469,7 @@ export type ThreadPostUpdateInput = {
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   topic?: Prisma.TopicUpdateOneRequiredWithoutPostsNestedInput
+  affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutThreadPostNestedInput
 }
 
 export type ThreadPostUncheckedUpdateInput = {
@@ -483,6 +489,7 @@ export type ThreadPostUncheckedUpdateInput = {
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   topicId?: Prisma.StringFieldUpdateOperationsInput | string
+  affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutThreadPostNestedInput
 }
 
 export type ThreadPostCreateManyInput = {
@@ -635,6 +642,11 @@ export type ThreadPostSumOrderByAggregateInput = {
   affiliateScore?: Prisma.SortOrder
 }
 
+export type ThreadPostNullableScalarRelationFilter = {
+  is?: Prisma.ThreadPostWhereInput | null
+  isNot?: Prisma.ThreadPostWhereInput | null
+}
+
 export type ThreadPostCreateNestedManyWithoutTopicInput = {
   create?: Prisma.XOR<Prisma.ThreadPostCreateWithoutTopicInput, Prisma.ThreadPostUncheckedCreateWithoutTopicInput> | Prisma.ThreadPostCreateWithoutTopicInput[] | Prisma.ThreadPostUncheckedCreateWithoutTopicInput[]
   connectOrCreate?: Prisma.ThreadPostCreateOrConnectWithoutTopicInput | Prisma.ThreadPostCreateOrConnectWithoutTopicInput[]
@@ -706,6 +718,22 @@ export type NullableFloatFieldUpdateOperationsInput = {
   divide?: number
 }
 
+export type ThreadPostCreateNestedOneWithoutAffiliateContentsInput = {
+  create?: Prisma.XOR<Prisma.ThreadPostCreateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedCreateWithoutAffiliateContentsInput>
+  connectOrCreate?: Prisma.ThreadPostCreateOrConnectWithoutAffiliateContentsInput
+  connect?: Prisma.ThreadPostWhereUniqueInput
+}
+
+export type ThreadPostUpdateOneWithoutAffiliateContentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ThreadPostCreateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedCreateWithoutAffiliateContentsInput>
+  connectOrCreate?: Prisma.ThreadPostCreateOrConnectWithoutAffiliateContentsInput
+  upsert?: Prisma.ThreadPostUpsertWithoutAffiliateContentsInput
+  disconnect?: Prisma.ThreadPostWhereInput | boolean
+  delete?: Prisma.ThreadPostWhereInput | boolean
+  connect?: Prisma.ThreadPostWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ThreadPostUpdateToOneWithWhereWithoutAffiliateContentsInput, Prisma.ThreadPostUpdateWithoutAffiliateContentsInput>, Prisma.ThreadPostUncheckedUpdateWithoutAffiliateContentsInput>
+}
+
 export type ThreadPostCreateWithoutTopicInput = {
   id?: string
   externalId: string
@@ -722,6 +750,7 @@ export type ThreadPostCreateWithoutTopicInput = {
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
+  affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutThreadPostInput
 }
 
 export type ThreadPostUncheckedCreateWithoutTopicInput = {
@@ -740,6 +769,7 @@ export type ThreadPostUncheckedCreateWithoutTopicInput = {
   relevanceScore?: number | null
   affiliateScore?: number | null
   crawledAt?: Date | string
+  affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutThreadPostInput
 }
 
 export type ThreadPostCreateOrConnectWithoutTopicInput = {
@@ -790,6 +820,98 @@ export type ThreadPostScalarWhereInput = {
   topicId?: Prisma.StringFilter<"ThreadPost"> | string
 }
 
+export type ThreadPostCreateWithoutAffiliateContentsInput = {
+  id?: string
+  externalId: string
+  authorUsername: string
+  authorDisplayName?: string | null
+  authorAvatarUrl?: string | null
+  content: string
+  mediaUrls?: Prisma.ThreadPostCreatemediaUrlsInput | string[]
+  likeCount?: number
+  replyCount?: number
+  repostCount?: number
+  sourceUrl: string
+  publishedAt?: Date | string | null
+  relevanceScore?: number | null
+  affiliateScore?: number | null
+  crawledAt?: Date | string
+  topic: Prisma.TopicCreateNestedOneWithoutPostsInput
+}
+
+export type ThreadPostUncheckedCreateWithoutAffiliateContentsInput = {
+  id?: string
+  externalId: string
+  authorUsername: string
+  authorDisplayName?: string | null
+  authorAvatarUrl?: string | null
+  content: string
+  mediaUrls?: Prisma.ThreadPostCreatemediaUrlsInput | string[]
+  likeCount?: number
+  replyCount?: number
+  repostCount?: number
+  sourceUrl: string
+  publishedAt?: Date | string | null
+  relevanceScore?: number | null
+  affiliateScore?: number | null
+  crawledAt?: Date | string
+  topicId: string
+}
+
+export type ThreadPostCreateOrConnectWithoutAffiliateContentsInput = {
+  where: Prisma.ThreadPostWhereUniqueInput
+  create: Prisma.XOR<Prisma.ThreadPostCreateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedCreateWithoutAffiliateContentsInput>
+}
+
+export type ThreadPostUpsertWithoutAffiliateContentsInput = {
+  update: Prisma.XOR<Prisma.ThreadPostUpdateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedUpdateWithoutAffiliateContentsInput>
+  create: Prisma.XOR<Prisma.ThreadPostCreateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedCreateWithoutAffiliateContentsInput>
+  where?: Prisma.ThreadPostWhereInput
+}
+
+export type ThreadPostUpdateToOneWithWhereWithoutAffiliateContentsInput = {
+  where?: Prisma.ThreadPostWhereInput
+  data: Prisma.XOR<Prisma.ThreadPostUpdateWithoutAffiliateContentsInput, Prisma.ThreadPostUncheckedUpdateWithoutAffiliateContentsInput>
+}
+
+export type ThreadPostUpdateWithoutAffiliateContentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorUsername?: Prisma.StringFieldUpdateOperationsInput | string
+  authorDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaUrls?: Prisma.ThreadPostUpdatemediaUrlsInput | string[]
+  likeCount?: Prisma.IntFieldUpdateOperationsInput | number
+  replyCount?: Prisma.IntFieldUpdateOperationsInput | number
+  repostCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  topic?: Prisma.TopicUpdateOneRequiredWithoutPostsNestedInput
+}
+
+export type ThreadPostUncheckedUpdateWithoutAffiliateContentsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  externalId?: Prisma.StringFieldUpdateOperationsInput | string
+  authorUsername?: Prisma.StringFieldUpdateOperationsInput | string
+  authorDisplayName?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  authorAvatarUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  mediaUrls?: Prisma.ThreadPostUpdatemediaUrlsInput | string[]
+  likeCount?: Prisma.IntFieldUpdateOperationsInput | number
+  replyCount?: Prisma.IntFieldUpdateOperationsInput | number
+  repostCount?: Prisma.IntFieldUpdateOperationsInput | number
+  sourceUrl?: Prisma.StringFieldUpdateOperationsInput | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
+  crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  topicId?: Prisma.StringFieldUpdateOperationsInput | string
+}
+
 export type ThreadPostCreateManyTopicInput = {
   id?: string
   externalId: string
@@ -824,6 +946,7 @@ export type ThreadPostUpdateWithoutTopicInput = {
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutThreadPostNestedInput
 }
 
 export type ThreadPostUncheckedUpdateWithoutTopicInput = {
@@ -842,6 +965,7 @@ export type ThreadPostUncheckedUpdateWithoutTopicInput = {
   relevanceScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   affiliateScore?: Prisma.NullableFloatFieldUpdateOperationsInput | number | null
   crawledAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutThreadPostNestedInput
 }
 
 export type ThreadPostUncheckedUpdateManyWithoutTopicInput = {
@@ -863,6 +987,35 @@ export type ThreadPostUncheckedUpdateManyWithoutTopicInput = {
 }
 
 
+/**
+ * Count Type ThreadPostCountOutputType
+ */
+
+export type ThreadPostCountOutputType = {
+  affiliateContents: number
+}
+
+export type ThreadPostCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  affiliateContents?: boolean | ThreadPostCountOutputTypeCountAffiliateContentsArgs
+}
+
+/**
+ * ThreadPostCountOutputType without action
+ */
+export type ThreadPostCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the ThreadPostCountOutputType
+   */
+  select?: Prisma.ThreadPostCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * ThreadPostCountOutputType without action
+ */
+export type ThreadPostCountOutputTypeCountAffiliateContentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.AffiliateContentWhereInput
+}
+
 
 export type ThreadPostSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -882,6 +1035,8 @@ export type ThreadPostSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   crawledAt?: boolean
   topicId?: boolean
   topic?: boolean | Prisma.TopicDefaultArgs<ExtArgs>
+  affiliateContents?: boolean | Prisma.ThreadPost$affiliateContentsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThreadPostCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["threadPost"]>
 
 export type ThreadPostSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -946,6 +1101,8 @@ export type ThreadPostSelectScalar = {
 export type ThreadPostOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "externalId" | "authorUsername" | "authorDisplayName" | "authorAvatarUrl" | "content" | "mediaUrls" | "likeCount" | "replyCount" | "repostCount" | "sourceUrl" | "publishedAt" | "relevanceScore" | "affiliateScore" | "crawledAt" | "topicId", ExtArgs["result"]["threadPost"]>
 export type ThreadPostInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   topic?: boolean | Prisma.TopicDefaultArgs<ExtArgs>
+  affiliateContents?: boolean | Prisma.ThreadPost$affiliateContentsArgs<ExtArgs>
+  _count?: boolean | Prisma.ThreadPostCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ThreadPostIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   topic?: boolean | Prisma.TopicDefaultArgs<ExtArgs>
@@ -958,6 +1115,7 @@ export type $ThreadPostPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "ThreadPost"
   objects: {
     topic: Prisma.$TopicPayload<ExtArgs>
+    affiliateContents: Prisma.$AffiliateContentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1371,6 +1529,7 @@ readonly fields: ThreadPostFieldRefs;
 export interface Prisma__ThreadPostClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   topic<T extends Prisma.TopicDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.TopicDefaultArgs<ExtArgs>>): Prisma.Prisma__TopicClient<runtime.Types.Result.GetResult<Prisma.$TopicPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  affiliateContents<T extends Prisma.ThreadPost$affiliateContentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ThreadPost$affiliateContentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1814,6 +1973,30 @@ export type ThreadPostDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
    * Limit how many ThreadPosts to delete.
    */
   limit?: number
+}
+
+/**
+ * ThreadPost.affiliateContents
+ */
+export type ThreadPost$affiliateContentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the AffiliateContent
+   */
+  select?: Prisma.AffiliateContentSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the AffiliateContent
+   */
+  omit?: Prisma.AffiliateContentOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.AffiliateContentInclude<ExtArgs> | null
+  where?: Prisma.AffiliateContentWhereInput
+  orderBy?: Prisma.AffiliateContentOrderByWithRelationInput | Prisma.AffiliateContentOrderByWithRelationInput[]
+  cursor?: Prisma.AffiliateContentWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.AffiliateContentScalarFieldEnum | Prisma.AffiliateContentScalarFieldEnum[]
 }
 
 /**
