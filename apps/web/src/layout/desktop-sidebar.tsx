@@ -1,54 +1,21 @@
 "use client";
 
-import {
-  FileText,
-  LayoutDashboard,
-  PanelLeftClose,
-  PanelLeftOpen,
-} from "lucide-react";
+import { FileText, Home } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
-import { useUiStore } from "@/stores/ui-store";
-import { UserNav } from "@/layout/user-nav";
 
-const ICONS = [LayoutDashboard, FileText];
+const ICONS = [Home, FileText];
 
 export function DesktopSidebar() {
-  const collapsed = useUiStore((s) => s.sidebarCollapsed);
-  const toggle = useUiStore((s) => s.toggleSidebar);
   const pathname = usePathname();
 
   return (
-    <aside
-      className={cn(
-        "fixed inset-y-0 left-0 z-40 hidden flex-col border-r border-border bg-card transition-[width] xl:flex",
-        collapsed ? "w-20" : "w-64",
-      )}
-    >
-      <div className="flex h-16 items-center justify-between border-b border-border px-4">
-        {!collapsed && (
-          <Link href="/home" className="text-base font-semibold">
-            Threads Research
-          </Link>
-        )}
-        <button
-          type="button"
-          onClick={toggle}
-          aria-label={collapsed ? "Expand sidebar" : "Collapse sidebar"}
-          className="rounded-full p-2 text-muted-foreground hover:bg-accent/60"
-        >
-          {collapsed ? (
-            <PanelLeftOpen className="h-4 w-4" />
-          ) : (
-            <PanelLeftClose className="h-4 w-4" />
-          )}
-        </button>
-      </div>
-      <nav className="flex flex-col gap-1 p-3">
+    <aside className="fixed inset-y-6 left-0 z-40 hidden w-20 flex-col items-center justify-center gap-3 rounded-r-[2rem] bg-card/85 py-8 shadow-sm backdrop-blur xl:flex">
+      <nav className="flex flex-col items-center gap-3">
         {NAV_ITEMS.map((item, i) => {
-          const Icon = ICONS[i] ?? LayoutDashboard;
+          const Icon = ICONS[i] ?? Home;
           const active = pathname === item.href;
           return (
             <Link
@@ -57,27 +24,18 @@ export function DesktopSidebar() {
               aria-current={active ? "page" : undefined}
               title={item.label}
               className={cn(
-                "flex items-center gap-3 rounded-full px-3 py-2.5 text-sm font-medium transition-colors",
-                collapsed && "justify-center px-0",
+                "flex h-12 w-12 items-center justify-center rounded-2xl transition-colors",
                 active
-                  ? "bg-primary text-white"
-                  : "text-muted-foreground hover:bg-accent/60",
+                  ? "bg-secondary text-primary"
+                  : "text-muted-foreground hover:bg-secondary/70 hover:text-foreground",
               )}
             >
-              <Icon className="h-5 w-5 shrink-0" />
-              {!collapsed && item.label}
+              <Icon className={cn("h-5 w-5", active && "fill-primary/15")} />
+              <span className="sr-only">{item.label}</span>
             </Link>
           );
         })}
       </nav>
-      <div
-        className={cn(
-          "mt-auto border-t border-border p-3",
-          collapsed && "flex justify-center",
-        )}
-      >
-        <UserNav showEmail={!collapsed} />
-      </div>
     </aside>
   );
 }

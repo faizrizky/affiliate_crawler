@@ -2,39 +2,50 @@
 
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { PAGINATION_SIZES } from "@/lib/constants";
+import { cn } from "@/lib/utils";
 import { Button } from "@/ui/button";
 import { Select } from "@/ui/select";
 
 export function AppPagination({
   page,
   totalPages,
-  total,
   pageSize,
   onPageChange,
   onPageSizeChange,
+  className,
 }: {
   page: number;
   totalPages: number;
-  total: number;
+  total?: number;
   pageSize: number;
   onPageChange: (page: number) => void;
   onPageSizeChange: (size: number) => void;
+  className?: string;
 }) {
   return (
-    <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
-      <p className="text-sm text-muted-foreground">
-        {total} posts · Page {page} of {totalPages}
-      </p>
+    <div
+      className={cn(
+        "flex flex-wrap items-center justify-center gap-x-5 gap-y-3 bg-transparent py-2",
+        className,
+      )}
+    >
       <div className="flex items-center gap-2">
         <Select
-          className="w-32"
+          className="w-[86px]"
+          aria-label="Rows per page"
           value={pageSize}
-          options={PAGINATION_SIZES.map((n) => ({
-            value: n,
-            label: `${n} / page`,
-          }))}
+          options={PAGINATION_SIZES.map((n) => ({ value: n, label: `${n}` }))}
           onValueChange={onPageSizeChange}
         />
+        <span className="text-sm text-muted-foreground">/ page</span>
+      </div>
+
+      <p className="text-sm text-muted-foreground">
+        Page <span className="font-semibold text-foreground">{page}</span> /{" "}
+        <span className="font-semibold text-foreground">{totalPages}</span>
+      </p>
+
+      <div className="flex items-center gap-2">
         <Button
           variant="outline"
           size="icon"

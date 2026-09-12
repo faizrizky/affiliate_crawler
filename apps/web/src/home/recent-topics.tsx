@@ -1,13 +1,17 @@
 "use client";
 
 import { useState } from "react";
+import { AnimatePresence, motion } from "framer-motion";
+import { listItem, listStagger } from "@/animations/list-motion";
 import type { Topic } from "@aff/types";
 import { Tags } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { EmptyState } from "@/common/empty-state";
+import { useClientPagination } from "@/hooks/use-client-pagination";
 import { useTopics } from "@/hooks/use-topics";
 import { useSearchStore } from "@/stores/search-store";
+import { AppPagination } from "@/pagination/app-pagination";
 import { Skeleton } from "@/ui/skeleton";
 import { TopicCard } from "./topic-card";
 
@@ -16,6 +20,9 @@ export function RecentTopics() {
   const activeTopicId = useSearchStore((s) => s.activeTopicId);
   const setActiveTopic = useSearchStore((s) => s.setActiveTopic);
   const [deleteTarget, setDeleteTarget] = useState<Topic | null>(null);
+  const list = topics.data ?? [];
+  const { page, setPage, pageSize, setPageSize, totalPages, visible } =
+    useClientPagination(list, "topics");
 
   return (
     <section className="space-y-4">
@@ -26,17 +33,36 @@ export function RecentTopics() {
             <Skeleton key={i} className="h-36" />
           ))}
         </div>
-      ) : topics.data && topics.data.length > 0 ? (
-        <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {topics.data.map((topic) => (
-            <TopicCard
-              key={topic.id}
-              topic={topic}
-              active={topic.id === activeTopicId}
-              onDelete={setDeleteTarget}
-            />
-          ))}
-        </div>
+      ) : list.length > 0 ? (
+        <>
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={`${page}-${pageSize}`}
+              variants={listStagger}
+              initial="hidden"
+              animate="visible"
+              exit="hidden"
+              className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3"
+            >
+              {visible.map((topic) => (
+                <motion.div key={topic.id} variants={listItem}>
+                  <TopicCard
+                    topic={topic}
+                    active={topic.id === activeTopicId}
+                    onDelete={setDeleteTarget}
+                  />
+                </motion.div>
+              ))}
+            </motion.div>
+          </AnimatePresence>
+          <AppPagination
+            page={page}
+            totalPages={totalPages}
+            pageSize={pageSize}
+            onPageChange={setPage}
+            onPageSizeChange={setPageSize}
+          />
+        </>
       ) : (
         <EmptyState
           icon={Tags}

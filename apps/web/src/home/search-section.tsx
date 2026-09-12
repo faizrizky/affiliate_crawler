@@ -23,6 +23,7 @@ import { ThreadList } from "./thread-list";
 const CRAWL_ERROR_MESSAGES: Record<string, string> = {
   THREADS_NO_RESULTS: "Tidak ada Threads ditemukan untuk topik ini.",
   THREADS_LOGIN_REQUIRED: "Threads membutuhkan session yang terautentikasi.",
+  THREADS_SESSION_DEGRADED: "Sesi Threads bermasalah, perlu login ulang.",
   THREADS_REQUEST_FAILED: "Crawler sedang tidak tersedia.",
   THREADS_RENDER_FAILED: "Crawler sedang tidak tersedia.",
 };
@@ -117,6 +118,7 @@ export function SearchSection() {
                 </Button>
               </div>
               <ThreadList
+                key={`${activeTopicId}-${page}`}
                 posts={posts.data.posts}
                 onApplyTemplate={(post) =>
                   setDialog({ mode: "single", posts: [post] })
@@ -165,7 +167,7 @@ export function SearchSection() {
             initial="hidden"
             animate="visible"
             exit="hidden"
-            className="fixed inset-x-0 bottom-20 z-40 px-4 md:bottom-6"
+            className="fixed inset-x-0 bottom-28 z-40 px-4 md:bottom-6"
           >
             <div className="mx-auto flex max-w-md items-center justify-between gap-3 rounded-2xl border border-border bg-card px-4 py-3 shadow-lg">
               <span className="text-sm font-medium">

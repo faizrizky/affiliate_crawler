@@ -65,23 +65,29 @@ export function ThreadMediaCarousel({
       >
         {urls.map(slide)}
       </div>
-      <div className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
-        {urls.map((url, i) => (
-          <button
-            key={url}
-            type="button"
-            aria-label={`Foto ${i + 1} dari ${urls.length}`}
-            aria-current={i === active}
-            onClick={(e) => {
-              e.stopPropagation();
-              goTo(i);
-            }}
-            className={`pointer-events-auto h-1.5 rounded-full transition-all ${
-              i === active ? "w-4 bg-white" : "w-1.5 bg-white/50"
-            }`}
-          />
-        ))}
-      </div>
+      {urls.length > 8 ? (
+        <span className="pointer-events-none absolute bottom-2 right-2 rounded-full bg-black/55 px-2 py-0.5 text-[11px] font-medium text-white">
+          {active + 1}/{urls.length}
+        </span>
+      ) : (
+        <div className="pointer-events-none absolute bottom-2 left-1/2 flex -translate-x-1/2 gap-1">
+          {urls.map((url, i) => (
+            <button
+              key={url}
+              type="button"
+              aria-label={`Foto ${i + 1} dari ${urls.length}`}
+              aria-current={i === active}
+              onClick={(e) => {
+                e.stopPropagation();
+                goTo(i);
+              }}
+              className={`pointer-events-auto h-1.5 rounded-full transition-all ${
+                i === active ? "w-4 bg-white" : "w-1.5 bg-white/50"
+              }`}
+            />
+          ))}
+        </div>
+      )}
     </div>
   );
 }

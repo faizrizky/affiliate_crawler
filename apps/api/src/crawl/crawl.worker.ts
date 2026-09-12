@@ -11,6 +11,9 @@ import { CRAWL_QUEUE } from "./crawl.service";
 const NON_RETRYABLE_CODES = new Set([
   "THREADS_LOGIN_REQUIRED",
   "THREADS_NO_RESULTS",
+  // Sesi profil browser tidak lagi dipercaya Threads — mengulang job tidak
+  // memperbaikinya, butuh login ulang manual.
+  "THREADS_SESSION_DEGRADED",
 ]);
 
 @Injectable()

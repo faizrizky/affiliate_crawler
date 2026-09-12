@@ -1,16 +1,21 @@
 "use client";
 
-import { Check, Copy, ExternalLink, Inbox } from "lucide-react";
+import { ExternalLink, Inbox } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type {
   AffiliateContentListItem,
   AffiliateContentStatus,
 } from "@aff/types";
+import { CopyButton } from "@/common/copy-button";
 import { EmptyState } from "@/common/empty-state";
 import { STATUS_LABELS } from "@/home/edit-draft-dialog";
+import { AnimatePresence, motion } from "framer-motion";
+import { listItem, listStagger } from "@/animations/list-motion";
 import { useAffiliateContents } from "@/hooks/use-affiliate";
+import { useClientPagination } from "@/hooks/use-client-pagination";
 import { cn, formatTimeAgo } from "@/lib/utils";
+import { AppPagination } from "@/pagination/app-pagination";
 import { Card } from "@/ui/card";
 
 const STATUSES: AffiliateContentStatus[] = [
@@ -43,26 +48,23 @@ export function QueueList() {
   const { contents, updateContent } = useAffiliateContents();
   const [tab, setTab] = useState<AffiliateContentStatus>("DRAFT");
   const [expandedIds, setExpandedIds] = useState<string[]>([]);
-  const [copiedId, setCopiedId] = useState<string | null>(null);
   const [publishingId, setPublishingId] = useState<string | null>(null);
 
   const items = contents.data ?? [];
   const visible = items.filter((i) => i.status === tab);
+  const {
+    page,
+    setPage,
+    pageSize,
+    setPageSize,
+    totalPages,
+    visible: pageItems,
+  } = useClientPagination(visible, tab);
 
   const toggleExpand = (id: string) =>
     setExpandedIds((prev) =>
       prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
     );
-
-  const copy = async (item: AffiliateContentListItem) => {
-    try {
-      await navigator.clipboard.writeText(item.content);
-      setCopiedId(item.id);
-      setTimeout(() => setCopiedId(null), 2000);
-    } catch {
-      toast.error("Could not copy to clipboard");
-    }
-  };
 
   const markPublished = async (item: AffiliateContentListItem) => {
     setPublishingId(item.id);
@@ -95,13 +97,22 @@ export function QueueList() {
             type="button"
             onClick={() => setTab(s)}
             className={cn(
-              "rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
+              "relative rounded-full px-4 py-1.5 text-sm font-medium transition-colors",
               tab === s
-                ? "bg-primary text-primary-foreground"
+                ? "text-primary-foreground"
                 : "text-muted-foreground hover:text-foreground",
             )}
           >
-            {STATUS_LABELS[s]} ({items.filter((i) => i.status === s).length})
+            {tab === s && (
+              <motion.span
+                layoutId="queue-tab"
+                transition={{ type: "spring", stiffness: 400, damping: 32 }}
+                className="absolute inset-0 rounded-full bg-primary"
+              />
+            )}
+            <span className="relative">
+              {STATUS_LABELS[s]} ({items.filter((i) => i.status === s).length})
+            </span>
           </button>
         ))}
       </div>
@@ -113,11 +124,21 @@ export function QueueList() {
           description={EMPTY_COPY[tab].description}
         />
       ) : (
-        <div className="grid gap-4 sm:grid-cols-2">
-          {visible.map((item) => {
+        <>
+        <AnimatePresence mode="wait">
+        <motion.div
+          key={`${tab}-${page}-${pageSize}`}
+          variants={listStagger}
+          initial="hidden"
+          animate="visible"
+          exit="hidden"
+          className="grid gap-4 sm:grid-cols-2"
+        >
+          {pageItems.map((item) => {
             const expanded = expandedIds.includes(item.id);
             return (
-              <Card key={item.id} className="flex flex-col gap-4 p-5">
+              <motion.div key={item.id} variants={listItem}>
+              <Card className="flex flex-col gap-4 p-5">
                 <div className="flex items-start justify-between gap-3">
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -138,18 +159,7 @@ export function QueueList() {
                     </p>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
-                    <button
-                      type="button"
-                      title="Copy content"
-                      onClick={() => copy(item)}
-                      className="rounded-lg p-2 text-muted-foreground transition-colors hover:bg-accent hover:text-foreground"
-                    >
-                      {copiedId === item.id ? (
-                        <Check className="h-4 w-4 text-emerald-500" />
-                      ) : (
-                        <Copy className="h-4 w-4" />
-                      )}
-                    </button>
+                    <CopyButton value={item.content} />
                     {item.threadPost && (
                       <a
                         href={item.threadPost.sourceUrl}
@@ -203,9 +213,19 @@ export function QueueList() {
                   {expanded ? "Tutup" : "Selengkapnya"}
                 </button>
               </Card>
+              </motion.div>
             );
           })}
-        </div>
+        </motion.div>
+        </AnimatePresence>
+        <AppPagination
+          page={page}
+          totalPages={totalPages}
+          pageSize={pageSize}
+          onPageChange={setPage}
+          onPageSizeChange={setPageSize}
+        />
+        </>
       )}
     </div>
   );

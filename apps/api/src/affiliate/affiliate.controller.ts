@@ -253,7 +253,14 @@ export class AffiliateController {
       include: {
         template: { select: { id: true, name: true } },
         threadPost: {
-          select: { id: true, sourceUrl: true, authorUsername: true, content: true },
+          select: {
+            id: true,
+            sourceUrl: true,
+            authorUsername: true,
+            authorDisplayName: true,
+            authorAvatarUrl: true,
+            content: true,
+          },
         },
       },
     });

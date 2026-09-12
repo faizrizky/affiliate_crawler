@@ -8,6 +8,7 @@
   --color-popover: var(--popover);
   --color-popover-foreground: var(--popover-foreground);
   --color-primary: var(--primary);
+  --color-primary-soft: var(--primary-soft);
   --color-primary-foreground: var(--primary-foreground);
   --color-secondary: var(--secondary);
   --color-secondary-foreground: var(--secondary-foreground);
@@ -26,6 +27,9 @@
 }
 
 body {
+  min-height: 100vh;
   background-color: var(--background);
+  background-image: var(--page-gradient);
+  background-attachment: fixed;
   color: var(--foreground);
 }

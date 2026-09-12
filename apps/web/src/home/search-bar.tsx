@@ -42,15 +42,17 @@ export function SearchBar({
   return (
     <form
       onSubmit={handleSubmit((values) => onSubmit(values.keyword))}
-      className="flex flex-col gap-2 sm:flex-row sm:items-start"
+      className="flex flex-col gap-3 sm:flex-row sm:items-start"
     >
-      <div className="flex-1">
+      <div className="relative flex-1">
         <Label htmlFor="search-keyword" className="sr-only">
           Topic
         </Label>
+        <Search className="pointer-events-none absolute left-5 top-3.5 h-5 w-5 text-muted-foreground" />
         <Input
           id="search-keyword"
           placeholder='Search a topic on Threads, e.g. "running shoes under 500k"'
+          className="h-12 border-transparent pl-14 shadow-sm"
           {...register("keyword")}
         />
         {errors.keyword && (
@@ -63,7 +65,7 @@ export function SearchBar({
         type="submit"
         size="lg"
         disabled={loading || isSubmitting}
-        className="sm:w-40"
+        className="h-12 bg-gradient-to-r from-primary-soft to-primary shadow-sm hover:opacity-95 sm:w-44"
       >
         <Search />
         {loading || isSubmitting ? "Searching…" : "Search"}

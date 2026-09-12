@@ -24,6 +24,8 @@ export interface AffiliateContentListItem extends AffiliateContent {
     id: string;
     sourceUrl: string;
     authorUsername: string;
+    authorDisplayName: string | null;
+    authorAvatarUrl: string | null;
     content: string;
   } | null;
 }

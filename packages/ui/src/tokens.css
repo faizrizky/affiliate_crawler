@@ -9,7 +9,16 @@
   --popover-foreground: #2a1720;
 
   --primary: #e5395c;
+  --primary-soft: #f76b8f;
   --primary-foreground: #ffffff;
+
+  --page-gradient: linear-gradient(
+    155deg,
+    #efe6fd 0%,
+    #fbe7f0 38%,
+    #fdeaf1 62%,
+    #e9e2fc 100%
+  );
 
   --secondary: #fdeef2;
   --secondary-foreground: #8d2440;
