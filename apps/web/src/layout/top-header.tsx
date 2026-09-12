@@ -11,36 +11,39 @@ export function TopHeader({ className }: { className?: string }) {
   return (
     <header
       className={cn(
-        "sticky top-0 z-40 h-16 border-b border-border bg-card/95 backdrop-blur",
+        "sticky top-0 z-40 bg-background/85 px-4 py-3 backdrop-blur sm:px-6",
         className,
       )}
     >
-      <div className="mx-auto flex h-full max-w-5xl items-center justify-between px-4 sm:px-6">
-        <Link href="/home" className="text-base font-semibold">
+      <div className="mx-auto flex max-w-5xl items-center justify-between gap-3 rounded-full bg-card px-4 py-2 shadow-sm">
+        <Link
+          href="/home"
+          className="shrink-0 text-sm font-semibold text-primary"
+        >
           Threads Research
         </Link>
         <div className="flex items-center gap-2">
-        <nav className="flex items-center gap-1">
-          {NAV_ITEMS.map((item) => {
-            const active = pathname === item.href;
-            return (
-              <Link
-                key={item.href}
-                href={item.href}
-                aria-current={active ? "page" : undefined}
-                className={cn(
-                  "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
-                  active
-                    ? "bg-primary text-white"
-                    : "text-muted-foreground hover:bg-accent/60",
-                )}
-              >
-                {item.label}
-              </Link>
-            );
-          })}
-        </nav>
-        <UserNav />
+          <nav className="flex items-center gap-1">
+            {NAV_ITEMS.map((item) => {
+              const active = pathname === item.href;
+              return (
+                <Link
+                  key={item.href}
+                  href={item.href}
+                  aria-current={active ? "page" : undefined}
+                  className={cn(
+                    "rounded-full px-3 py-1.5 text-sm font-medium transition-colors",
+                    active
+                      ? "bg-primary text-primary-foreground shadow-sm"
+                      : "text-muted-foreground hover:bg-secondary",
+                  )}
+                >
+                  {item.label}
+                </Link>
+              );
+            })}
+          </nav>
+          <UserNav />
         </div>
       </div>
     </header>
