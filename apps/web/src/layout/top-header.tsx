@@ -4,6 +4,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { NAV_ITEMS } from "@/lib/constants";
 import { cn } from "@/lib/utils";
+import { ThreadsLogo } from "@/common/threads-logo";
 import { UserNav } from "@/layout/user-nav";
 
 export function TopHeader({ className }: { className?: string }) {
@@ -13,8 +14,9 @@ export function TopHeader({ className }: { className?: string }) {
       <div className="mx-auto flex max-w-5xl items-center justify-between gap-3">
         <Link
           href="/home"
-          className="rounded-full bg-card/80 px-5 py-3 text-sm font-bold text-primary shadow-sm backdrop-blur"
+          className="inline-flex items-center gap-2 rounded-full bg-card/80 px-5 py-3 text-sm font-bold text-primary shadow-sm backdrop-blur"
         >
+          <ThreadsLogo className="h-[18px] w-[18px]" />
           Threads Research
         </Link>
         <div className="flex items-center gap-2">

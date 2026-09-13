@@ -45,6 +45,7 @@ model User {
   templates         Template[]
   affiliateContents AffiliateContent[]
   affiliateLinks    AffiliateLink[]
+  categories        Category[]
 }
 
 model Topic {
@@ -110,9 +111,30 @@ model Template {
   linkId String?
   link   AffiliateLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
 
+  // Opsional: template lama belum berkategori. Hapus kategori -> NULL.
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   @@unique([userId, name])
   @@index([userId])
   @@index([linkId])
+  @@index([categoryId])
+}
+
+// Pengelompokan template per user (mis. "Fashion Bayi", "Skincare").
+model Category {
+  id        String   @id @default(uuid())
+  name      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  templates Template[]
+
+  @@unique([userId, name])
+  @@index([userId])
 }
 
 // Katalog link produk affiliate yang dipakai ulang lintas template/draft.

@@ -28,6 +28,10 @@ class TemplateCreateDto {
   @IsString()
   @IsNotEmpty()
   linkId: string;
+
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
 }
 
 class TemplateUpdateDto {
@@ -46,6 +50,11 @@ class TemplateUpdateDto {
   @IsString()
   @IsNotEmpty()
   linkId?: string;
+
+  // null / string kosong = lepas kategori.
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
 }
 
 function extractVariables(content: string): string[] {
@@ -75,6 +84,7 @@ export class TemplatesController {
       variables,
       dto.linkId,
       user.sub,
+      dto.categoryId || null,
     );
   }
 

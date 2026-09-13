@@ -16,11 +16,16 @@ export class MailerService {
   constructor(config: ConfigService) {
     const host = config.get<string>("SMTP_HOST");
     this.from = config.get<string>("EMAIL_FROM") ?? "Threads Research <no-reply@localhost>";
+    const port = Number(config.get("SMTP_PORT") ?? 587);
+    // SMTP_SECURE eksplisit menang; kalau tidak diisi, TLS langsung hanya
+    // untuk port 465 (587 memakai STARTTLS).
+    const secureRaw = config.get<string>("SMTP_SECURE");
+    const secure = secureRaw === undefined || secureRaw === "" ? port === 465 : secureRaw === "true";
     this.transporter = host
       ? createTransport({
           host,
-          port: Number(config.get("SMTP_PORT") ?? 587),
-          secure: Number(config.get("SMTP_PORT") ?? 587) === 465,
+          port,
+          secure,
           auth: config.get("SMTP_USER")
             ? { user: config.get("SMTP_USER"), pass: config.get("SMTP_PASS") }
             : undefined,
@@ -29,6 +34,13 @@ export class MailerService {
     if (!this.transporter) {
       this.logger.warn("SMTP_HOST kosong — email dicetak ke log, tidak dikirim");
     }
+  }
+
+  /** Cek koneksi + login SMTP tanpa mengirim email. */
+  async verify(): Promise<boolean> {
+    if (!this.transporter) return false;
+    await this.transporter.verify();
+    return true;
   }
 
   async send(to: string, subject: string, text: string): Promise<void> {

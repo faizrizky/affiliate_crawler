@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ThreadsLogo } from "@/common/threads-logo";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/ui/card";
 
 /** Kerangka halaman auth (login, register, lupa & reset password). */
@@ -18,8 +19,9 @@ export function AuthCard({
       <div className="w-full max-w-sm">
         <Link
           href="/login"
-          className="mb-4 block text-center text-sm font-bold text-primary"
+          className="mb-4 flex items-center justify-center gap-2 text-sm font-bold text-primary"
         >
+          <ThreadsLogo className="h-[18px] w-[18px]" />
           Threads Research
         </Link>
         <Card className="border-transparent shadow-lg">

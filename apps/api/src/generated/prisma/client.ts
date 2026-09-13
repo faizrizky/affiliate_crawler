@@ -60,6 +60,11 @@ export type ThreadPost = Prisma.ThreadPostModel
  */
 export type Template = Prisma.TemplateModel
 /**
+ * Model Category
+ * 
+ */
+export type Category = Prisma.CategoryModel
+/**
  * Model AffiliateLink
  * 
  */

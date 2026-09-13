@@ -438,45 +438,51 @@ class BrowserSession:
                 context.close()
 
     def fetch_profile_posts(self, username: str, limit: int) -> list[dict[str, Any]]:
-        """Buka profil sendiri lalu baca post yang tampil. Tidak menulis apa pun."""
+        """Baca post + balasan terbaru sebuah profil. Tidak menulis apa pun."""
         if self.playwright is None:
             self.start()
         self.ensure_login()
         context, owned = self.acquire()
         page = context.new_page()
+        collected: dict[str, dict[str, Any]] = {}
         try:
-            url = PROFILE_URL.format(username=username)
-            try:
-                page.goto(
-                    url,
-                    wait_until="domcontentloaded",
-                    timeout=settings.threads_browser_timeout * 1000,
-                )
-            except Exception as exc:
-                raise ThreadsError(
-                    ThreadsErrorCode.REQUEST_FAILED,
-                    f"profile load failed: {exc}",
-                    retryable=True,
-                ) from exc
-
-            if "/login" in urlparse(page.url or url).path:
-                raise ThreadsError(
-                    ThreadsErrorCode.LOGIN_REQUIRED,
-                    "Profil mengarahkan ke login; login manual ulang diperlukan.",
-                    status_code=403,
-                )
-
-            deadline = time.monotonic() + min(20.0, settings.threads_content_wait)
-            posts: list[dict[str, Any]] = []
-            while time.monotonic() < deadline:
+            for tab in PROFILE_TABS:
+                url = PROFILE_URL.format(username=username) + tab
                 try:
-                    posts = list(page.evaluate(PROFILE_POSTS_JS, username) or [])
-                except Exception:
-                    posts = []
-                if posts:
-                    break
-                time.sleep(0.5)
+                    page.goto(
+                        url,
+                        wait_until="domcontentloaded",
+                        timeout=settings.threads_browser_timeout * 1000,
+                    )
+                except Exception as exc:
+                    raise ThreadsError(
+                        ThreadsErrorCode.REQUEST_FAILED,
+                        f"profile load failed ({tab or 'posts'}): {exc}",
+                        retryable=True,
+                    ) from exc
 
+                if "/login" in urlparse(page.url or url).path:
+                    raise ThreadsError(
+                        ThreadsErrorCode.LOGIN_REQUIRED,
+                        "Profil mengarahkan ke login; login manual ulang diperlukan.",
+                        status_code=403,
+                    )
+
+                found = self._collect_tab_posts(page, username)
+                for post in found:
+                    collected.setdefault(post["postUrl"], post)
+                log.info(
+                    "threads_profile_tab_read",
+                    username=username,
+                    tab=tab or "/",
+                    count=len(found),
+                )
+
+            posts = sorted(
+                collected.values(),
+                key=lambda p: p.get("createdAt") or "",
+                reverse=True,
+            )
             trusted, markers = session_trust(page)
             if not posts and trusted is False:
                 raise ThreadsError(
@@ -496,6 +502,58 @@ class BrowserSession:
             page.close()
             if owned:
                 context.close()
+
+    @staticmethod
+    def _collect_tab_posts(page: Any, username: str) -> list[dict[str, Any]]:
+        """Tunggu post pertama muncul, lalu scroll beberapa kali untuk yang lebih lama."""
+        deadline = time.monotonic() + min(20.0, settings.threads_content_wait)
+        seen: dict[str, dict[str, Any]] = {}
+        while time.monotonic() < deadline:
+            try:
+                batch = list(page.evaluate(PROFILE_POSTS_JS, username) or [])
+            except Exception:
+                batch = []
+            if batch:
+                for post in batch:
+                    seen.setdefault(post["postUrl"], post)
+                break
+            time.sleep(0.5)
+        if not seen:
+            return []
+        # ponytail: satu kali scroll tanpa item baru BUKAN tanda ujung daftar —
+        # Threads kadang butuh >2 detik memuat halaman berikutnya. Berhenti di
+        # jeda pertama membuat balasan ke-5 dst tidak pernah terbaca (kejadian
+        # 2026-09-13: dua siklus hanya melihat 4 balasan, siklus ketiga 25).
+        stalls = 0
+        for _ in range(PROFILE_MAX_SCROLLS):
+            before = len(seen)
+            try:
+                # Scroll ke item terakhir, bukan sekadar window: daftar profil
+                # divirtualisasi dan memicu muat-berikutnya dari elemen terbawah.
+                page.evaluate(
+                    """() => {
+                      const links = document.querySelectorAll('a[href*="/post/"]');
+                      const last = links[links.length - 1];
+                      if (last) last.scrollIntoView({ block: 'end' });
+                      window.scrollBy(0, window.innerHeight);
+                    }"""
+                )
+            except Exception:
+                break
+            time.sleep(2.5)
+            try:
+                batch = list(page.evaluate(PROFILE_POSTS_JS, username) or [])
+            except Exception:
+                batch = []
+            for post in batch:
+                seen.setdefault(post["postUrl"], post)
+            if len(seen) == before:
+                stalls += 1
+                if stalls >= PROFILE_SCROLL_STALLS:
+                    break
+            else:
+                stalls = 0
+        return list(seen.values())
 
     def close(self) -> None:
         closers = []
@@ -640,28 +698,50 @@ PROFILE_URL = "https://www.threads.com/@{username}"
 # DOM profil jauh lebih stabil daripada nama field relay yang berubah per rilis.
 PROFILE_POSTS_JS = """
 (username) => {
-  const handle = '/@' + username.toLowerCase();
-  const seen = new Map();
-  for (const article of document.querySelectorAll('article')) {
-    const link = Array.from(article.querySelectorAll('a[href*="/post/"]'))
-      .map((a) => a.getAttribute('href'))
-      .find((href) => href && href.toLowerCase().startsWith(handle));
-    if (!link) continue;
-    const time = article.querySelector('time[datetime]');
-    const text = (article.innerText || '').trim();
-    if (!text) continue;
-    const url = link.startsWith('http') ? link : 'https://www.threads.com' + link;
-    if (!seen.has(url)) {
-      seen.set(url, {
-        postUrl: url,
-        text,
-        createdAt: time ? time.getAttribute('datetime') : null,
-      });
+  // Profil Threads tidak lagi memakai <article>. Mulai dari permalink milik
+  // akun ini, naik ke wadah terbesar yang masih hanya memuat SATU post —
+  // di tab Balasan, wadah di atasnya ikut memuat thread induk milik orang lain.
+  const handle = '/@' + username.toLowerCase() + '/post/';
+  const postIdOf = (href) => {
+    const m = /\\/@[^/]+\\/post\\/([^/?#]+)/i.exec(href || '');
+    return m ? m[1] : null;
+  };
+  const distinctPostIds = (el) => new Set(
+    Array.from(el.querySelectorAll('a[href*="/post/"]'))
+      .map((a) => postIdOf(a.getAttribute('href')))
+      .filter(Boolean)
+  );
+  const results = new Map();
+  for (const link of document.querySelectorAll('a[href*="/post/"]')) {
+    const href = link.getAttribute('href') || '';
+    if (!href.toLowerCase().startsWith(handle)) continue;
+    const id = postIdOf(href);
+    if (!id || results.has(id)) continue;
+    let best = null;
+    let node = link.parentElement;
+    while (node && node !== document.body) {
+      if (distinctPostIds(node).size > 1) break;
+      if ((node.innerText || '').trim().length > 40) best = node;
+      node = node.parentElement;
     }
+    if (!best) continue;
+    const time = best.querySelector('time[datetime]');
+    results.set(id, {
+      postUrl: 'https://www.threads.com' + href.replace(/\\/media$/, ''),
+      text: (best.innerText || '').trim(),
+      createdAt: time ? time.getAttribute('datetime') : null,
+    });
   }
-  return Array.from(seen.values());
+  return Array.from(results.values());
 }
 """
+
+# Balasan (reply) tidak tampil di tab utama profil — padahal draft affiliate
+# justru hampir selalu berupa balasan. Keduanya harus dibaca.
+PROFILE_TABS = ("", "/replies")
+PROFILE_MAX_SCROLLS = 6
+# Berapa kali scroll berturut-turut tanpa item baru sebelum dianggap ujung daftar.
+PROFILE_SCROLL_STALLS = 2
 
 
 def fetch_own_posts(

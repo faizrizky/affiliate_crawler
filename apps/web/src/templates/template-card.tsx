@@ -2,6 +2,7 @@
 
 import type { Template } from "@aff/types";
 import { Pencil, Trash2 } from "lucide-react";
+import { CopyButton } from "@/common/copy-button";
 import { SelectCheckbox } from "@/common/select-checkbox";
 import { useTemplateStore } from "@/stores/template-store";
 import { Badge } from "@/ui/badge";
@@ -39,6 +40,11 @@ export function TemplateCard({
         )}
         <h3 className="min-w-0 flex-1 text-sm font-semibold">{template.name}</h3>
       </div>
+      {template.category && (
+        <span className="mt-1.5 inline-flex w-fit items-center rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+          {template.category.name}
+        </span>
+      )}
       {template.link && (
         <p
           className="mt-1 truncate text-xs font-medium text-primary"
@@ -59,7 +65,13 @@ export function TemplateCard({
           </div>
         )}
       </div>
-      <div className="mt-auto flex justify-end gap-2 border-t border-border pt-3">
+      <div className="mt-auto flex items-center justify-end gap-2 border-t border-border pt-3">
+        <CopyButton
+          value={template.content}
+          label="Copy"
+          title="Salin isi template"
+          className="px-3"
+        />
         <Button
           variant="ghost"
           size="sm"

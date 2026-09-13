@@ -23,6 +23,7 @@ const schema = z.object({
   SMTP_PORT: z.coerce.number().int().optional(),
   SMTP_USER: z.string().optional(),
   SMTP_PASS: z.string().optional(),
+  SMTP_SECURE: z.enum(["true", "false"]).optional(),
   EMAIL_FROM: z.string().optional(),
 });
 

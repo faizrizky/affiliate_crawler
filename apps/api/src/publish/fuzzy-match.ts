@@ -1,13 +1,16 @@
 /** Normalisasi + kemiripan teks untuk mencocokkan draft dengan post asli. */
 
 /**
- * Buang beda yang tidak berarti: huruf besar/kecil, emoji, tanda baca, dan
- * spasi berlebih. "🎉 Promo Hemat 50% 🎉" dan "promo hemat 50%" jadi identik.
+ * Buang beda yang tidak berarti: huruf besar/kecil, emoji, tanda baca, spasi,
+ * dan semua bentuk URL — termasuk yang dipotong Threads tanpa skema
+ * ("s.shopee.co.id/3qN4G…"), yang tidak pernah sama persis dengan URL di draft.
  */
 export function normalizeForMatch(text: string): string {
   return text
     .toLowerCase()
     .replace(/https?:\/\/\S+/g, " ")
+    .replace(/\b[\w-]+(?:\.[\w-]+)+\/\S*/g, " ")
+    .replace(/…/g, " ")
     .replace(/[^\p{L}\p{N}\s]/gu, " ")
     .replace(/\s+/g, " ")
     .trim();
@@ -43,6 +46,28 @@ export function similarity(a: string, b: string): number {
 }
 
 /**
+ * Porsi kata draft yang muncul BERURUTAN di post (LCS tingkat kata).
+ *
+ * Teks post yang dibaca dari profil selalu membawa tambahan di sekelilingnya:
+ * "<username> 20 menit" di depan dan kartu preview link di belakang. Kemiripan
+ * karakter jatuh karena tambahan itu, padahal seluruh kata draft ada di sana.
+ */
+export function tokenCoverage(draft: string, post: string): number {
+  const d = draft.split(" ").filter(Boolean);
+  const p = post.split(" ").filter(Boolean);
+  if (d.length === 0) return 0;
+  let prev = new Array<number>(p.length + 1).fill(0);
+  let curr = new Array<number>(p.length + 1).fill(0);
+  for (let i = 1; i <= d.length; i += 1) {
+    for (let j = 1; j <= p.length; j += 1) {
+      curr[j] = d[i - 1] === p[j - 1] ? prev[j - 1] + 1 : Math.max(prev[j], curr[j - 1]);
+    }
+    [prev, curr] = [curr, prev];
+  }
+  return prev[p.length] / d.length;
+}
+
+/**
  * Penjaga tambahan: nama produk draft harus muncul di teks post.
  *
  * Tanpa ini, dua draft dari template yang sama hanya beda nama produk
@@ -60,8 +85,9 @@ export function fuzzyMatch(draft: string, post: string, threshold: number): bool
   const d = normalizeForMatch(draft);
   const p = normalizeForMatch(post);
   if (!d || !p) return false;
-  // Post di Threads sering memuat teks draft plus tambahan (hashtag, sapaan).
-  // Substring dianggap cocok supaya kasus itu tidak lolos begitu saja.
   if (p.includes(d) || d.includes(p)) return true;
+  // Kata draft hampir semuanya ada, berurutan -> sama, walau dikelilingi
+  // header dan preview link (lihat tokenCoverage).
+  if (tokenCoverage(d, p) >= threshold) return true;
   return similarity(d, p) >= threshold;
 }

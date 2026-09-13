@@ -5,6 +5,8 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import Link from "next/link";
+import { useCategories } from "@/hooks/use-categories";
 import { useTemplates } from "@/hooks/use-templates";
 import { useTemplateStore } from "@/stores/template-store";
 import { Button } from "@/ui/button";
@@ -24,6 +26,7 @@ import { Textarea } from "@/ui/textarea";
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Max 100 characters"),
   linkId: z.string().min(1, "Pilih link produk"),
+  categoryId: z.string(),
   content: z
     .string()
     .trim()
@@ -36,11 +39,13 @@ type FormValues = z.infer<typeof schema>;
 export function TemplateEditor() {
   const { editorOpen, editingTemplate, closeEditor } = useTemplateStore();
   const { createTemplate, updateTemplate } = useTemplates();
+  const { categories } = useCategories();
+  const categoryOptions = categories.data ?? [];
   const isEditing = Boolean(editingTemplate);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", content: "", linkId: "" },
+    defaultValues: { name: "", content: "", linkId: "", categoryId: "" },
   });
   const {
     register,
@@ -58,20 +63,23 @@ export function TemplateEditor() {
         name: editingTemplate?.name ?? "",
         content: editingTemplate?.content ?? "",
         linkId: editingTemplate?.linkId ?? "",
+        categoryId: editingTemplate?.categoryId ?? "",
       });
     }
   }, [editorOpen, editingTemplate, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
     try {
+      // "" dari dropdown = tanpa kategori -> kirim null supaya kategori lama dilepas.
+      const payload = { ...values, categoryId: values.categoryId || null };
       if (isEditing && editingTemplate) {
         await updateTemplate.mutateAsync({
           id: editingTemplate.id,
-          ...values,
+          ...payload,
         });
         toast.success("Template updated");
       } else {
-        await createTemplate.mutateAsync(values);
+        await createTemplate.mutateAsync(payload);
         toast.success("Template created");
       }
       closeEditor();
@@ -121,6 +129,34 @@ export function TemplateEditor() {
               </p>
             )}
           </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="template-category">
+              Kategori <span className="font-normal text-muted-foreground">(opsional)</span>
+            </Label>
+            {categoryOptions.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Belum ada kategori.{" "}
+                <Link href="/categories" className="font-medium text-primary hover:underline">
+                  Buat di halaman Kategori
+                </Link>
+                .
+              </p>
+            ) : (
+              <select
+                id="template-category"
+                {...register("categoryId")}
+                className="h-10 w-full rounded-full border border-input bg-card px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+              >
+                <option value="">Tanpa kategori</option>
+                {categoryOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
+            )}
+          </div>
+
           <LinkSelector
             id="template-link"
             value={linkId}

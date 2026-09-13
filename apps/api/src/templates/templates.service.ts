@@ -8,6 +8,7 @@ export class TemplatesService {
 
   private static readonly LINK_SELECT = {
     link: { select: { id: true, name: true, url: true } },
+    category: { select: { id: true, name: true } },
     // AffiliateContent.templateId memakai onDelete: Cascade — menghapus
     // template ikut menghapus draftnya, jadi UI perlu tahu jumlahnya.
     _count: { select: { affiliateContents: true } },
@@ -38,11 +39,13 @@ export class TemplatesService {
     variables: string[],
     linkId: string,
     userId: string,
+    categoryId: string | null = null,
   ) {
     await this.assertLinkExists(linkId, userId);
+    if (categoryId) await this.assertCategoryExists(categoryId, userId);
     try {
       return await this.prisma.template.create({
-        data: { name, content, variables, linkId, userId },
+        data: { name, content, variables, linkId, userId, categoryId },
         include: TemplatesService.LINK_SELECT,
       });
     } catch (err) {
@@ -53,12 +56,15 @@ export class TemplatesService {
   async update(
     id: string,
     userId: string,
-    dto: { name?: string; content?: string; linkId?: string },
+    dto: { name?: string; content?: string; linkId?: string; categoryId?: string | null },
     variables?: string[],
   ) {
     await this.get(id, userId);
     if (dto.linkId !== undefined) {
       await this.assertLinkExists(dto.linkId, userId);
+    }
+    if (dto.categoryId) {
+      await this.assertCategoryExists(dto.categoryId, userId);
     }
     try {
       return await this.prisma.template.update({
@@ -67,6 +73,7 @@ export class TemplatesService {
         ...(dto.name !== undefined ? { name: dto.name } : {}),
         ...(dto.content !== undefined ? { content: dto.content } : {}),
         ...(dto.linkId !== undefined ? { linkId: dto.linkId } : {}),
+        ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId || null } : {}),
         ...(variables !== undefined ? { variables } : {}),
       },
       include: TemplatesService.LINK_SELECT,
@@ -81,6 +88,11 @@ export class TemplatesService {
       return new ConflictException(`Template "${name}" sudah ada`);
     }
     return err;
+  }
+
+  private async assertCategoryExists(categoryId: string, userId: string) {
+    const category = await this.prisma.category.findFirst({ where: { id: categoryId, userId } });
+    if (!category) throw new NotFoundException("Category not found");
   }
 
   // Link wajib milik user yang sama: tanpa ini user bisa menempelkan link

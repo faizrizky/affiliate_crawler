@@ -218,6 +218,7 @@ export type UserWhereInput = {
   templates?: Prisma.TemplateListRelationFilter
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
   affiliateLinks?: Prisma.AffiliateLinkListRelationFilter
+  categories?: Prisma.CategoryListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -234,6 +235,7 @@ export type UserOrderByWithRelationInput = {
   templates?: Prisma.TemplateOrderByRelationAggregateInput
   affiliateContents?: Prisma.AffiliateContentOrderByRelationAggregateInput
   affiliateLinks?: Prisma.AffiliateLinkOrderByRelationAggregateInput
+  categories?: Prisma.CategoryOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -253,6 +255,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   templates?: Prisma.TemplateListRelationFilter
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
   affiliateLinks?: Prisma.AffiliateLinkListRelationFilter
+  categories?: Prisma.CategoryListRelationFilter
 }, "id" | "username" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -299,6 +302,7 @@ export type UserCreateInput = {
   templates?: Prisma.TemplateCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -315,6 +319,7 @@ export type UserUncheckedCreateInput = {
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -331,6 +336,7 @@ export type UserUpdateInput = {
   templates?: Prisma.TemplateUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -347,6 +353,7 @@ export type UserUncheckedUpdateInput = {
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -470,6 +477,20 @@ export type UserUpdateOneRequiredWithoutTemplatesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutTemplatesInput, Prisma.UserUpdateWithoutTemplatesInput>, Prisma.UserUncheckedUpdateWithoutTemplatesInput>
 }
 
+export type UserCreateNestedOneWithoutCategoriesInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCategoriesInput, Prisma.UserUncheckedCreateWithoutCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneRequiredWithoutCategoriesNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutCategoriesInput, Prisma.UserUncheckedCreateWithoutCategoriesInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutCategoriesInput
+  upsert?: Prisma.UserUpsertWithoutCategoriesInput
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutCategoriesInput, Prisma.UserUpdateWithoutCategoriesInput>, Prisma.UserUncheckedUpdateWithoutCategoriesInput>
+}
+
 export type UserCreateNestedOneWithoutAffiliateLinksInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutAffiliateLinksInput, Prisma.UserUncheckedCreateWithoutAffiliateLinksInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutAffiliateLinksInput
@@ -511,6 +532,7 @@ export type UserCreateWithoutTopicsInput = {
   templates?: Prisma.TemplateCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTopicsInput = {
@@ -526,6 +548,7 @@ export type UserUncheckedCreateWithoutTopicsInput = {
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTopicsInput = {
@@ -557,6 +580,7 @@ export type UserUpdateWithoutTopicsInput = {
   templates?: Prisma.TemplateUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTopicsInput = {
@@ -572,6 +596,7 @@ export type UserUncheckedUpdateWithoutTopicsInput = {
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutTemplatesInput = {
@@ -587,6 +612,7 @@ export type UserCreateWithoutTemplatesInput = {
   topics?: Prisma.TopicCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutTemplatesInput = {
@@ -602,6 +628,7 @@ export type UserUncheckedCreateWithoutTemplatesInput = {
   topics?: Prisma.TopicUncheckedCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutTemplatesInput = {
@@ -633,6 +660,7 @@ export type UserUpdateWithoutTemplatesInput = {
   topics?: Prisma.TopicUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutTemplatesInput = {
@@ -646,6 +674,87 @@ export type UserUncheckedUpdateWithoutTemplatesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   topics?: Prisma.TopicUncheckedUpdateManyWithoutUserNestedInput
+  affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutUserNestedInput
+  affiliateLinks?: Prisma.AffiliateLinkUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
+}
+
+export type UserCreateWithoutCategoriesInput = {
+  id?: string
+  username: string
+  name?: string | null
+  email: string
+  passwordHash?: string | null
+  threadsUsername?: string | null
+  passwordChangedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  topics?: Prisma.TopicCreateNestedManyWithoutUserInput
+  templates?: Prisma.TemplateCreateNestedManyWithoutUserInput
+  affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutUserInput
+  affiliateLinks?: Prisma.AffiliateLinkCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutCategoriesInput = {
+  id?: string
+  username: string
+  name?: string | null
+  email: string
+  passwordHash?: string | null
+  threadsUsername?: string | null
+  passwordChangedAt?: Date | string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  topics?: Prisma.TopicUncheckedCreateNestedManyWithoutUserInput
+  templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutUserInput
+  affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutUserInput
+  affiliateLinks?: Prisma.AffiliateLinkUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutCategoriesInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutCategoriesInput, Prisma.UserUncheckedCreateWithoutCategoriesInput>
+}
+
+export type UserUpsertWithoutCategoriesInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutCategoriesInput, Prisma.UserUncheckedUpdateWithoutCategoriesInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutCategoriesInput, Prisma.UserUncheckedCreateWithoutCategoriesInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutCategoriesInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutCategoriesInput, Prisma.UserUncheckedUpdateWithoutCategoriesInput>
+}
+
+export type UserUpdateWithoutCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  threadsUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  topics?: Prisma.TopicUpdateManyWithoutUserNestedInput
+  templates?: Prisma.TemplateUpdateManyWithoutUserNestedInput
+  affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutUserNestedInput
+  affiliateLinks?: Prisma.AffiliateLinkUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutCategoriesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  username?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  threadsUsername?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  passwordChangedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  topics?: Prisma.TopicUncheckedUpdateManyWithoutUserNestedInput
+  templates?: Prisma.TemplateUncheckedUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedUpdateManyWithoutUserNestedInput
 }
@@ -663,6 +772,7 @@ export type UserCreateWithoutAffiliateLinksInput = {
   topics?: Prisma.TopicCreateNestedManyWithoutUserInput
   templates?: Prisma.TemplateCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAffiliateLinksInput = {
@@ -678,6 +788,7 @@ export type UserUncheckedCreateWithoutAffiliateLinksInput = {
   topics?: Prisma.TopicUncheckedCreateNestedManyWithoutUserInput
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutUserInput
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAffiliateLinksInput = {
@@ -709,6 +820,7 @@ export type UserUpdateWithoutAffiliateLinksInput = {
   topics?: Prisma.TopicUpdateManyWithoutUserNestedInput
   templates?: Prisma.TemplateUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAffiliateLinksInput = {
@@ -724,6 +836,7 @@ export type UserUncheckedUpdateWithoutAffiliateLinksInput = {
   topics?: Prisma.TopicUncheckedUpdateManyWithoutUserNestedInput
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutUserNestedInput
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAffiliateContentsInput = {
@@ -739,6 +852,7 @@ export type UserCreateWithoutAffiliateContentsInput = {
   topics?: Prisma.TopicCreateNestedManyWithoutUserInput
   templates?: Prisma.TemplateCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAffiliateContentsInput = {
@@ -754,6 +868,7 @@ export type UserUncheckedCreateWithoutAffiliateContentsInput = {
   topics?: Prisma.TopicUncheckedCreateNestedManyWithoutUserInput
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutUserInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedCreateNestedManyWithoutUserInput
+  categories?: Prisma.CategoryUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAffiliateContentsInput = {
@@ -785,6 +900,7 @@ export type UserUpdateWithoutAffiliateContentsInput = {
   topics?: Prisma.TopicUpdateManyWithoutUserNestedInput
   templates?: Prisma.TemplateUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAffiliateContentsInput = {
@@ -800,6 +916,7 @@ export type UserUncheckedUpdateWithoutAffiliateContentsInput = {
   topics?: Prisma.TopicUncheckedUpdateManyWithoutUserNestedInput
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutUserNestedInput
   affiliateLinks?: Prisma.AffiliateLinkUncheckedUpdateManyWithoutUserNestedInput
+  categories?: Prisma.CategoryUncheckedUpdateManyWithoutUserNestedInput
 }
 
 
@@ -812,6 +929,7 @@ export type UserCountOutputType = {
   templates: number
   affiliateContents: number
   affiliateLinks: number
+  categories: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -819,6 +937,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   templates?: boolean | UserCountOutputTypeCountTemplatesArgs
   affiliateContents?: boolean | UserCountOutputTypeCountAffiliateContentsArgs
   affiliateLinks?: boolean | UserCountOutputTypeCountAffiliateLinksArgs
+  categories?: boolean | UserCountOutputTypeCountCategoriesArgs
 }
 
 /**
@@ -859,6 +978,13 @@ export type UserCountOutputTypeCountAffiliateLinksArgs<ExtArgs extends runtime.T
   where?: Prisma.AffiliateLinkWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountCategoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.CategoryWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -874,6 +1000,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   templates?: boolean | Prisma.User$templatesArgs<ExtArgs>
   affiliateContents?: boolean | Prisma.User$affiliateContentsArgs<ExtArgs>
   affiliateLinks?: boolean | Prisma.User$affiliateLinksArgs<ExtArgs>
+  categories?: boolean | Prisma.User$categoriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -919,6 +1046,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   templates?: boolean | Prisma.User$templatesArgs<ExtArgs>
   affiliateContents?: boolean | Prisma.User$affiliateContentsArgs<ExtArgs>
   affiliateLinks?: boolean | Prisma.User$affiliateLinksArgs<ExtArgs>
+  categories?: boolean | Prisma.User$categoriesArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -931,6 +1059,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     templates: Prisma.$TemplatePayload<ExtArgs>[]
     affiliateContents: Prisma.$AffiliateContentPayload<ExtArgs>[]
     affiliateLinks: Prisma.$AffiliateLinkPayload<ExtArgs>[]
+    categories: Prisma.$CategoryPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1340,6 +1469,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   templates<T extends Prisma.User$templatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$templatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   affiliateContents<T extends Prisma.User$affiliateContentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$affiliateContentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   affiliateLinks<T extends Prisma.User$affiliateLinksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$affiliateLinksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  categories<T extends Prisma.User$categoriesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$categoriesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1864,6 +1994,30 @@ export type User$affiliateLinksArgs<ExtArgs extends runtime.Types.Extensions.Int
   take?: number
   skip?: number
   distinct?: Prisma.AffiliateLinkScalarFieldEnum | Prisma.AffiliateLinkScalarFieldEnum[]
+}
+
+/**
+ * User.categories
+ */
+export type User$categoriesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Category
+   */
+  select?: Prisma.CategorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Category
+   */
+  omit?: Prisma.CategoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.CategoryInclude<ExtArgs> | null
+  where?: Prisma.CategoryWhereInput
+  orderBy?: Prisma.CategoryOrderByWithRelationInput | Prisma.CategoryOrderByWithRelationInput[]
+  cursor?: Prisma.CategoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.CategoryScalarFieldEnum | Prisma.CategoryScalarFieldEnum[]
 }
 
 /**
