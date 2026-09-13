@@ -34,6 +34,9 @@ export type AffiliateContentMinAggregateOutputType = {
   status: $Enums.AffiliateContentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
+  publishedAt: Date | null
+  postUrl: string | null
+  autoPublishedAt: Date | null
   templateId: string | null
   topicId: string | null
   userId: string | null
@@ -51,6 +54,9 @@ export type AffiliateContentMaxAggregateOutputType = {
   status: $Enums.AffiliateContentStatus | null
   createdAt: Date | null
   updatedAt: Date | null
+  publishedAt: Date | null
+  postUrl: string | null
+  autoPublishedAt: Date | null
   templateId: string | null
   topicId: string | null
   userId: string | null
@@ -68,6 +74,9 @@ export type AffiliateContentCountAggregateOutputType = {
   status: number
   createdAt: number
   updatedAt: number
+  publishedAt: number
+  postUrl: number
+  autoPublishedAt: number
   templateId: number
   topicId: number
   userId: number
@@ -87,6 +96,9 @@ export type AffiliateContentMinAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  publishedAt?: true
+  postUrl?: true
+  autoPublishedAt?: true
   templateId?: true
   topicId?: true
   userId?: true
@@ -104,6 +116,9 @@ export type AffiliateContentMaxAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  publishedAt?: true
+  postUrl?: true
+  autoPublishedAt?: true
   templateId?: true
   topicId?: true
   userId?: true
@@ -121,6 +136,9 @@ export type AffiliateContentCountAggregateInputType = {
   status?: true
   createdAt?: true
   updatedAt?: true
+  publishedAt?: true
+  postUrl?: true
+  autoPublishedAt?: true
   templateId?: true
   topicId?: true
   userId?: true
@@ -211,6 +229,9 @@ export type AffiliateContentGroupByOutputType = {
   status: $Enums.AffiliateContentStatus
   createdAt: Date
   updatedAt: Date
+  publishedAt: Date | null
+  postUrl: string | null
+  autoPublishedAt: Date | null
   templateId: string
   topicId: string | null
   userId: string | null
@@ -249,6 +270,9 @@ export type AffiliateContentWhereInput = {
   status?: Prisma.EnumAffiliateContentStatusFilter<"AffiliateContent"> | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
+  postUrl?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  autoPublishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
   templateId?: Prisma.StringFilter<"AffiliateContent"> | string
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
@@ -271,6 +295,9 @@ export type AffiliateContentOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoPublishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   templateId?: Prisma.SortOrder
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -296,6 +323,9 @@ export type AffiliateContentWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumAffiliateContentStatusFilter<"AffiliateContent"> | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
+  postUrl?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  autoPublishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
   templateId?: Prisma.StringFilter<"AffiliateContent"> | string
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
@@ -318,6 +348,9 @@ export type AffiliateContentOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
+  postUrl?: Prisma.SortOrderInput | Prisma.SortOrder
+  autoPublishedAt?: Prisma.SortOrderInput | Prisma.SortOrder
   templateId?: Prisma.SortOrder
   topicId?: Prisma.SortOrderInput | Prisma.SortOrder
   userId?: Prisma.SortOrderInput | Prisma.SortOrder
@@ -341,6 +374,9 @@ export type AffiliateContentScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumAffiliateContentStatusWithAggregatesFilter<"AffiliateContent"> | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AffiliateContent"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AffiliateContent"> | Date | string
+  publishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AffiliateContent"> | Date | string | null
+  postUrl?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
+  autoPublishedAt?: Prisma.DateTimeNullableWithAggregatesFilter<"AffiliateContent"> | Date | string | null
   templateId?: Prisma.StringWithAggregatesFilter<"AffiliateContent"> | string
   topicId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateContent"> | string | null
@@ -358,6 +394,9 @@ export type AffiliateContentCreateInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
@@ -375,6 +414,9 @@ export type AffiliateContentUncheckedCreateInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -392,6 +434,9 @@ export type AffiliateContentUpdateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
@@ -409,6 +454,9 @@ export type AffiliateContentUncheckedUpdateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -426,6 +474,9 @@ export type AffiliateContentCreateManyInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -443,6 +494,9 @@ export type AffiliateContentUpdateManyMutationInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
 }
 
 export type AffiliateContentUncheckedUpdateManyInput = {
@@ -455,6 +509,9 @@ export type AffiliateContentUncheckedUpdateManyInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -482,6 +539,9 @@ export type AffiliateContentCountOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  autoPublishedAt?: Prisma.SortOrder
   templateId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -499,6 +559,9 @@ export type AffiliateContentMaxOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  autoPublishedAt?: Prisma.SortOrder
   templateId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -516,6 +579,9 @@ export type AffiliateContentMinOrderByAggregateInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  publishedAt?: Prisma.SortOrder
+  postUrl?: Prisma.SortOrder
+  autoPublishedAt?: Prisma.SortOrder
   templateId?: Prisma.SortOrder
   topicId?: Prisma.SortOrder
   userId?: Prisma.SortOrder
@@ -747,6 +813,9 @@ export type AffiliateContentCreateWithoutUserInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
@@ -763,6 +832,9 @@ export type AffiliateContentUncheckedCreateWithoutUserInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   threadPostId?: string | null
@@ -808,6 +880,9 @@ export type AffiliateContentScalarWhereInput = {
   status?: Prisma.EnumAffiliateContentStatusFilter<"AffiliateContent"> | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateContent"> | Date | string
+  publishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
+  postUrl?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
+  autoPublishedAt?: Prisma.DateTimeNullableFilter<"AffiliateContent"> | Date | string | null
   templateId?: Prisma.StringFilter<"AffiliateContent"> | string
   topicId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
   userId?: Prisma.StringNullableFilter<"AffiliateContent"> | string | null
@@ -825,6 +900,9 @@ export type AffiliateContentCreateWithoutTopicInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
@@ -841,6 +919,9 @@ export type AffiliateContentUncheckedCreateWithoutTopicInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   userId?: string | null
   threadPostId?: string | null
@@ -883,6 +964,9 @@ export type AffiliateContentCreateWithoutThreadPostInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
@@ -899,6 +983,9 @@ export type AffiliateContentUncheckedCreateWithoutThreadPostInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -941,6 +1028,9 @@ export type AffiliateContentCreateWithoutTemplateInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
   threadPost?: Prisma.ThreadPostCreateNestedOneWithoutAffiliateContentsInput
@@ -957,6 +1047,9 @@ export type AffiliateContentUncheckedCreateWithoutTemplateInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
@@ -999,6 +1092,9 @@ export type AffiliateContentCreateWithoutLinkInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   template: Prisma.TemplateCreateNestedOneWithoutAffiliateContentsInput
   topic?: Prisma.TopicCreateNestedOneWithoutContentsInput
   user?: Prisma.UserCreateNestedOneWithoutAffiliateContentsInput
@@ -1015,6 +1111,9 @@ export type AffiliateContentUncheckedCreateWithoutLinkInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -1057,6 +1156,9 @@ export type AffiliateContentCreateManyUserInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   threadPostId?: string | null
@@ -1073,6 +1175,9 @@ export type AffiliateContentUpdateWithoutUserInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
@@ -1089,6 +1194,9 @@ export type AffiliateContentUncheckedUpdateWithoutUserInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1105,6 +1213,9 @@ export type AffiliateContentUncheckedUpdateManyWithoutUserInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1121,6 +1232,9 @@ export type AffiliateContentCreateManyTopicInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   userId?: string | null
   threadPostId?: string | null
@@ -1137,6 +1251,9 @@ export type AffiliateContentUpdateWithoutTopicInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
@@ -1153,6 +1270,9 @@ export type AffiliateContentUncheckedUpdateWithoutTopicInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1169,6 +1289,9 @@ export type AffiliateContentUncheckedUpdateManyWithoutTopicInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1185,6 +1308,9 @@ export type AffiliateContentCreateManyThreadPostInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -1201,6 +1327,9 @@ export type AffiliateContentUpdateWithoutThreadPostInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
@@ -1217,6 +1346,9 @@ export type AffiliateContentUncheckedUpdateWithoutThreadPostInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1233,6 +1365,9 @@ export type AffiliateContentUncheckedUpdateManyWithoutThreadPostInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1249,6 +1384,9 @@ export type AffiliateContentCreateManyTemplateInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   topicId?: string | null
   userId?: string | null
   threadPostId?: string | null
@@ -1265,6 +1403,9 @@ export type AffiliateContentUpdateWithoutTemplateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
   threadPost?: Prisma.ThreadPostUpdateOneWithoutAffiliateContentsNestedInput
@@ -1281,6 +1422,9 @@ export type AffiliateContentUncheckedUpdateWithoutTemplateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1297,6 +1441,9 @@ export type AffiliateContentUncheckedUpdateManyWithoutTemplateInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   threadPostId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1313,6 +1460,9 @@ export type AffiliateContentCreateManyLinkInput = {
   status?: $Enums.AffiliateContentStatus
   createdAt?: Date | string
   updatedAt?: Date | string
+  publishedAt?: Date | string | null
+  postUrl?: string | null
+  autoPublishedAt?: Date | string | null
   templateId: string
   topicId?: string | null
   userId?: string | null
@@ -1329,6 +1479,9 @@ export type AffiliateContentUpdateWithoutLinkInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   template?: Prisma.TemplateUpdateOneRequiredWithoutAffiliateContentsNestedInput
   topic?: Prisma.TopicUpdateOneWithoutContentsNestedInput
   user?: Prisma.UserUpdateOneWithoutAffiliateContentsNestedInput
@@ -1345,6 +1498,9 @@ export type AffiliateContentUncheckedUpdateWithoutLinkInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1361,6 +1517,9 @@ export type AffiliateContentUncheckedUpdateManyWithoutLinkInput = {
   status?: Prisma.EnumAffiliateContentStatusFieldUpdateOperationsInput | $Enums.AffiliateContentStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  publishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  postUrl?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  autoPublishedAt?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   templateId?: Prisma.StringFieldUpdateOperationsInput | string
   topicId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -1379,6 +1538,9 @@ export type AffiliateContentSelect<ExtArgs extends runtime.Types.Extensions.Inte
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  publishedAt?: boolean
+  postUrl?: boolean
+  autoPublishedAt?: boolean
   templateId?: boolean
   topicId?: boolean
   userId?: boolean
@@ -1401,6 +1563,9 @@ export type AffiliateContentSelectCreateManyAndReturn<ExtArgs extends runtime.Ty
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  publishedAt?: boolean
+  postUrl?: boolean
+  autoPublishedAt?: boolean
   templateId?: boolean
   topicId?: boolean
   userId?: boolean
@@ -1423,6 +1588,9 @@ export type AffiliateContentSelectUpdateManyAndReturn<ExtArgs extends runtime.Ty
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  publishedAt?: boolean
+  postUrl?: boolean
+  autoPublishedAt?: boolean
   templateId?: boolean
   topicId?: boolean
   userId?: boolean
@@ -1445,6 +1613,9 @@ export type AffiliateContentSelectScalar = {
   status?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  publishedAt?: boolean
+  postUrl?: boolean
+  autoPublishedAt?: boolean
   templateId?: boolean
   topicId?: boolean
   userId?: boolean
@@ -1452,7 +1623,7 @@ export type AffiliateContentSelectScalar = {
   linkId?: boolean
 }
 
-export type AffiliateContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "product" | "category" | "context" | "affiliateLink" | "content" | "status" | "createdAt" | "updatedAt" | "templateId" | "topicId" | "userId" | "threadPostId" | "linkId", ExtArgs["result"]["affiliateContent"]>
+export type AffiliateContentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "product" | "category" | "context" | "affiliateLink" | "content" | "status" | "createdAt" | "updatedAt" | "publishedAt" | "postUrl" | "autoPublishedAt" | "templateId" | "topicId" | "userId" | "threadPostId" | "linkId", ExtArgs["result"]["affiliateContent"]>
 export type AffiliateContentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   template?: boolean | Prisma.TemplateDefaultArgs<ExtArgs>
   topic?: boolean | Prisma.AffiliateContent$topicArgs<ExtArgs>
@@ -1494,6 +1665,9 @@ export type $AffiliateContentPayload<ExtArgs extends runtime.Types.Extensions.In
     status: $Enums.AffiliateContentStatus
     createdAt: Date
     updatedAt: Date
+    publishedAt: Date | null
+    postUrl: string | null
+    autoPublishedAt: Date | null
     templateId: string
     topicId: string | null
     userId: string | null
@@ -1936,6 +2110,9 @@ export interface AffiliateContentFieldRefs {
   readonly status: Prisma.FieldRef<"AffiliateContent", 'AffiliateContentStatus'>
   readonly createdAt: Prisma.FieldRef<"AffiliateContent", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"AffiliateContent", 'DateTime'>
+  readonly publishedAt: Prisma.FieldRef<"AffiliateContent", 'DateTime'>
+  readonly postUrl: Prisma.FieldRef<"AffiliateContent", 'String'>
+  readonly autoPublishedAt: Prisma.FieldRef<"AffiliateContent", 'DateTime'>
   readonly templateId: Prisma.FieldRef<"AffiliateContent", 'String'>
   readonly topicId: Prisma.FieldRef<"AffiliateContent", 'String'>
   readonly userId: Prisma.FieldRef<"AffiliateContent", 'String'>

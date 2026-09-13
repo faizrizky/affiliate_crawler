@@ -8,10 +8,12 @@ import { Tags } from "lucide-react";
 import { toast } from "sonner";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { EmptyState } from "@/common/empty-state";
+import { SelectionBar } from "@/common/selection-bar";
 import { useClientPagination } from "@/hooks/use-client-pagination";
 import { useTopics } from "@/hooks/use-topics";
 import { useSearchStore } from "@/stores/search-store";
 import { AppPagination } from "@/pagination/app-pagination";
+import { Button } from "@/ui/button";
 import { Skeleton } from "@/ui/skeleton";
 import { TopicCard } from "./topic-card";
 
@@ -20,9 +22,39 @@ export function RecentTopics() {
   const activeTopicId = useSearchStore((s) => s.activeTopicId);
   const setActiveTopic = useSearchStore((s) => s.setActiveTopic);
   const [deleteTarget, setDeleteTarget] = useState<Topic | null>(null);
+  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
+  const [bulkDeleting, setBulkDeleting] = useState(false);
   const list = topics.data ?? [];
   const { page, setPage, pageSize, setPageSize, totalPages, visible } =
     useClientPagination(list, "topics");
+  const selected = list.filter((t) => selectedIds.includes(t.id));
+  const selectedPostCount = selected.reduce((n, t) => n + t.postCount, 0);
+
+  const toggleSelect = (id: string) =>
+    setSelectedIds((prev) =>
+      prev.includes(id) ? prev.filter((x) => x !== id) : [...prev, id],
+    );
+
+  const deleteSelected = async () => {
+    setBulkDeleting(true);
+    const results = await Promise.allSettled(
+      selected.map((t) => deleteTopic.mutateAsync(t.id)),
+    );
+    const failed = results.filter((r) => r.status === "rejected").length;
+    // Topik aktif ikut terhapus -> daftar thread di atas harus ikut dikosongkan.
+    if (activeTopicId && selectedIds.includes(activeTopicId)) {
+      setActiveTopic(null);
+    }
+    setBulkDeleting(false);
+    setBulkDeleteOpen(false);
+    setSelectedIds([]);
+    if (failed === 0) {
+      toast.success(`${results.length} topik dihapus`);
+    } else {
+      toast.error(`${failed} dari ${results.length} topik gagal dihapus`);
+    }
+  };
 
   return (
     <section className="space-y-4">
@@ -50,6 +82,8 @@ export function RecentTopics() {
                     topic={topic}
                     active={topic.id === activeTopicId}
                     onDelete={setDeleteTarget}
+                    selected={selectedIds.includes(topic.id)}
+                    onToggleSelect={toggleSelect}
                   />
                 </motion.div>
               ))}
@@ -70,6 +104,28 @@ export function RecentTopics() {
           description="Search a keyword above — every topic you crawl shows up here."
         />
       )}
+      <SelectionBar count={selected.length} onCancel={() => setSelectedIds([])}>
+        <Button
+          variant="destructive"
+          size="sm"
+          onClick={() => setBulkDeleteOpen(true)}
+        >
+          Hapus
+        </Button>
+      </SelectionBar>
+
+      <ConfirmDialog
+        open={bulkDeleteOpen}
+        onOpenChange={setBulkDeleteOpen}
+        title={`Hapus ${selected.length} topik?`}
+        description={`${selected.length} topik beserta ${selectedPostCount} post hasil crawl-nya akan dihapus permanen. Draft yang sudah dibuat tetap ada, tapi kehilangan kaitan ke topik ini.`}
+        confirmLabel="Hapus"
+        cancelLabel="Batal"
+        destructive
+        loading={bulkDeleting}
+        onConfirm={deleteSelected}
+      />
+
       <ConfirmDialog
         open={Boolean(deleteTarget)}
         onOpenChange={(open) => !open && setDeleteTarget(null)}

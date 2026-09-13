@@ -1,6 +1,6 @@
 "use client";
 
-import { ExternalLink, Inbox, Link2, Trash2 } from "lucide-react";
+import { Clock, ExternalLink, Inbox, Link2, Sparkles, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import type {
@@ -74,6 +74,14 @@ function DraftAvatar({ item }: { item: AffiliateContentListItem }) {
       {name.slice(0, 2).toUpperCase()}
     </div>
   );
+}
+
+const EXPIRY_HOURS = 24;
+
+/** Draft yang lewat 24 jam tidak diubah statusnya — hanya ditandai. */
+function isExpired(item: AffiliateContentListItem): boolean {
+  if (item.status !== "DRAFT") return false;
+  return Date.now() - new Date(item.createdAt).getTime() > EXPIRY_HOURS * 3600_000;
 }
 
 export function QueueList() {
@@ -243,10 +251,41 @@ export function QueueList() {
                       >
                         {STATUS_LABELS[item.status]}
                       </span>
+                      {item.autoPublishedAt && (
+                        <span
+                          title={`Terdeteksi otomatis ${formatTimeAgo(item.autoPublishedAt)}`}
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full bg-emerald-500/15 px-2 py-0.5 text-xs font-medium text-emerald-600"
+                        >
+                          <Sparkles className="h-3 w-3" />
+                          Auto {formatTimeAgo(item.autoPublishedAt)}
+                        </span>
+                      )}
+                      {isExpired(item) && (
+                        <span
+                          title="Belum terdeteksi terbit setelah 24 jam"
+                          className="inline-flex shrink-0 items-center gap-1 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-700"
+                        >
+                          <Clock className="h-3 w-3" />
+                          Lewat 24 jam
+                        </span>
+                      )}
                     </div>
                     <p className="mt-0.5 text-xs text-muted-foreground">
                       {item.template.name} · {formatTimeAgo(item.createdAt)}
                     </p>
+                    <div className="mt-1 flex flex-wrap items-center gap-x-3 gap-y-1">
+                    {item.postUrl && (
+                      <a
+                        href={item.postUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        onClick={(e) => e.stopPropagation()}
+                        className="inline-flex items-center gap-1 text-xs font-medium text-emerald-600 hover:underline"
+                      >
+                        <ExternalLink className="h-3 w-3 shrink-0" />
+                        Lihat post di Threads
+                      </a>
+                    )}
                     {(item.link || item.affiliateLink) && (
                       <a
                         href={item.link?.url ?? item.affiliateLink ?? "#"}
@@ -254,7 +293,7 @@ export function QueueList() {
                         rel="noopener noreferrer"
                         onClick={(e) => e.stopPropagation()}
                         title={item.link?.url ?? item.affiliateLink ?? ""}
-                        className="mt-1 inline-flex max-w-full items-center gap-1 truncate text-xs font-medium text-primary hover:underline"
+                        className="inline-flex max-w-full items-center gap-1 truncate text-xs font-medium text-primary hover:underline"
                       >
                         <Link2 className="h-3 w-3 shrink-0" />
                         <span className="truncate">
@@ -262,6 +301,7 @@ export function QueueList() {
                         </span>
                       </a>
                     )}
+                    </div>
                   </div>
                   <div className="flex shrink-0 items-center gap-1">
                     <CopyButton value={item.content} />

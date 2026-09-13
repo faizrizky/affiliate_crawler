@@ -140,6 +140,12 @@ model AffiliateContent {
   createdAt     DateTime                 @default(now())
   updatedAt     DateTime                 @updatedAt
 
+  // Auto-publish: diisi saat job menemukan post asli di profil sendiri.
+  // publishedAt juga diisi kalau user menandai terkirim manual.
+  publishedAt     DateTime?
+  postUrl         String?
+  autoPublishedAt DateTime?
+
   templateId String
   template   Template   @relation(fields: [templateId], references: [id], onDelete: Cascade)
 
@@ -160,6 +166,9 @@ model AffiliateContent {
   @@index([userId])
   @@index([threadPostId])
   @@index([linkId])
+  // Job auto-publish: ambil draft yang masih DRAFT, terbaru dulu.
+  @@index([status, createdAt])
+  @@index([userId, status, createdAt])
 }
 
 model CrawlJob {

@@ -10,6 +10,12 @@ export interface AffiliateContent {
   status: AffiliateContentStatus;
   createdAt: string;
   updatedAt: string;
+  /** Diisi saat draft benar-benar terbit (auto-publish atau ditandai manual). */
+  publishedAt: string | null;
+  /** URL post asli di Threads, hanya ada kalau auto-publish menemukannya. */
+  postUrl: string | null;
+  /** Kapan job auto-publish mencocokkan draft ini. */
+  autoPublishedAt: string | null;
   templateId: string;
   topicId: string | null;
   threadPostId: string | null;

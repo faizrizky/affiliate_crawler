@@ -10,6 +10,7 @@ import { TemplatesModule } from "./templates/templates.module";
 import { LinksModule } from "./links/links.module";
 import { AffiliateModule } from "./affiliate/affiliate.module";
 import { AuthModule } from "./auth/auth.module";
+import { AutoPublishModule } from "./publish/auto-publish.module";
 
 @Module({
   imports: [
@@ -24,6 +25,7 @@ import { AuthModule } from "./auth/auth.module";
     // terdaftar lebih dulu daripada GET /affiliate/:id.
     LinksModule,
     AffiliateModule,
+    AutoPublishModule,
     AuthModule,
   ],
 })

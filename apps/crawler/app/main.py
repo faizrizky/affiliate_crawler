@@ -5,7 +5,7 @@ from contextlib import asynccontextmanager
 
 from fastapi import FastAPI
 from fastapi.responses import JSONResponse
-from pydantic import ValidationError
+from pydantic import BaseModel, ValidationError
 from structlog import get_logger
 
 from app.config.settings import settings
@@ -13,7 +13,7 @@ from app.exceptions import CrawlerError, ThreadsError, ThreadsErrorCode
 from app.pipelines.dedupe import dedupe
 from app.pipelines.normalize import normalize
 from app.pipelines.relevance import affiliate_score, relevance_score
-from app.platforms.threads.client import shutdown_browser
+from app.platforms.threads.client import fetch_own_posts, shutdown_browser
 from app.platforms.threads import socks_relay
 from app.queue.jobs import CrawlJobRequest
 from app.spiders.threads.search_spider import threads_search
@@ -60,6 +60,43 @@ def health() -> dict:
         "browser_timezone": settings.threads_browser_timezone,
         "accept_language": settings.threads_accept_language,
     }
+
+
+class ProfileCrawlRequest(BaseModel):
+    last_hours: int = 24
+    limit: int = 30
+
+
+@app.post("/crawl/profile/{username}", response_model=None)
+def crawl_profile(username: str, req: ProfileCrawlRequest) -> dict | JSONResponse:
+    """Baca post terbaru di sebuah profil — dipakai job auto-publish di API.
+
+    Read-only: tidak pernah menulis, membalas, atau mengirim apa pun ke Threads.
+    """
+    username = (username or settings.threads_username or "").lstrip("@")
+    if not username:
+        return JSONResponse(
+            status_code=400,
+            content={
+                "code": ThreadsErrorCode.REQUEST_FAILED,
+                "message": "username tidak diset (CRAWLER_THREADS_USERNAME kosong)",
+                "retryable": False,
+            },
+        )
+    try:
+        posts = fetch_own_posts(username, req.limit, req.last_hours)
+    except ThreadsError as exc:
+        log.warning(
+            "own_posts_failed",
+            username=username,
+            code=exc.code,
+            reason=exc.message,
+        )
+        return JSONResponse(
+            status_code=exc.status_code,
+            content={"code": exc.code, "message": exc.message, "retryable": exc.retryable},
+        )
+    return {"username": username, "posts": posts}
 
 
 @app.post("/crawl", response_model=None)

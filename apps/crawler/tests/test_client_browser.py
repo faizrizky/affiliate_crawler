@@ -1,4 +1,5 @@
 import sys
+import time
 import types
 
 import pytest
@@ -451,3 +452,45 @@ def test_real_markers_detect_logged_in_session(monkeypatch):
     page = BrowserSession().fetch(URL)
     assert page.session_trusted is True
     assert page.session_markers == ('a[href="/insights/"]',)
+
+
+def test_probe_waits_for_positive_marker_before_giving_up(monkeypatch):
+    """Shell logged-out yang muncul sesaat tidak boleh divonis LOGIN_REQUIRED."""
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", ['a[href="/insights/"]'])
+    monkeypatch.setattr(time, "sleep", lambda _s: None)
+
+    class FlappingPage:
+        """Dua polling pertama terlihat logged out, lalu nav akun muncul."""
+
+        def __init__(self):
+            self.calls = 0
+
+        def evaluate(self, script, arg=None):
+            self.calls += 1
+            if self.calls <= 2:
+                return {"authenticated": [], "unauthenticated": ['[aria-label="Login"]']}
+            return {"authenticated": ['a[href="/insights/"]'], "unauthenticated": []}
+
+        def query_selector(self, selector):
+            return None
+
+    trusted, markers = BrowserSession._probe_session(FlappingPage())
+    assert trusted is True
+    assert markers == ('a[href="/insights/"]',)
+
+
+def test_probe_reports_logged_out_after_deadline(monkeypatch):
+    monkeypatch.setattr(client_module, "AUTHENTICATED_MARKERS", ['a[href="/insights/"]'])
+    monkeypatch.setattr(settings, "threads_content_wait", 0.01)
+    monkeypatch.setattr(time, "sleep", lambda _s: None)
+
+    class LoggedOutPage:
+        def evaluate(self, script, arg=None):
+            return {"authenticated": [], "unauthenticated": ['[aria-label="Login"]']}
+
+        def query_selector(self, selector):
+            return None
+
+    trusted, markers = BrowserSession._probe_session(LoggedOutPage())
+    assert trusted is False
+    assert markers == ('[aria-label="Login"]',)

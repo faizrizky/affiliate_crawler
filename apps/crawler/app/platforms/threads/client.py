@@ -3,6 +3,7 @@ from __future__ import annotations
 import queue
 import threading
 import time
+from datetime import datetime, timedelta, timezone
 from dataclasses import dataclass
 from typing import Any, Callable
 from urllib.parse import quote_plus, urlparse
@@ -307,18 +308,25 @@ class BrowserSession:
 
     @staticmethod
     def _probe_session(page: Any) -> tuple[bool | None, tuple[str, ...]]:
-        """Tunggu nav selesai render lalu baca penanda sesi (read-only)."""
-        deadline = time.monotonic() + min(15.0, settings.threads_content_wait)
+        """Tunggu nav selesai render lalu baca penanda sesi (read-only).
+
+        ponytail: kesimpulan NEGATIF hanya boleh diambil setelah deadline habis.
+        Threads sempat merender shell logged-out (tombol Login) sebelum hydration
+        menukarnya dengan nav akun; menyimpulkan dari sinyal pertama membuat sesi
+        yang sehat divonis LOGIN_REQUIRED (kejadian 2026-09-12).
+        """
+        deadline = time.monotonic() + min(20.0, settings.threads_content_wait)
         trusted: bool | None = None
-        markers: list[str] = []
+        markers: tuple[str, ...] = ()
         while time.monotonic() < deadline:
-            trusted, markers = session_trust(page)
-            if trusted is not None:
-                break
+            current, seen = session_trust(page)
+            if current is True:
+                return True, tuple(seen)
             if page.query_selector('input[type="password"]'):
-                break
+                return False, tuple(seen)
+            trusted, markers = current, tuple(seen)
             time.sleep(0.5)
-        return trusted, tuple(markers)
+        return trusted, markers
 
     def fetch(self, url: str) -> FetchedPage:
         if self.playwright is None:
@@ -425,6 +433,66 @@ class BrowserSession:
                     page.remove_listener(event, handler)
                 except Exception:
                     pass
+            page.close()
+            if owned:
+                context.close()
+
+    def fetch_profile_posts(self, username: str, limit: int) -> list[dict[str, Any]]:
+        """Buka profil sendiri lalu baca post yang tampil. Tidak menulis apa pun."""
+        if self.playwright is None:
+            self.start()
+        self.ensure_login()
+        context, owned = self.acquire()
+        page = context.new_page()
+        try:
+            url = PROFILE_URL.format(username=username)
+            try:
+                page.goto(
+                    url,
+                    wait_until="domcontentloaded",
+                    timeout=settings.threads_browser_timeout * 1000,
+                )
+            except Exception as exc:
+                raise ThreadsError(
+                    ThreadsErrorCode.REQUEST_FAILED,
+                    f"profile load failed: {exc}",
+                    retryable=True,
+                ) from exc
+
+            if "/login" in urlparse(page.url or url).path:
+                raise ThreadsError(
+                    ThreadsErrorCode.LOGIN_REQUIRED,
+                    "Profil mengarahkan ke login; login manual ulang diperlukan.",
+                    status_code=403,
+                )
+
+            deadline = time.monotonic() + min(20.0, settings.threads_content_wait)
+            posts: list[dict[str, Any]] = []
+            while time.monotonic() < deadline:
+                try:
+                    posts = list(page.evaluate(PROFILE_POSTS_JS, username) or [])
+                except Exception:
+                    posts = []
+                if posts:
+                    break
+                time.sleep(0.5)
+
+            trusted, markers = session_trust(page)
+            if not posts and trusted is False:
+                raise ThreadsError(
+                    ThreadsErrorCode.SESSION_DEGRADED,
+                    f"Profil tidak menampilkan post dan sesi tidak dipercaya (markers={markers or 'none'}).",
+                    retryable=True,
+                    status_code=403,
+                )
+            log.info(
+                "threads_own_posts_fetched",
+                username=username,
+                count=len(posts),
+                session_trusted=trusted,
+            )
+            return posts[:limit]
+        finally:
             page.close()
             if owned:
                 context.close()
@@ -563,3 +631,66 @@ def _fetch_with_httpx(url: str) -> FetchedPage:
         rendered=False,
         page_state="static",
     )
+
+
+PROFILE_URL = "https://www.threads.com/@{username}"
+
+# Ekstraksi post milik sendiri dari halaman profil. Sengaja DOM-based (bukan
+# relay JSON) karena yang dibutuhkan cuma teks + permalink + waktu, dan struktur
+# DOM profil jauh lebih stabil daripada nama field relay yang berubah per rilis.
+PROFILE_POSTS_JS = """
+(username) => {
+  const handle = '/@' + username.toLowerCase();
+  const seen = new Map();
+  for (const article of document.querySelectorAll('article')) {
+    const link = Array.from(article.querySelectorAll('a[href*="/post/"]'))
+      .map((a) => a.getAttribute('href'))
+      .find((href) => href && href.toLowerCase().startsWith(handle));
+    if (!link) continue;
+    const time = article.querySelector('time[datetime]');
+    const text = (article.innerText || '').trim();
+    if (!text) continue;
+    const url = link.startsWith('http') ? link : 'https://www.threads.com' + link;
+    if (!seen.has(url)) {
+      seen.set(url, {
+        postUrl: url,
+        text,
+        createdAt: time ? time.getAttribute('datetime') : null,
+      });
+    }
+  }
+  return Array.from(seen.values());
+}
+"""
+
+
+def fetch_own_posts(
+    username: str, limit: int = 30, last_hours: int = 24
+) -> list[dict[str, Any]]:
+    """Ambil post terbaru dari sebuah profil (read-only, tanpa aksi apa pun).
+
+    Hasil: [{"text", "postUrl", "createdAt"}], sudah disaring ke rentang
+    last_hours. Post tanpa atribut waktu tetap disertakan — lebih baik
+    dicocokkan lalu ditolak fuzzy-match daripada hilang diam-diam.
+    """
+    worker = _get_worker()
+    posts = worker.call(worker.session.fetch_profile_posts, username, limit)
+    if last_hours <= 0:
+        return posts
+    cutoff = datetime.now(timezone.utc) - timedelta(hours=last_hours)
+    recent: list[dict[str, Any]] = []
+    for post in posts:
+        raw = post.get("createdAt")
+        if not raw:
+            recent.append(post)
+            continue
+        try:
+            published = datetime.fromisoformat(str(raw).replace("Z", "+00:00"))
+        except ValueError:
+            recent.append(post)
+            continue
+        if published.tzinfo is None:
+            published = published.replace(tzinfo=timezone.utc)
+        if published >= cutoff:
+            recent.append(post)
+    return recent
