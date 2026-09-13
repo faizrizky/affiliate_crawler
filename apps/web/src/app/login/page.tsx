@@ -10,6 +10,7 @@ import { ApiError, apiFetch, getToken, setSession } from "@/lib/api";
 import { Button } from "@/ui/button";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
+import { PasswordInput } from "@/ui/password-input";
 
 export default function LoginPage() {
   const router = useRouter();
@@ -73,9 +74,8 @@ export default function LoginPage() {
         </div>
         <div className="flex flex-col gap-1.5">
           <Label htmlFor="password">Password</Label>
-          <Input
+          <PasswordInput
             id="password"
-            type="password"
             autoComplete="current-password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}

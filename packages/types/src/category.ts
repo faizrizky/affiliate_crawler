@@ -8,5 +8,5 @@ export interface Category {
 
 export interface CategoryListItem extends Category {
   /** Template yang kehilangan kategori (jadi tanpa kategori) kalau ini dihapus. */
-  _count: { templates: number };
+  _count: { templates: number; links: number };
 }

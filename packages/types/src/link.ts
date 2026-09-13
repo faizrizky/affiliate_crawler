@@ -5,6 +5,8 @@ export interface AffiliateLink {
   createdAt: string;
   updatedAt: string;
   userId: string | null;
+  categoryId: string | null;
+  category?: { id: string; name: string } | null;
 }
 
 export interface AffiliateLinkListItem extends AffiliateLink {
@@ -26,6 +28,8 @@ export interface AffiliateLinkListResult {
 export interface AffiliateLinkInput {
   name: string;
   url: string;
+  /** null = tanpa kategori. */
+  categoryId?: string | null;
 }
 
 export type AffiliateLinkUpdateInput = Partial<AffiliateLinkInput>;

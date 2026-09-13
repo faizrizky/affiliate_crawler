@@ -31,6 +31,10 @@ class LinkCreateDto {
   @IsUrl(URL_RULES, { message: "url must be a valid http(s) URL" })
   @MaxLength(2048)
   url: string;
+
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
 }
 
 class LinkUpdateDto {
@@ -44,6 +48,11 @@ class LinkUpdateDto {
   @IsUrl(URL_RULES, { message: "url must be a valid http(s) URL" })
   @MaxLength(2048)
   url?: string;
+
+  // null / string kosong = lepas kategori.
+  @IsOptional()
+  @IsString()
+  categoryId?: string | null;
 }
 
 function toPositiveInt(value: string | undefined, fallback: number, max: number) {
@@ -79,7 +88,7 @@ export class LinksController {
 
   @Post()
   create(@Body() dto: LinkCreateDto, @CurrentUser() user: JwtPayload) {
-    return this.links.create(dto.name.trim(), dto.url.trim(), user.sub);
+    return this.links.create(dto.name.trim(), dto.url.trim(), user.sub, dto.categoryId || null);
   }
 
   @Patch(":id")
@@ -91,6 +100,7 @@ export class LinksController {
     return this.links.update(id, user.sub, {
       ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
       ...(dto.url !== undefined ? { url: dto.url.trim() } : {}),
+      ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId || null } : {}),
     });
   }
 

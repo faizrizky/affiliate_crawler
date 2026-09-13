@@ -1,7 +1,12 @@
 export interface TemplateLink {
-  id: string;
-  name: string;
-  url: string;
+  /** 1-based; link di posisi N mengisi {{affiliate_link_N}}. */
+  position: number;
+  link: {
+    id: string;
+    name: string;
+    url: string;
+    categoryId: string | null;
+  };
 }
 
 export interface Template {
@@ -12,9 +17,8 @@ export interface Template {
   isDefault: boolean;
   createdAt: string;
   updatedAt: string;
-  /** null hanya untuk template lama (dibuat sebelum katalog link ada). */
-  linkId: string | null;
-  link: TemplateLink | null;
+  /** Berurutan menurut position. */
+  links: TemplateLink[];
   categoryId: string | null;
   category: { id: string; name: string } | null;
   /** Draft yang ikut terhapus kalau template ini dihapus (relasi cascade). */
@@ -26,13 +30,14 @@ export interface Template {
 export interface TemplateCreateInput {
   name: string;
   content: string;
-  linkId: string;
+  /** Urutan = nomor placeholder: linkIds[0] -> {{affiliate_link_1}}. */
+  linkIds: string[];
   categoryId?: string | null;
 }
 
 export interface TemplateUpdateInput {
   name?: string;
   content?: string;
-  linkId?: string;
+  linkIds?: string[];
   categoryId?: string | null;
 }

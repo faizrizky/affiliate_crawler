@@ -7,6 +7,7 @@ import { toast } from "sonner";
 import { z } from "zod";
 import Link from "next/link";
 import { useCategories } from "@/hooks/use-categories";
+import { useLinks } from "@/hooks/use-links";
 import { useTemplates } from "@/hooks/use-templates";
 import { useTemplateStore } from "@/stores/template-store";
 import { Button } from "@/ui/button";
@@ -20,12 +21,13 @@ import {
 } from "@/ui/dialog";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
-import { LinkSelector } from "@/links/link-selector";
+import { highestLinkNumber } from "@/lib/template";
+import { MultiLinkSelector } from "@/links/multi-link-selector";
 import { Textarea } from "@/ui/textarea";
 
 const schema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Max 100 characters"),
-  linkId: z.string().min(1, "Pilih link produk"),
+  linkIds: z.array(z.string()).min(1, "Pilih minimal satu link produk"),
   categoryId: z.string(),
   content: z
     .string()
@@ -45,7 +47,7 @@ export function TemplateEditor() {
 
   const form = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", content: "", linkId: "", categoryId: "" },
+    defaultValues: { name: "", content: "", linkIds: [], categoryId: "" },
   });
   const {
     register,
@@ -55,14 +57,19 @@ export function TemplateEditor() {
     watch,
     formState: { errors, isSubmitting },
   } = form;
-  const linkId = watch("linkId");
+  const linkIds = watch("linkIds");
+  const categoryId = watch("categoryId");
+  const content = watch("content");
+  const { links } = useLinks();
+  // Placeholder yang nomornya melebihi jumlah link tidak akan terisi saat generate.
+  const neededLinks = highestLinkNumber(content ?? "");
 
   useEffect(() => {
     if (editorOpen) {
       reset({
         name: editingTemplate?.name ?? "",
         content: editingTemplate?.content ?? "",
-        linkId: editingTemplate?.linkId ?? "",
+        linkIds: (editingTemplate?.links ?? []).map((l) => l.link.id),
         categoryId: editingTemplate?.categoryId ?? "",
       });
     }
@@ -119,10 +126,11 @@ export function TemplateEditor() {
             <Textarea
               id="template-content"
               rows={8}
-              // Mobile: 5 baris (bisa di-drag lebih tinggi); desktop tetap 8 baris.
-              className="h-32 resize-y sm:h-auto"
+              // Mobile: 4 baris (bisa di-drag lebih tinggi) supaya form + daftar link
+              // tetap muat satu layar; desktop tetap 8 baris.
+              className="h-24 resize-y sm:h-auto"
               placeholder={
-                "Check out {{product}} — perfect for {{context}}. Get yours: {{affiliate_link}}"
+                "Check out {{product}} — perfect for {{context}}. Link 1: {{affiliate_link_1}} Link 2: {{affiliate_link_2}}"
               }
               {...register("content")}
             />
@@ -147,7 +155,19 @@ export function TemplateEditor() {
             ) : (
               <select
                 id="template-category"
-                {...register("categoryId")}
+                {...register("categoryId", {
+                  // Ganti kategori: link terpilih yang bukan dari kategori baru
+                  // dilepas, supaya pilihan link ikut tersaring.
+                  onChange: (e) => {
+                    const next = e.target.value as string;
+                    if (!next) return;
+                    const byId = new Map((links.data?.links ?? []).map((l) => [l.id, l]));
+                    const kept = linkIds.filter((id) => byId.get(id)?.categoryId === next);
+                    if (kept.length !== linkIds.length) {
+                      setValue("linkIds", kept, { shouldValidate: false });
+                    }
+                  },
+                })}
                 className="h-10 w-full rounded-full border border-input bg-card px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
               >
                 <option value="">Tanpa kategori</option>
@@ -160,14 +180,19 @@ export function TemplateEditor() {
             )}
           </div>
 
-          <LinkSelector
+          <MultiLinkSelector
             id="template-link"
-            value={linkId}
-            onChange={(next) =>
-              setValue("linkId", next, { shouldValidate: true })
-            }
-            error={errors.linkId?.message}
+            categoryId={categoryId || null}
+            value={linkIds}
+            onChange={(next) => setValue("linkIds", next, { shouldValidate: true })}
+            error={errors.linkIds?.message}
           />
+          {neededLinks > linkIds.length && (
+            <p className="-mt-1 text-xs text-amber-700" role="status">
+              Isi template memakai {`{{affiliate_link_${neededLinks}}}`}, tapi baru {linkIds.length} link dipilih —
+              placeholder yang tidak punya link tidak akan terisi.
+            </p>
+          )}
 
           <DialogFooter>
             <Button type="button" variant="outline" onClick={closeEditor}>

@@ -7,8 +7,8 @@ import { Suspense, useState, type FormEvent } from "react";
 import { AuthCard, FormError } from "@/auth/auth-card";
 import { ApiError, apiFetch } from "@/lib/api";
 import { Button } from "@/ui/button";
-import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
+import { PasswordInput } from "@/ui/password-input";
 
 function ResetPasswordForm() {
   const router = useRouter();
@@ -52,11 +52,11 @@ function ResetPasswordForm() {
     <form onSubmit={onSubmit} className="flex flex-col gap-4">
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">Password baru</Label>
-        <Input id="password" type="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={!token} />
+        <PasswordInput id="password" autoComplete="new-password" value={password} onChange={(e) => setPassword(e.target.value)} required disabled={!token} />
       </div>
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="confirm">Ulangi password baru</Label>
-        <Input id="confirm" type="password" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required disabled={!token} />
+        <PasswordInput id="confirm" autoComplete="new-password" value={confirm} onChange={(e) => setConfirm(e.target.value)} required disabled={!token} />
       </div>
       <FormError message={error} />
       <Button type="submit" disabled={loading || !token} className="w-full">

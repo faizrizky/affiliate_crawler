@@ -8,7 +8,15 @@ import {
   Patch,
   Post,
 } from "@nestjs/common";
-import { IsNotEmpty, IsOptional, IsString, MaxLength } from "class-validator";
+import {
+  ArrayMaxSize,
+  ArrayNotEmpty,
+  IsArray,
+  IsNotEmpty,
+  IsOptional,
+  IsString,
+  MaxLength,
+} from "class-validator";
 import { CurrentUser } from "../auth/auth.guard";
 import type { JwtPayload } from "../auth/auth.service";
 import { TemplatesService } from "./templates.service";
@@ -23,11 +31,12 @@ class TemplateCreateDto {
   @IsNotEmpty()
   content: string;
 
-  // Wajib untuk template baru. Kolomnya tetap nullable di DB karena template
-  // lama dibuat sebelum katalog link ada.
-  @IsString()
-  @IsNotEmpty()
-  linkId: string;
+  // Urutan menentukan nomor placeholder: linkIds[0] -> {{affiliate_link_1}}.
+  @IsArray()
+  @ArrayNotEmpty({ message: "pilih minimal satu link" })
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  linkIds: string[];
 
   @IsOptional()
   @IsString()
@@ -47,9 +56,11 @@ class TemplateUpdateDto {
   content?: string;
 
   @IsOptional()
-  @IsString()
-  @IsNotEmpty()
-  linkId?: string;
+  @IsArray()
+  @ArrayNotEmpty({ message: "pilih minimal satu link" })
+  @ArrayMaxSize(20)
+  @IsString({ each: true })
+  linkIds?: string[];
 
   // null / string kosong = lepas kategori.
   @IsOptional()
@@ -82,7 +93,7 @@ export class TemplatesController {
       dto.name,
       dto.content,
       variables,
-      dto.linkId,
+      dto.linkIds,
       user.sub,
       dto.categoryId || null,
     );

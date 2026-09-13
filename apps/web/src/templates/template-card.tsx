@@ -45,13 +45,17 @@ export function TemplateCard({
           {template.category.name}
         </span>
       )}
-      {template.link && (
-        <p
-          className="mt-1 truncate text-xs font-medium text-primary"
-          title={template.link.url}
-        >
-          {template.link.name}
-        </p>
+      {template.links.length > 0 && (
+        <ol className="mt-1.5 flex flex-col gap-0.5">
+          {template.links.map(({ position, link }) => (
+            <li key={link.id} className="flex min-w-0 items-center gap-1.5 text-xs" title={link.url}>
+              <span className="shrink-0 rounded-full bg-primary/10 px-1.5 font-semibold text-primary">
+                {position}
+              </span>
+              <span className="truncate font-medium text-primary">{link.name}</span>
+            </li>
+          ))}
+        </ol>
       )}
       <div className="mb-3 mt-2 flex-1">
         <p className="line-clamp-4 whitespace-pre-wrap text-xs text-muted-foreground">

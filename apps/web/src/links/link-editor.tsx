@@ -6,6 +6,8 @@ import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
+import Link from "next/link";
+import { useCategories } from "@/hooks/use-categories";
 import { useLinks } from "@/hooks/use-links";
 import { ApiError } from "@/lib/api";
 import { Button } from "@/ui/button";
@@ -34,6 +36,7 @@ const schema = z.object({
         return false;
       }
     }, "URL harus diawali http:// atau https://"),
+  categoryId: z.string(),
 });
 
 type FormValues = z.infer<typeof schema>;
@@ -49,6 +52,8 @@ export function LinkEditor({
   onOpenChange: (open: boolean) => void;
 }) {
   const { createLink, updateLink } = useLinks();
+  const { categories } = useCategories();
+  const categoryOptions = categories.data ?? [];
   const isEditing = link != null;
   const {
     register,
@@ -57,20 +62,24 @@ export function LinkEditor({
     formState: { errors, isSubmitting },
   } = useForm<FormValues>({
     resolver: zodResolver(schema),
-    defaultValues: { name: "", url: "" },
+    defaultValues: { name: "", url: "", categoryId: "" },
   });
 
   useEffect(() => {
-    if (open) reset({ name: link?.name ?? "", url: link?.url ?? "" });
+    if (open) {
+      reset({ name: link?.name ?? "", url: link?.url ?? "", categoryId: link?.categoryId ?? "" });
+    }
   }, [open, link, reset]);
 
   const onSubmit = handleSubmit(async (values) => {
+    // "" dari dropdown = tanpa kategori -> null supaya kategori lama dilepas.
+    const payload = { ...values, categoryId: values.categoryId || null };
     try {
       if (isEditing) {
-        await updateLink.mutateAsync({ id: link.id, ...values });
+        await updateLink.mutateAsync({ id: link.id, ...payload });
         toast.success("Link diperbarui");
       } else {
-        await createLink.mutateAsync(values);
+        await createLink.mutateAsync(payload);
         toast.success("Link ditambahkan");
       }
       onOpenChange(false);
@@ -90,11 +99,11 @@ export function LinkEditor({
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit link" : "Link baru"}</DialogTitle>
-          <DialogDescription>
+          <DialogDescription className="hidden sm:block">
             Katalog link produk yang dipakai ulang saat menulis draft.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="link-name">Nama Produk</Label>
             <Input
@@ -119,6 +128,33 @@ export function LinkEditor({
               <p className="text-xs text-destructive" role="alert">
                 {errors.url.message}
               </p>
+            )}
+          </div>
+          <div className="space-y-1.5">
+            <Label htmlFor="link-category">
+              Kategori <span className="font-normal text-muted-foreground">(opsional)</span>
+            </Label>
+            {categoryOptions.length === 0 ? (
+              <p className="text-xs text-muted-foreground">
+                Belum ada kategori.{" "}
+                <Link href="/categories" className="font-medium text-primary hover:underline">
+                  Buat di halaman Kategori
+                </Link>
+                .
+              </p>
+            ) : (
+              <select
+                id="link-category"
+                {...register("categoryId")}
+                className="h-10 w-full rounded-full border border-input bg-card px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1"
+              >
+                <option value="">Tanpa kategori</option>
+                {categoryOptions.map((c) => (
+                  <option key={c.id} value={c.id}>
+                    {c.name}
+                  </option>
+                ))}
+              </select>
             )}
           </div>
           <DialogFooter>

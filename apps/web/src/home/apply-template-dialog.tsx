@@ -7,8 +7,8 @@ import { toast } from "sonner";
 import { useAffiliateContents } from "@/hooks/use-affiliate";
 import { useTemplates } from "@/hooks/use-templates";
 import { useLinks } from "@/hooks/use-links";
-import { LinkSelector } from "@/links/link-selector";
-import { renderTemplate } from "@/lib/template";
+import { MultiLinkSelector } from "@/links/multi-link-selector";
+import { linkValues, renderTemplate } from "@/lib/template";
 import { Button } from "@/ui/button";
 import {
   Dialog,
@@ -56,7 +56,8 @@ export function ApplyTemplateDialog({
   const templateList = templates.data ?? [];
   const { links } = useLinks();
   const [selectedTemplateId, setSelectedTemplateId] = useState("");
-  const [selectedLinkId, setSelectedLinkId] = useState("");
+  // null = ikuti link template; array = sudah diubah user di dialog ini.
+  const [selectedLinkIds, setSelectedLinkIds] = useState<string[] | null>(null);
   const [values, setValues] = useState<Values>(EMPTY_VALUES);
   const [productError, setProductError] = useState(false);
   const [linkError, setLinkError] = useState(false);
@@ -75,15 +76,16 @@ export function ApplyTemplateDialog({
     : OPTIONAL_FIELDS;
 
   // Link default ikut template yang dipilih, tapi user tetap boleh menggantinya.
-  const linkId = selectedLinkId || template?.linkId || "";
-  const link = (links.data?.links ?? []).find((l) => l.id === linkId);
+  const linkIds = selectedLinkIds ?? (template?.links ?? []).map((l) => l.link.id);
+  const urlById = new Map((links.data?.links ?? []).map((l) => [l.id, l.url]));
+  const linkUrls = linkIds.map((id) => urlById.get(id) ?? "");
 
   const preview = template
     ? renderTemplate(template.content, {
         product: values.product,
         category: values.category,
         context: values.context,
-        affiliate_link: link?.url ?? "",
+        ...linkValues(linkUrls),
       })
     : "";
 
@@ -98,13 +100,13 @@ export function ApplyTemplateDialog({
       setProductError(true);
       return;
     }
-    if (!linkId) {
+    if (linkIds.length === 0) {
       setLinkError(true);
       return;
     }
     const payload = {
       templateId: template.id,
-      linkId,
+      linkIds,
       product: values.product.trim(),
       category: values.category.trim() || undefined,
       context: values.context.trim() || undefined,
@@ -158,7 +160,10 @@ export function ApplyTemplateDialog({
               <Label>Template</Label>
               <select
                 value={template?.id ?? ""}
-                onChange={(e) => setSelectedTemplateId(e.target.value)}
+                onChange={(e) => {
+                  setSelectedTemplateId(e.target.value);
+                  setSelectedLinkIds(null);
+                }}
                 className="h-10 w-full rounded-full border border-input bg-transparent px-4 text-sm text-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-1 disabled:cursor-not-allowed disabled:opacity-50"
               >
                 {templateList.map((t) => (
@@ -192,14 +197,14 @@ export function ApplyTemplateDialog({
               )}
             </div>
 
-            <LinkSelector
+            <MultiLinkSelector
               id="generate-link"
-              value={linkId}
+              value={linkIds}
               onChange={(next) => {
-                setSelectedLinkId(next);
-                if (next) setLinkError(false);
+                setSelectedLinkIds(next);
+                if (next.length) setLinkError(false);
               }}
-              error={linkError ? "Pilih link produk dulu" : undefined}
+              error={linkError ? "Pilih minimal satu link produk" : undefined}
             />
 
             {visibleFields.map((f) => (

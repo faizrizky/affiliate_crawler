@@ -10,8 +10,8 @@ export class CategoriesService {
     return this.prisma.category.findMany({
       where: { userId },
       orderBy: { name: "asc" },
-      // Dipakai dialog hapus: berapa template yang kehilangan kategori.
-      include: { _count: { select: { templates: true } } },
+      // Dipakai dialog hapus: berapa template & link yang kehilangan kategori.
+      include: { _count: { select: { templates: true, links: true } } },
     });
   }
 
@@ -40,7 +40,8 @@ export class CategoriesService {
 
   async remove(id: string, userId: string) {
     await this.get(id, userId);
-    // Template.categoryId memakai onDelete: SetNull — template tetap ada.
+    // Template.categoryId & AffiliateLink.categoryId memakai onDelete: SetNull —
+    // template dan link tetap ada, hanya jadi tanpa kategori.
     await this.prisma.category.delete({ where: { id } });
   }
 

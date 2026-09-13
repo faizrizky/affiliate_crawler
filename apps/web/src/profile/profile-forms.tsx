@@ -11,6 +11,7 @@ import { Button } from "@/ui/button";
 import { Card } from "@/ui/card";
 import { Input } from "@/ui/input";
 import { Label } from "@/ui/label";
+import { PasswordInput } from "@/ui/password-input";
 
 export function ProfileForms() {
   const { user, setUser } = useAuth();
@@ -110,15 +111,15 @@ export function ProfileForms() {
         <form onSubmit={savePassword} className="mt-4 flex flex-col gap-4">
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="current">Password saat ini</Label>
-            <Input id="current" type="password" autoComplete="current-password" value={passwords.currentPassword} onChange={(e) => setPasswords((p) => ({ ...p, currentPassword: e.target.value }))} required />
+            <PasswordInput id="current" autoComplete="current-password" value={passwords.currentPassword} onChange={(e) => setPasswords((p) => ({ ...p, currentPassword: e.target.value }))} required />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="new">Password baru</Label>
-            <Input id="new" type="password" autoComplete="new-password" value={passwords.newPassword} onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))} required />
+            <PasswordInput id="new" autoComplete="new-password" value={passwords.newPassword} onChange={(e) => setPasswords((p) => ({ ...p, newPassword: e.target.value }))} required />
           </div>
           <div className="flex flex-col gap-1.5">
             <Label htmlFor="confirm">Ulangi password baru</Label>
-            <Input id="confirm" type="password" autoComplete="new-password" value={passwords.confirm} onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))} required />
+            <PasswordInput id="confirm" autoComplete="new-password" value={passwords.confirm} onChange={(e) => setPasswords((p) => ({ ...p, confirm: e.target.value }))} required />
           </div>
           <FormError message={passwordError} />
           <Button type="submit" disabled={savingPassword} className="self-start">

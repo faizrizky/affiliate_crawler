@@ -18,6 +18,7 @@ export class LinksService {
         // Dipakai modal hapus: user diberi tahu berapa template/draft yang
         // referensinya akan jadi NULL sebelum menghapus.
         include: {
+          category: { select: { id: true, name: true } },
           _count: { select: { templates: true, affiliateContents: true } },
         },
       }),
@@ -40,25 +41,34 @@ export class LinksService {
     return link;
   }
 
-  async create(name: string, url: string, userId: string) {
+  async create(name: string, url: string, userId: string, categoryId: string | null = null) {
+    if (categoryId) await this.assertCategoryExists(categoryId, userId);
     try {
       return await this.prisma.affiliateLink.create({
-        data: { name, url, userId },
+        data: { name, url, userId, categoryId },
+        include: { category: { select: { id: true, name: true } } },
       });
     } catch (err) {
       throw this.rethrowDuplicate(err, name);
     }
   }
 
-  async update(id: string, userId: string, dto: { name?: string; url?: string }) {
+  async update(
+    id: string,
+    userId: string,
+    dto: { name?: string; url?: string; categoryId?: string | null },
+  ) {
     await this.get(id, userId);
+    if (dto.categoryId) await this.assertCategoryExists(dto.categoryId, userId);
     try {
       return await this.prisma.affiliateLink.update({
         where: { id },
         data: {
           ...(dto.name !== undefined ? { name: dto.name } : {}),
           ...(dto.url !== undefined ? { url: dto.url } : {}),
+          ...(dto.categoryId !== undefined ? { categoryId: dto.categoryId || null } : {}),
         },
+        include: { category: { select: { id: true, name: true } } },
       });
     } catch (err) {
       throw this.rethrowDuplicate(err, dto.name ?? "");
@@ -71,6 +81,13 @@ export class LinksService {
     // AffiliateContent memakai onDelete: SetNull, dan UI sudah menampilkan
     // jumlah pemakaian di modal konfirmasi sebelum sampai ke sini.
     await this.prisma.affiliateLink.delete({ where: { id } });
+  }
+
+  // Kategori wajib milik user yang sama: tanpa ini id kategori orang lain bisa
+  // ditempel ke link sendiri hanya dengan menebak.
+  private async assertCategoryExists(categoryId: string, userId: string) {
+    const category = await this.prisma.category.findFirst({ where: { id: categoryId, userId } });
+    if (!category) throw new NotFoundException("Category not found");
   }
 
   private rethrowDuplicate(err: unknown, name: string): unknown {

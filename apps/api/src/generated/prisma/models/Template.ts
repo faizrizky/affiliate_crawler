@@ -32,7 +32,6 @@ export type TemplateMinAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   userId: string | null
-  linkId: string | null
   categoryId: string | null
 }
 
@@ -44,7 +43,6 @@ export type TemplateMaxAggregateOutputType = {
   createdAt: Date | null
   updatedAt: Date | null
   userId: string | null
-  linkId: string | null
   categoryId: string | null
 }
 
@@ -57,7 +55,6 @@ export type TemplateCountAggregateOutputType = {
   createdAt: number
   updatedAt: number
   userId: number
-  linkId: number
   categoryId: number
   _all: number
 }
@@ -71,7 +68,6 @@ export type TemplateMinAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   userId?: true
-  linkId?: true
   categoryId?: true
 }
 
@@ -83,7 +79,6 @@ export type TemplateMaxAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   userId?: true
-  linkId?: true
   categoryId?: true
 }
 
@@ -96,7 +91,6 @@ export type TemplateCountAggregateInputType = {
   createdAt?: true
   updatedAt?: true
   userId?: true
-  linkId?: true
   categoryId?: true
   _all?: true
 }
@@ -182,7 +176,6 @@ export type TemplateGroupByOutputType = {
   createdAt: Date
   updatedAt: Date
   userId: string
-  linkId: string | null
   categoryId: string | null
   _count: TemplateCountAggregateOutputType | null
   _min: TemplateMinAggregateOutputType | null
@@ -216,11 +209,10 @@ export type TemplateWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   userId?: Prisma.StringFilter<"Template"> | string
-  linkId?: Prisma.StringNullableFilter<"Template"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Template"> | string | null
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
+  links?: Prisma.TemplateLinkListRelationFilter
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
 }
 
@@ -233,11 +225,10 @@ export type TemplateOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   affiliateContents?: Prisma.AffiliateContentOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
-  link?: Prisma.AffiliateLinkOrderByWithRelationInput
+  links?: Prisma.TemplateLinkOrderByRelationAggregateInput
   category?: Prisma.CategoryOrderByWithRelationInput
 }
 
@@ -254,11 +245,10 @@ export type TemplateWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   userId?: Prisma.StringFilter<"Template"> | string
-  linkId?: Prisma.StringNullableFilter<"Template"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Template"> | string | null
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
   user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
-  link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
+  links?: Prisma.TemplateLinkListRelationFilter
   category?: Prisma.XOR<Prisma.CategoryNullableScalarRelationFilter, Prisma.CategoryWhereInput> | null
 }, "id" | "userId_name">
 
@@ -271,7 +261,6 @@ export type TemplateOrderByWithAggregationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   categoryId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TemplateCountOrderByAggregateInput
   _max?: Prisma.TemplateMaxOrderByAggregateInput
@@ -290,7 +279,6 @@ export type TemplateScalarWhereWithAggregatesInput = {
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Template"> | Date | string
   userId?: Prisma.StringWithAggregatesFilter<"Template"> | string
-  linkId?: Prisma.StringNullableWithAggregatesFilter<"Template"> | string | null
   categoryId?: Prisma.StringNullableWithAggregatesFilter<"Template"> | string | null
 }
 
@@ -304,7 +292,7 @@ export type TemplateCreateInput = {
   updatedAt?: Date | string
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
   user: Prisma.UserCreateNestedOneWithoutTemplatesInput
-  link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
+  links?: Prisma.TemplateLinkCreateNestedManyWithoutTemplateInput
   category?: Prisma.CategoryCreateNestedOneWithoutTemplatesInput
 }
 
@@ -317,9 +305,9 @@ export type TemplateUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
-  linkId?: string | null
   categoryId?: string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
+  links?: Prisma.TemplateLinkUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateUpdateInput = {
@@ -332,7 +320,7 @@ export type TemplateUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
-  link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
+  links?: Prisma.TemplateLinkUpdateManyWithoutTemplateNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTemplatesNestedInput
 }
 
@@ -345,9 +333,9 @@ export type TemplateUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
+  links?: Prisma.TemplateLinkUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateCreateManyInput = {
@@ -359,7 +347,6 @@ export type TemplateCreateManyInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
-  linkId?: string | null
   categoryId?: string | null
 }
 
@@ -382,7 +369,6 @@ export type TemplateUncheckedUpdateManyInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -410,7 +396,6 @@ export type TemplateCountOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  linkId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
 }
 
@@ -422,7 +407,6 @@ export type TemplateMaxOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  linkId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
 }
 
@@ -434,7 +418,6 @@ export type TemplateMinOrderByAggregateInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   userId?: Prisma.SortOrder
-  linkId?: Prisma.SortOrder
   categoryId?: Prisma.SortOrder
 }
 
@@ -489,6 +472,20 @@ export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
 
+export type TemplateCreateNestedOneWithoutLinksInput = {
+  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinksInput, Prisma.TemplateUncheckedCreateWithoutLinksInput>
+  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinksInput
+  connect?: Prisma.TemplateWhereUniqueInput
+}
+
+export type TemplateUpdateOneRequiredWithoutLinksNestedInput = {
+  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinksInput, Prisma.TemplateUncheckedCreateWithoutLinksInput>
+  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinksInput
+  upsert?: Prisma.TemplateUpsertWithoutLinksInput
+  connect?: Prisma.TemplateWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.TemplateUpdateToOneWithWhereWithoutLinksInput, Prisma.TemplateUpdateWithoutLinksInput>, Prisma.TemplateUncheckedUpdateWithoutLinksInput>
+}
+
 export type TemplateCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.TemplateCreateWithoutCategoryInput, Prisma.TemplateUncheckedCreateWithoutCategoryInput> | Prisma.TemplateCreateWithoutCategoryInput[] | Prisma.TemplateUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutCategoryInput | Prisma.TemplateCreateOrConnectWithoutCategoryInput[]
@@ -531,48 +528,6 @@ export type TemplateUncheckedUpdateManyWithoutCategoryNestedInput = {
   deleteMany?: Prisma.TemplateScalarWhereInput | Prisma.TemplateScalarWhereInput[]
 }
 
-export type TemplateCreateNestedManyWithoutLinkInput = {
-  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput> | Prisma.TemplateCreateWithoutLinkInput[] | Prisma.TemplateUncheckedCreateWithoutLinkInput[]
-  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinkInput | Prisma.TemplateCreateOrConnectWithoutLinkInput[]
-  createMany?: Prisma.TemplateCreateManyLinkInputEnvelope
-  connect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-}
-
-export type TemplateUncheckedCreateNestedManyWithoutLinkInput = {
-  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput> | Prisma.TemplateCreateWithoutLinkInput[] | Prisma.TemplateUncheckedCreateWithoutLinkInput[]
-  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinkInput | Prisma.TemplateCreateOrConnectWithoutLinkInput[]
-  createMany?: Prisma.TemplateCreateManyLinkInputEnvelope
-  connect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-}
-
-export type TemplateUpdateManyWithoutLinkNestedInput = {
-  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput> | Prisma.TemplateCreateWithoutLinkInput[] | Prisma.TemplateUncheckedCreateWithoutLinkInput[]
-  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinkInput | Prisma.TemplateCreateOrConnectWithoutLinkInput[]
-  upsert?: Prisma.TemplateUpsertWithWhereUniqueWithoutLinkInput | Prisma.TemplateUpsertWithWhereUniqueWithoutLinkInput[]
-  createMany?: Prisma.TemplateCreateManyLinkInputEnvelope
-  set?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  disconnect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  delete?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  connect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  update?: Prisma.TemplateUpdateWithWhereUniqueWithoutLinkInput | Prisma.TemplateUpdateWithWhereUniqueWithoutLinkInput[]
-  updateMany?: Prisma.TemplateUpdateManyWithWhereWithoutLinkInput | Prisma.TemplateUpdateManyWithWhereWithoutLinkInput[]
-  deleteMany?: Prisma.TemplateScalarWhereInput | Prisma.TemplateScalarWhereInput[]
-}
-
-export type TemplateUncheckedUpdateManyWithoutLinkNestedInput = {
-  create?: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput> | Prisma.TemplateCreateWithoutLinkInput[] | Prisma.TemplateUncheckedCreateWithoutLinkInput[]
-  connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutLinkInput | Prisma.TemplateCreateOrConnectWithoutLinkInput[]
-  upsert?: Prisma.TemplateUpsertWithWhereUniqueWithoutLinkInput | Prisma.TemplateUpsertWithWhereUniqueWithoutLinkInput[]
-  createMany?: Prisma.TemplateCreateManyLinkInputEnvelope
-  set?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  disconnect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  delete?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  connect?: Prisma.TemplateWhereUniqueInput | Prisma.TemplateWhereUniqueInput[]
-  update?: Prisma.TemplateUpdateWithWhereUniqueWithoutLinkInput | Prisma.TemplateUpdateWithWhereUniqueWithoutLinkInput[]
-  updateMany?: Prisma.TemplateUpdateManyWithWhereWithoutLinkInput | Prisma.TemplateUpdateManyWithWhereWithoutLinkInput[]
-  deleteMany?: Prisma.TemplateScalarWhereInput | Prisma.TemplateScalarWhereInput[]
-}
-
 export type TemplateCreateNestedOneWithoutAffiliateContentsInput = {
   create?: Prisma.XOR<Prisma.TemplateCreateWithoutAffiliateContentsInput, Prisma.TemplateUncheckedCreateWithoutAffiliateContentsInput>
   connectOrCreate?: Prisma.TemplateCreateOrConnectWithoutAffiliateContentsInput
@@ -596,7 +551,7 @@ export type TemplateCreateWithoutUserInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
-  link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
+  links?: Prisma.TemplateLinkCreateNestedManyWithoutTemplateInput
   category?: Prisma.CategoryCreateNestedOneWithoutTemplatesInput
 }
 
@@ -608,9 +563,9 @@ export type TemplateUncheckedCreateWithoutUserInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  linkId?: string | null
   categoryId?: string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
+  links?: Prisma.TemplateLinkUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateCreateOrConnectWithoutUserInput = {
@@ -651,8 +606,75 @@ export type TemplateScalarWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   userId?: Prisma.StringFilter<"Template"> | string
-  linkId?: Prisma.StringNullableFilter<"Template"> | string | null
   categoryId?: Prisma.StringNullableFilter<"Template"> | string | null
+}
+
+export type TemplateCreateWithoutLinksInput = {
+  id?: string
+  name: string
+  content: string
+  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
+  user: Prisma.UserCreateNestedOneWithoutTemplatesInput
+  category?: Prisma.CategoryCreateNestedOneWithoutTemplatesInput
+}
+
+export type TemplateUncheckedCreateWithoutLinksInput = {
+  id?: string
+  name: string
+  content: string
+  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  userId: string
+  categoryId?: string | null
+  affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
+}
+
+export type TemplateCreateOrConnectWithoutLinksInput = {
+  where: Prisma.TemplateWhereUniqueInput
+  create: Prisma.XOR<Prisma.TemplateCreateWithoutLinksInput, Prisma.TemplateUncheckedCreateWithoutLinksInput>
+}
+
+export type TemplateUpsertWithoutLinksInput = {
+  update: Prisma.XOR<Prisma.TemplateUpdateWithoutLinksInput, Prisma.TemplateUncheckedUpdateWithoutLinksInput>
+  create: Prisma.XOR<Prisma.TemplateCreateWithoutLinksInput, Prisma.TemplateUncheckedCreateWithoutLinksInput>
+  where?: Prisma.TemplateWhereInput
+}
+
+export type TemplateUpdateToOneWithWhereWithoutLinksInput = {
+  where?: Prisma.TemplateWhereInput
+  data: Prisma.XOR<Prisma.TemplateUpdateWithoutLinksInput, Prisma.TemplateUncheckedUpdateWithoutLinksInput>
+}
+
+export type TemplateUpdateWithoutLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
+  category?: Prisma.CategoryUpdateOneWithoutTemplatesNestedInput
+}
+
+export type TemplateUncheckedUpdateWithoutLinksInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  content?: Prisma.StringFieldUpdateOperationsInput | string
+  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
+  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateCreateWithoutCategoryInput = {
@@ -665,7 +687,7 @@ export type TemplateCreateWithoutCategoryInput = {
   updatedAt?: Date | string
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
   user: Prisma.UserCreateNestedOneWithoutTemplatesInput
-  link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
+  links?: Prisma.TemplateLinkCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateUncheckedCreateWithoutCategoryInput = {
@@ -677,8 +699,8 @@ export type TemplateUncheckedCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
-  linkId?: string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
+  links?: Prisma.TemplateLinkUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateCreateOrConnectWithoutCategoryInput = {
@@ -707,58 +729,6 @@ export type TemplateUpdateManyWithWhereWithoutCategoryInput = {
   data: Prisma.XOR<Prisma.TemplateUpdateManyMutationInput, Prisma.TemplateUncheckedUpdateManyWithoutCategoryInput>
 }
 
-export type TemplateCreateWithoutLinkInput = {
-  id?: string
-  name: string
-  content: string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
-  user: Prisma.UserCreateNestedOneWithoutTemplatesInput
-  category?: Prisma.CategoryCreateNestedOneWithoutTemplatesInput
-}
-
-export type TemplateUncheckedCreateWithoutLinkInput = {
-  id?: string
-  name: string
-  content: string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  userId: string
-  categoryId?: string | null
-  affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
-}
-
-export type TemplateCreateOrConnectWithoutLinkInput = {
-  where: Prisma.TemplateWhereUniqueInput
-  create: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput>
-}
-
-export type TemplateCreateManyLinkInputEnvelope = {
-  data: Prisma.TemplateCreateManyLinkInput | Prisma.TemplateCreateManyLinkInput[]
-  skipDuplicates?: boolean
-}
-
-export type TemplateUpsertWithWhereUniqueWithoutLinkInput = {
-  where: Prisma.TemplateWhereUniqueInput
-  update: Prisma.XOR<Prisma.TemplateUpdateWithoutLinkInput, Prisma.TemplateUncheckedUpdateWithoutLinkInput>
-  create: Prisma.XOR<Prisma.TemplateCreateWithoutLinkInput, Prisma.TemplateUncheckedCreateWithoutLinkInput>
-}
-
-export type TemplateUpdateWithWhereUniqueWithoutLinkInput = {
-  where: Prisma.TemplateWhereUniqueInput
-  data: Prisma.XOR<Prisma.TemplateUpdateWithoutLinkInput, Prisma.TemplateUncheckedUpdateWithoutLinkInput>
-}
-
-export type TemplateUpdateManyWithWhereWithoutLinkInput = {
-  where: Prisma.TemplateScalarWhereInput
-  data: Prisma.XOR<Prisma.TemplateUpdateManyMutationInput, Prisma.TemplateUncheckedUpdateManyWithoutLinkInput>
-}
-
 export type TemplateCreateWithoutAffiliateContentsInput = {
   id?: string
   name: string
@@ -768,7 +738,7 @@ export type TemplateCreateWithoutAffiliateContentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   user: Prisma.UserCreateNestedOneWithoutTemplatesInput
-  link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
+  links?: Prisma.TemplateLinkCreateNestedManyWithoutTemplateInput
   category?: Prisma.CategoryCreateNestedOneWithoutTemplatesInput
 }
 
@@ -781,8 +751,8 @@ export type TemplateUncheckedCreateWithoutAffiliateContentsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
-  linkId?: string | null
   categoryId?: string | null
+  links?: Prisma.TemplateLinkUncheckedCreateNestedManyWithoutTemplateInput
 }
 
 export type TemplateCreateOrConnectWithoutAffiliateContentsInput = {
@@ -810,7 +780,7 @@ export type TemplateUpdateWithoutAffiliateContentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
-  link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
+  links?: Prisma.TemplateLinkUpdateManyWithoutTemplateNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTemplatesNestedInput
 }
 
@@ -823,8 +793,8 @@ export type TemplateUncheckedUpdateWithoutAffiliateContentsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  links?: Prisma.TemplateLinkUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateCreateManyUserInput = {
@@ -835,7 +805,6 @@ export type TemplateCreateManyUserInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  linkId?: string | null
   categoryId?: string | null
 }
 
@@ -848,7 +817,7 @@ export type TemplateUpdateWithoutUserInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
-  link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
+  links?: Prisma.TemplateLinkUpdateManyWithoutTemplateNestedInput
   category?: Prisma.CategoryUpdateOneWithoutTemplatesNestedInput
 }
 
@@ -860,9 +829,9 @@ export type TemplateUncheckedUpdateWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
+  links?: Prisma.TemplateLinkUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateUncheckedUpdateManyWithoutUserInput = {
@@ -873,7 +842,6 @@ export type TemplateUncheckedUpdateManyWithoutUserInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -886,7 +854,6 @@ export type TemplateCreateManyCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   userId: string
-  linkId?: string | null
 }
 
 export type TemplateUpdateWithoutCategoryInput = {
@@ -899,7 +866,7 @@ export type TemplateUpdateWithoutCategoryInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
   user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
-  link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
+  links?: Prisma.TemplateLinkUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateUncheckedUpdateWithoutCategoryInput = {
@@ -911,8 +878,8 @@ export type TemplateUncheckedUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
+  links?: Prisma.TemplateLinkUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
 export type TemplateUncheckedUpdateManyWithoutCategoryInput = {
@@ -924,57 +891,6 @@ export type TemplateUncheckedUpdateManyWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   userId?: Prisma.StringFieldUpdateOperationsInput | string
-  linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-}
-
-export type TemplateCreateManyLinkInput = {
-  id?: string
-  name: string
-  content: string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: boolean
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  userId: string
-  categoryId?: string | null
-}
-
-export type TemplateUpdateWithoutLinkInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
-  user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
-  category?: Prisma.CategoryUpdateOneWithoutTemplatesNestedInput
-}
-
-export type TemplateUncheckedUpdateWithoutLinkInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
-}
-
-export type TemplateUncheckedUpdateManyWithoutLinkInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  name?: Prisma.StringFieldUpdateOperationsInput | string
-  content?: Prisma.StringFieldUpdateOperationsInput | string
-  variables?: Prisma.NullableJsonNullValueInput | runtime.InputJsonValue
-  isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.StringFieldUpdateOperationsInput | string
-  categoryId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
 
@@ -984,10 +900,12 @@ export type TemplateUncheckedUpdateManyWithoutLinkInput = {
 
 export type TemplateCountOutputType = {
   affiliateContents: number
+  links: number
 }
 
 export type TemplateCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   affiliateContents?: boolean | TemplateCountOutputTypeCountAffiliateContentsArgs
+  links?: boolean | TemplateCountOutputTypeCountLinksArgs
 }
 
 /**
@@ -1007,6 +925,13 @@ export type TemplateCountOutputTypeCountAffiliateContentsArgs<ExtArgs extends ru
   where?: Prisma.AffiliateContentWhereInput
 }
 
+/**
+ * TemplateCountOutputType without action
+ */
+export type TemplateCountOutputTypeCountLinksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.TemplateLinkWhereInput
+}
+
 
 export type TemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1017,11 +942,10 @@ export type TemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  linkId?: boolean
   categoryId?: boolean
   affiliateContents?: boolean | Prisma.Template$affiliateContentsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
+  links?: boolean | Prisma.Template$linksArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
   _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
@@ -1035,10 +959,8 @@ export type TemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  linkId?: boolean
   categoryId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
 
@@ -1051,10 +973,8 @@ export type TemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  linkId?: boolean
   categoryId?: boolean
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
 
@@ -1067,26 +987,23 @@ export type TemplateSelectScalar = {
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  linkId?: boolean
   categoryId?: boolean
 }
 
-export type TemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "content" | "variables" | "isDefault" | "createdAt" | "updatedAt" | "userId" | "linkId" | "categoryId", ExtArgs["result"]["template"]>
+export type TemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "content" | "variables" | "isDefault" | "createdAt" | "updatedAt" | "userId" | "categoryId", ExtArgs["result"]["template"]>
 export type TemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   affiliateContents?: boolean | Prisma.Template$affiliateContentsArgs<ExtArgs>
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
+  links?: boolean | Prisma.Template$linksArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
   _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TemplateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
 }
 export type TemplateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
-  link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   category?: boolean | Prisma.Template$categoryArgs<ExtArgs>
 }
 
@@ -1095,7 +1012,7 @@ export type $TemplatePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   objects: {
     affiliateContents: Prisma.$AffiliateContentPayload<ExtArgs>[]
     user: Prisma.$UserPayload<ExtArgs>
-    link: Prisma.$AffiliateLinkPayload<ExtArgs> | null
+    links: Prisma.$TemplateLinkPayload<ExtArgs>[]
     category: Prisma.$CategoryPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1107,7 +1024,6 @@ export type $TemplatePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     createdAt: Date
     updatedAt: Date
     userId: string
-    linkId: string | null
     categoryId: string | null
   }, ExtArgs["result"]["template"]>
   composites: {}
@@ -1505,7 +1421,7 @@ export interface Prisma__TemplateClient<T, Null = never, ExtArgs extends runtime
   readonly [Symbol.toStringTag]: "PrismaPromise"
   affiliateContents<T extends Prisma.Template$affiliateContentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$affiliateContentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  link<T extends Prisma.Template$linkArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$linkArgs<ExtArgs>>): Prisma.Prisma__AffiliateLinkClient<runtime.Types.Result.GetResult<Prisma.$AffiliateLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  links<T extends Prisma.Template$linksArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$linksArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TemplateLinkPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   category<T extends Prisma.Template$categoryArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$categoryArgs<ExtArgs>>): Prisma.Prisma__CategoryClient<runtime.Types.Result.GetResult<Prisma.$CategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1544,7 +1460,6 @@ export interface TemplateFieldRefs {
   readonly createdAt: Prisma.FieldRef<"Template", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Template", 'DateTime'>
   readonly userId: Prisma.FieldRef<"Template", 'String'>
-  readonly linkId: Prisma.FieldRef<"Template", 'String'>
   readonly categoryId: Prisma.FieldRef<"Template", 'String'>
 }
     
@@ -1971,22 +1886,27 @@ export type Template$affiliateContentsArgs<ExtArgs extends runtime.Types.Extensi
 }
 
 /**
- * Template.link
+ * Template.links
  */
-export type Template$linkArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Template$linksArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the AffiliateLink
+   * Select specific fields to fetch from the TemplateLink
    */
-  select?: Prisma.AffiliateLinkSelect<ExtArgs> | null
+  select?: Prisma.TemplateLinkSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the AffiliateLink
+   * Omit specific fields from the TemplateLink
    */
-  omit?: Prisma.AffiliateLinkOmit<ExtArgs> | null
+  omit?: Prisma.TemplateLinkOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.AffiliateLinkInclude<ExtArgs> | null
-  where?: Prisma.AffiliateLinkWhereInput
+  include?: Prisma.TemplateLinkInclude<ExtArgs> | null
+  where?: Prisma.TemplateLinkWhereInput
+  orderBy?: Prisma.TemplateLinkOrderByWithRelationInput | Prisma.TemplateLinkOrderByWithRelationInput[]
+  cursor?: Prisma.TemplateLinkWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.TemplateLinkScalarFieldEnum | Prisma.TemplateLinkScalarFieldEnum[]
 }
 
 /**

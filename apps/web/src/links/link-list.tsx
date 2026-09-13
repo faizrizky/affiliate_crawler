@@ -2,15 +2,18 @@
 
 import type { AffiliateLinkListItem } from "@aff/types";
 import { AnimatePresence, motion } from "framer-motion";
-import { ExternalLink, Link2, Pencil, Plus, Trash2 } from "lucide-react";
+import { ExternalLink, FolderOpen, Link2, Pencil, Plus, Trash2 } from "lucide-react";
 import { useState } from "react";
 import { toast } from "sonner";
 import { listItem, listStagger } from "@/animations/list-motion";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { EmptyState } from "@/common/empty-state";
 import { SelectCheckbox } from "@/common/select-checkbox";
+import { SearchableMultiSelect } from "@/common/searchable-multi-select";
 import { SelectionBar } from "@/common/selection-bar";
+import { useCategories } from "@/hooks/use-categories";
 import { useClientPagination } from "@/hooks/use-client-pagination";
+import { keepKnown, matchesAny, UNCATEGORIZED } from "@/lib/filter";
 import { useLinks } from "@/hooks/use-links";
 import { formatTimeAgo } from "@/lib/utils";
 import { AppPagination } from "@/pagination/app-pagination";
@@ -57,6 +60,8 @@ function bulkDeleteDescription(links: AffiliateLinkListItem[]): string {
 
 export function LinkList() {
   const { links, deleteLink } = useLinks();
+  const { categories } = useCategories();
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [editorOpen, setEditorOpen] = useState(false);
   const [editing, setEditing] = useState<AffiliateLinkListItem | null>(null);
   const [deleteTarget, setDeleteTarget] =
@@ -65,10 +70,28 @@ export function LinkList() {
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
   const list = links.data?.links ?? [];
-  const { page, setPage, pageSize, setPageSize, totalPages, visible } =
-    useClientPagination(list, "links");
+  const categoryOptions = categories.data ?? [];
 
-  const selected = list.filter((link) => selectedIds.includes(link.id));
+  // Kategori yang sedang difilter bisa saja sudah dihapus -> pilihan itu diabaikan.
+  const activeFilter = keepKnown(categoryFilter, [
+    UNCATEGORIZED,
+    ...categoryOptions.map((c) => c.id),
+  ]);
+  const filterKey = activeFilter.join(",");
+
+  // Beberapa kategori = OR; tanpa pilihan = semua link.
+  const filtered = list.filter((l) => matchesAny(l.categoryId, activeFilter));
+
+  const { page, setPage, pageSize, setPageSize, totalPages, visible } =
+    useClientPagination(filtered, `links-${filterKey}`);
+
+  // Hanya link yang terlihat di filter aktif yang boleh ikut bulk delete.
+  const selected = filtered.filter((link) => selectedIds.includes(link.id));
+
+  const changeFilter = (next: string[]) => {
+    setCategoryFilter(next);
+    setSelectedIds([]);
+  };
 
   const toggleSelect = (id: string) =>
     setSelectedIds((prev) =>
@@ -119,16 +142,53 @@ export function LinkList() {
         </div>
       ) : list.length > 0 ? (
         <div className="flex flex-col gap-4">
-          <div className="flex justify-end">
+          <div className="flex flex-wrap items-center justify-between gap-3">
+            <div className="flex items-center gap-2">
+              <SearchableMultiSelect
+                id="link-category-filter"
+                label="Filter kategori"
+                allLabel="Semua kategori"
+                icon={FolderOpen}
+                searchPlaceholder="Cari kategori…"
+                values={activeFilter}
+                onChange={changeFilter}
+                options={[
+                  ...categoryOptions.map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                    count: list.filter((l) => l.categoryId === c.id).length,
+                  })),
+                  { value: UNCATEGORIZED, label: "Tanpa kategori", count: list.filter((l) => !l.categoryId).length },
+                ]}
+              />
+              {activeFilter.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => changeFilter([])}>
+                  Reset
+                </Button>
+              )}
+            </div>
             <Button onClick={() => openEditor(null)}>
               <Plus />
               Add Link
             </Button>
           </div>
 
+          {filtered.length === 0 ? (
+            <EmptyState
+              icon={FolderOpen}
+              title="Tidak ada link di filter ini"
+              description="Pilih kategori lain, atau pasang kategori saat mengedit link."
+              action={
+                <Button variant="outline" onClick={() => changeFilter([])}>
+                  Tampilkan semua
+                </Button>
+              }
+            />
+          ) : (
+          <>
           <AnimatePresence mode="wait">
             <motion.ul
-              key={`${page}-${pageSize}`}
+              key={`${filterKey}-${page}-${pageSize}`}
               variants={listStagger}
               initial="hidden"
               animate="visible"
@@ -155,8 +215,13 @@ export function LinkList() {
                       <Link2 className="h-5 w-5" />
                     </div>
                     <div className="min-w-0 flex-1">
-                      <p className="truncate text-sm font-semibold">
-                        {link.name}
+                      <p className="flex min-w-0 items-center gap-2">
+                        <span className="truncate text-sm font-semibold">{link.name}</span>
+                        {link.category && (
+                          <span className="shrink-0 rounded-full bg-secondary px-2.5 py-0.5 text-xs font-medium text-secondary-foreground">
+                            {link.category.name}
+                          </span>
+                        )}
                       </p>
                       <a
                         href={link.url}
@@ -211,6 +276,8 @@ export function LinkList() {
             onPageChange={setPage}
             onPageSizeChange={setPageSize}
           />
+          </>
+          )}
         </div>
       ) : (
         <EmptyState

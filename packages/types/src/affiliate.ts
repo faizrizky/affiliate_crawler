@@ -28,6 +28,8 @@ export interface AffiliateContentListItem extends AffiliateContent {
   template: {
     id: string;
     name: string;
+    /** Untuk filter kategori di Reply Queue. */
+    categoryId: string | null;
   };
   /** null kalau link-nya sudah dihapus; affiliateLink menyimpan URL snapshot. */
   link: {
@@ -57,7 +59,8 @@ export interface AffiliateContentUpdateInput {
 
 export interface AffiliateGenerateInput {
   templateId: string;
-  linkId: string;
+  /** Urutan = nomor placeholder. Kosong -> link yang terpasang di template. */
+  linkIds: string[];
   topicId?: string;
   threadPostId?: string;
   product: string;
@@ -67,7 +70,8 @@ export interface AffiliateGenerateInput {
 
 export interface AffiliateGenerateBatchInput {
   templateId: string;
-  linkId: string;
+  /** Urutan = nomor placeholder. Kosong -> link yang terpasang di template. */
+  linkIds: string[];
   threadPostIds: string[];
   topicId?: string;
   product: string;

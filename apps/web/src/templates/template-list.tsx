@@ -7,9 +7,11 @@ import { toast } from "sonner";
 import { listItem, listStagger } from "@/animations/list-motion";
 import { ConfirmDialog } from "@/common/confirm-dialog";
 import { EmptyState } from "@/common/empty-state";
+import { SearchableMultiSelect } from "@/common/searchable-multi-select";
 import { SelectionBar } from "@/common/selection-bar";
 import { useCategories } from "@/hooks/use-categories";
 import { useClientPagination } from "@/hooks/use-client-pagination";
+import { keepKnown, matchesAny, UNCATEGORIZED } from "@/lib/filter";
 import { useTemplates } from "@/hooks/use-templates";
 import { useTemplateStore } from "@/stores/template-store";
 import { AppPagination } from "@/pagination/app-pagination";
@@ -20,13 +22,10 @@ import { TemplateDeleteDialog } from "./template-delete-dialog";
 import { describeTemplateDelete } from "./template-delete-copy";
 import { TemplateEditor } from "./template-editor";
 
-const ALL = "all";
-const UNCATEGORIZED = "none";
-
 export function TemplateList() {
   const { templates, deleteTemplate } = useTemplates();
   const { categories } = useCategories();
-  const [categoryFilter, setCategoryFilter] = useState<string>(ALL);
+  const [categoryFilter, setCategoryFilter] = useState<string[]>([]);
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [bulkDeleteOpen, setBulkDeleteOpen] = useState(false);
   const [bulkDeleting, setBulkDeleting] = useState(false);
@@ -34,27 +33,22 @@ export function TemplateList() {
   const list = templates.data ?? [];
   const categoryOptions = categories.data ?? [];
 
-  // Kategori yang sedang difilter bisa saja sudah dihapus -> kembali ke "Semua".
-  const activeFilter =
-    categoryFilter === ALL ||
-    categoryFilter === UNCATEGORIZED ||
-    categoryOptions.some((c) => c.id === categoryFilter)
-      ? categoryFilter
-      : ALL;
+  // Kategori yang sedang difilter bisa saja sudah dihapus -> pilihan itu diabaikan.
+  const activeFilter = keepKnown(categoryFilter, [
+    UNCATEGORIZED,
+    ...categoryOptions.map((c) => c.id),
+  ]);
+  const filterKey = activeFilter.join(",");
 
-  const filtered =
-    activeFilter === ALL
-      ? list
-      : activeFilter === UNCATEGORIZED
-        ? list.filter((t) => !t.categoryId)
-        : list.filter((t) => t.categoryId === activeFilter);
+  // Beberapa kategori = OR; tanpa pilihan = semua template.
+  const filtered = list.filter((t) => matchesAny(t.categoryId, activeFilter));
 
   const { page, setPage, pageSize, setPageSize, totalPages, visible } =
-    useClientPagination(filtered, `templates-${activeFilter}`);
+    useClientPagination(filtered, `templates-${filterKey}`);
   // Hanya item yang terlihat di filter aktif yang boleh ikut bulk delete.
   const selected = filtered.filter((t) => selectedIds.includes(t.id));
 
-  const changeFilter = (next: string) => {
+  const changeFilter = (next: string[]) => {
     setCategoryFilter(next);
     // Pilihan tidak boleh bocor antar filter: template tersembunyi tetap akan
     // ikut terhapus kalau masih tercentang.
@@ -96,31 +90,25 @@ export function TemplateList() {
         <div className="flex flex-col gap-4">
           <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="flex items-center gap-2">
-              <label htmlFor="template-category-filter" className="sr-only">
-                Filter kategori
-              </label>
-              <div className="relative">
-                <FolderOpen className="pointer-events-none absolute left-3.5 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
-                <select
-                  id="template-category-filter"
-                  value={activeFilter}
-                  onChange={(e) => changeFilter(e.target.value)}
-                  className="h-10 min-w-52 appearance-none rounded-full border border-input bg-card pl-10 pr-9 text-sm text-foreground shadow-sm focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
-                >
-                  <option value={ALL}>Semua kategori ({list.length})</option>
-                  {categoryOptions.map((c) => (
-                    <option key={c.id} value={c.id}>
-                      {c.name} ({list.filter((t) => t.categoryId === c.id).length})
-                    </option>
-                  ))}
-                  <option value={UNCATEGORIZED}>Tanpa kategori ({uncategorizedCount})</option>
-                </select>
-                <span aria-hidden className="pointer-events-none absolute right-3.5 top-1/2 -translate-y-1/2 text-xs text-muted-foreground">
-                  ▾
-                </span>
-              </div>
-              {activeFilter !== ALL && (
-                <Button variant="ghost" size="sm" onClick={() => changeFilter(ALL)}>
+              <SearchableMultiSelect
+                id="template-category-filter"
+                label="Filter kategori"
+                allLabel="Semua kategori"
+                icon={FolderOpen}
+                searchPlaceholder="Cari kategori…"
+                values={activeFilter}
+                onChange={changeFilter}
+                options={[
+                  ...categoryOptions.map((c) => ({
+                    value: c.id,
+                    label: c.name,
+                    count: list.filter((t) => t.categoryId === c.id).length,
+                  })),
+                  { value: UNCATEGORIZED, label: "Tanpa kategori", count: uncategorizedCount },
+                ]}
+              />
+              {activeFilter.length > 0 && (
+                <Button variant="ghost" size="sm" onClick={() => changeFilter([])}>
                   Reset
                 </Button>
               )}
@@ -136,7 +124,7 @@ export function TemplateList() {
               title="Tidak ada template di filter ini"
               description="Pilih kategori lain, atau pasang kategori saat mengedit template."
               action={
-                <Button variant="outline" onClick={() => changeFilter(ALL)}>
+                <Button variant="outline" onClick={() => changeFilter([])}>
                   Tampilkan semua
                 </Button>
               }
@@ -145,7 +133,7 @@ export function TemplateList() {
           <>
           <AnimatePresence mode="wait">
             <motion.div
-              key={`${activeFilter}-${page}-${pageSize}`}
+              key={`${filterKey}-${page}-${pageSize}`}
               variants={listStagger}
               initial="hidden"
               animate="visible"

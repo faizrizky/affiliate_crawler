@@ -106,10 +106,8 @@ model Template {
   user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
   userId            String
 
-  // Nullable karena template lama dibuat sebelum katalog link ada; API
-  // mewajibkan linkId pada create/update baru.
-  linkId String?
-  link   AffiliateLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
+  // Link berurutan: link di posisi N mengisi {{affiliate_link_N}}.
+  links TemplateLink[]
 
   // Opsional: template lama belum berkategori. Hapus kategori -> NULL.
   categoryId String?
@@ -117,8 +115,22 @@ model Template {
 
   @@unique([userId, name])
   @@index([userId])
-  @@index([linkId])
   @@index([categoryId])
+}
+
+// Penghubung template <-> link dengan urutan. Posisi 1-based dan tidak
+// dirapatkan saat link dihapus: {{affiliate_link_2}} tidak boleh diam-diam
+// berpindah ke URL yang tadinya link ke-3.
+model TemplateLink {
+  templateId String
+  template   Template      @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  linkId     String
+  link       AffiliateLink @relation(fields: [linkId], references: [id], onDelete: Cascade)
+  position   Int
+
+  @@id([templateId, position])
+  @@unique([templateId, linkId])
+  @@index([linkId])
 }
 
 // Pengelompokan template per user (mis. "Fashion Bayi", "Skincare").
@@ -132,6 +144,7 @@ model Category {
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   templates Template[]
+  links     AffiliateLink[]
 
   @@unique([userId, name])
   @@index([userId])
@@ -151,13 +164,18 @@ model AffiliateLink {
   userId String
   user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
+  // Opsional. Dipakai menyaring pilihan link di form template berkategori.
+  categoryId String?
+  category   Category? @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+
   // Hapus link tidak menghapus template/draft: referensinya di-set NULL.
   // Teks draft tetap utuh karena URL-nya sudah tertanam saat digenerate.
-  templates         Template[]
+  templates         TemplateLink[]
   affiliateContents AffiliateContent[]
 
   @@unique([userId, name])
   @@index([userId])
+  @@index([categoryId])
 }
 
 model AffiliateContent {

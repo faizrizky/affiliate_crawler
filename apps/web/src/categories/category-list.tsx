@@ -22,9 +22,13 @@ import { CategoryEditor } from "./category-editor";
 /** Hapus kategori tidak menghapus template: templatenya jadi tanpa kategori. */
 function describeDelete(categories: CategoryListItem[]): string {
   const templates = categories.reduce((n, c) => n + (c._count?.templates ?? 0), 0);
+  const links = categories.reduce((n, c) => n + (c._count?.links ?? 0), 0);
   const what = categories.length === 1 ? `"${categories[0].name}"` : `${categories.length} kategori`;
-  if (templates === 0) return `${what} akan dihapus permanen.`;
-  return `${what} dipakai ${templates} template. Template itu tidak ikut terhapus, hanya jadi tanpa kategori.`;
+  const used: string[] = [];
+  if (templates > 0) used.push(`${templates} template`);
+  if (links > 0) used.push(`${links} link`);
+  if (used.length === 0) return `${what} akan dihapus permanen.`;
+  return `${what} dipakai ${used.join(" dan ")}. Keduanya tidak ikut terhapus, hanya jadi tanpa kategori.`;
 }
 
 export function CategoryList() {
@@ -116,7 +120,7 @@ export function CategoryList() {
                       <div className="min-w-0 flex-1">
                         <p className="truncate text-sm font-semibold">{category.name}</p>
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          {count} template · dibuat {formatTimeAgo(category.createdAt)}
+                          {count} template · {category._count?.links ?? 0} link · dibuat {formatTimeAgo(category.createdAt)}
                         </p>
                       </div>
                       <div className="flex shrink-0 items-center gap-1">
