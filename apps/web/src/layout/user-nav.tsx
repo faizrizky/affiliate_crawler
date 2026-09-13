@@ -1,37 +1,28 @@
 "use client";
 
-import { LogOut } from "lucide-react";
+import { LogOut, UserRound } from "lucide-react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import { apiFetch, clearToken } from "@/lib/api";
+import { useAuth } from "@/auth/auth-context";
+import { clearToken } from "@/lib/api";
 import { cn } from "@/lib/utils";
 
-export function UserNav({
-  showEmail = false,
-  className,
-}: {
-  showEmail?: boolean;
-  className?: string;
-}) {
+export function UserNav({ className }: { showEmail?: boolean; className?: string }) {
   const router = useRouter();
-  const [email, setEmail] = useState<string | null>(null);
-
-  useEffect(() => {
-    apiFetch<{ email: string }>("/auth/me")
-      .then((me) => me && setEmail(me.email))
-      .catch(() => undefined);
-  }, []);
+  const { user } = useAuth();
 
   return (
     <div className={cn("flex items-center gap-2", className)}>
-      {showEmail && (
-        <span className="hidden max-w-36 truncate text-sm text-muted-foreground lg:block">
-          {email ?? "…"}
-        </span>
-      )}
+      <Link
+        href="/profile"
+        title={user.email}
+        className="inline-flex max-w-44 items-center gap-2 rounded-full bg-card/80 px-4 py-3 text-sm font-semibold text-foreground shadow-sm backdrop-blur transition-transform active:scale-[0.97]"
+      >
+        <UserRound className="h-4 w-4 shrink-0 text-primary" />
+        <span className="truncate">@{user.username}</span>
+      </Link>
       <button
         type="button"
-        title={email ?? undefined}
         onClick={() => {
           clearToken();
           router.replace("/login");
@@ -39,7 +30,7 @@ export function UserNav({
         className="inline-flex items-center gap-2 rounded-full bg-card/80 px-5 py-3 text-sm font-semibold text-primary shadow-sm backdrop-blur transition-transform active:scale-[0.97]"
       >
         <LogOut className="h-4 w-4" />
-        Logout
+        <span className="hidden sm:inline">Logout</span>
       </button>
     </div>
   );

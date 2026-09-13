@@ -28,12 +28,18 @@ enum AffiliateContentStatus {
 }
 
 model User {
-  id           String    @id @default(uuid())
-  name         String?
-  email        String    @unique
-  passwordHash String?
-  createdAt    DateTime  @default(now())
-  updatedAt    DateTime  @updatedAt
+  id              String    @id @default(uuid())
+  username        String    @unique
+  name            String?
+  email           String    @unique
+  passwordHash    String?
+  // Akun Threads milik user, dipakai auto-publish untuk mencari post-nya.
+  threadsUsername String?
+  // Refresh/reset token yang terbit sebelum waktu ini ditolak: mengganti
+  // password otomatis mencabut semua sesi lama dan link reset yang sudah dipakai.
+  passwordChangedAt DateTime?
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
 
   topics            Topic[]
   templates         Template[]
@@ -51,11 +57,12 @@ model Topic {
   posts       ThreadPost[]
   crawlJobs   CrawlJob[]
   contents    AffiliateContent[]
-  user        User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId      String?
+  user        User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId      String
 
   @@index([userId])
   @@index([keyword])
+  @@index([userId, keyword])
 }
 
 model ThreadPost {
@@ -87,7 +94,7 @@ model ThreadPost {
 
 model Template {
   id         String   @id @default(uuid())
-  name       String   @unique
+  name       String
   content    String
   variables  Json?
   isDefault  Boolean  @default(false)
@@ -95,14 +102,15 @@ model Template {
   updatedAt  DateTime @updatedAt
 
   affiliateContents AffiliateContent[]
-  user              User?        @relation(fields: [userId], references: [id], onDelete: SetNull)
-  userId            String?
+  user              User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId            String
 
   // Nullable karena template lama dibuat sebelum katalog link ada; API
   // mewajibkan linkId pada create/update baru.
   linkId String?
   link   AffiliateLink? @relation(fields: [linkId], references: [id], onDelete: SetNull)
 
+  @@unique([userId, name])
   @@index([userId])
   @@index([linkId])
 }
@@ -113,19 +121,20 @@ model Template {
 // memengaruhi konten yang sudah digenerate.
 model AffiliateLink {
   id        String   @id @default(uuid())
-  name      String   @unique
+  name      String
   url       String
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 
-  userId String?
-  user   User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId String
+  user   User   @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   // Hapus link tidak menghapus template/draft: referensinya di-set NULL.
   // Teks draft tetap utuh karena URL-nya sudah tertanam saat digenerate.
   templates         Template[]
   affiliateContents AffiliateContent[]
 
+  @@unique([userId, name])
   @@index([userId])
 }
 
@@ -152,8 +161,12 @@ model AffiliateContent {
   topicId String?
   topic   Topic?    @relation(fields: [topicId], references: [id], onDelete: SetNull)
 
-  userId  String?
-  user    User?     @relation(fields: [userId], references: [id], onDelete: SetNull)
+  userId  String
+  user    User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Link balasan yang di-paste user setelah posting manual; username di
+  // dalamnya dipakai auto-publish sebelum jatuh ke User.threadsUsername.
+  replyLink String?
 
   threadPostId String?
   threadPost   ThreadPost? @relation(fields: [threadPostId], references: [id], onDelete: SetNull)

@@ -7,11 +7,19 @@ import { fuzzyMatch, mentionsProduct } from "./fuzzy-match";
 
 export const AUTO_PUBLISH_QUEUE = "auto-publish";
 
+/** "https://www.threads.com/@budi/post/abc" -> "budi". */
+export function usernameFromReplyLink(link: string | null | undefined): string | null {
+  if (!link) return null;
+  const match = /threads\.(?:com|net)\/@([\w.]+)/i.exec(link);
+  return match ? match[1].toLowerCase() : null;
+}
+
 type OwnPost = { text: string; postUrl: string; createdAt: string | null };
 
 export type AutoPublishResult = {
   checked: number;
   matched: number;
+  accounts?: number;
   skipped?: "no-drafts";
   error?: string;
 };
@@ -25,7 +33,6 @@ export class AutoPublishService implements OnModuleInit, OnModuleDestroy {
   private readonly threshold: number;
   private readonly windowHours: number;
   private readonly intervalMs: number;
-  private readonly username: string;
 
   constructor(
     private readonly prisma: PrismaService,
@@ -36,7 +43,7 @@ export class AutoPublishService implements OnModuleInit, OnModuleDestroy {
     this.threshold = Number(config.get("AUTO_PUBLISH_THRESHOLD") ?? 0.85);
     this.windowHours = Number(config.get("AUTO_PUBLISH_WINDOW_HOURS") ?? 24);
     this.intervalMs = Number(config.get("AUTO_PUBLISH_INTERVAL_MS") ?? 120_000);
-    this.username = (config.get("THREADS_USERNAME") ?? "muhammadrizky522").replace(/^@/, "");
+
 
     this.queue = new Queue(AUTO_PUBLISH_QUEUE, { connection: redis.client });
     this.worker = new Worker(
@@ -78,34 +85,52 @@ export class AutoPublishService implements OnModuleInit, OnModuleDestroy {
       return { checked: 0, matched: 0, skipped: "no-drafts" };
     }
 
-    let ownPosts: OwnPost[];
-    try {
-      ownPosts = await this.fetchOwnPosts();
-    } catch (err) {
-      const message = err instanceof Error ? err.message : String(err);
-      this.logger.warn(`could not read own posts: ${message}`);
-      return { checked: drafts.length, matched: 0, error: message };
-    }
-
-    const matchedIds: string[] = [];
+    // Kelompokkan per akun Threads: satu crawl per username unik per siklus,
+    // bukan per draft — semua request lewat SATU sesi login crawler.
+    const byUsername = new Map<string, typeof drafts>();
     for (const draft of drafts) {
-      const post = ownPosts.find(
-        (p) =>
-          mentionsProduct(draft.product, p.text) &&
-          fuzzyMatch(draft.content, p.text, this.threshold),
-      );
-      if (!post) continue;
-      // Spec: draft kembar semuanya ikut terbit saat satu post cocok.
-      await this.markPublished(draft.id, post.postUrl, post.createdAt);
-      matchedIds.push(draft.id);
+      const username =
+        usernameFromReplyLink(draft.replyLink) ?? draft.user.threadsUsername;
+      if (!username) continue; // user belum mengisi akun Threads-nya
+      const key = username.replace(/^@/, "").toLowerCase();
+      byUsername.set(key, [...(byUsername.get(key) ?? []), draft]);
     }
 
-    if (matchedIds.length > 0) {
-      this.logger.log(
-        `auto-published ${matchedIds.length} draft (dari ${drafts.length} menunggu)`,
-      );
+    let matched = 0;
+    const errors: string[] = [];
+    for (const [username, group] of byUsername) {
+      let posts: OwnPost[];
+      try {
+        posts = await this.fetchPosts(username);
+      } catch (err) {
+        // Satu akun gagal tidak boleh menghentikan akun lain di siklus yang sama.
+        const message = err instanceof Error ? err.message : String(err);
+        this.logger.warn(`could not read posts of @${username}: ${message}`);
+        errors.push(`@${username}: ${message}`);
+        continue;
+      }
+      for (const draft of group) {
+        const post = posts.find(
+          (p) =>
+            mentionsProduct(draft.product, p.text) &&
+            fuzzyMatch(draft.content, p.text, this.threshold),
+        );
+        if (!post) continue;
+        // Draft kembar semuanya ikut terbit saat satu post cocok.
+        await this.markPublished(draft.id, post.postUrl, post.createdAt);
+        matched += 1;
+      }
     }
-    return { checked: drafts.length, matched: matchedIds.length };
+
+    if (matched > 0) {
+      this.logger.log(`auto-published ${matched} draft (dari ${drafts.length} menunggu)`);
+    }
+    return {
+      checked: drafts.length,
+      matched,
+      accounts: byUsername.size,
+      ...(errors.length ? { error: errors.join("; ") } : {}),
+    };
   }
 
   private getPendingDrafts() {
@@ -113,15 +138,21 @@ export class AutoPublishService implements OnModuleInit, OnModuleDestroy {
     return this.prisma.affiliateContent.findMany({
       where: { status: "DRAFT", createdAt: { gte: since } },
       orderBy: { createdAt: "desc" },
-      select: { id: true, content: true, product: true },
+      select: {
+        id: true,
+        content: true,
+        product: true,
+        replyLink: true,
+        user: { select: { threadsUsername: true } },
+      },
     });
   }
 
-  private async fetchOwnPosts(): Promise<OwnPost[]> {
+  private async fetchPosts(username: string): Promise<OwnPost[]> {
     // API tidak pernah menjalankan Playwright sendiri: sesi browser tetap milik
     // service crawler, di sini cuma panggilan HTTP.
     const res = await fetch(
-      `${this.crawlerUrl}/crawl/profile/${encodeURIComponent(this.username)}`,
+      `${this.crawlerUrl}/crawl/profile/${encodeURIComponent(username)}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },

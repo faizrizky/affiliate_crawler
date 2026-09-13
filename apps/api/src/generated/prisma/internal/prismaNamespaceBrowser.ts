@@ -78,9 +78,12 @@ export type TransactionIsolationLevel = (typeof TransactionIsolationLevel)[keyof
 
 export const UserScalarFieldEnum = {
   id: 'id',
+  username: 'username',
   name: 'name',
   email: 'email',
   passwordHash: 'passwordHash',
+  threadsUsername: 'threadsUsername',
+  passwordChangedAt: 'passwordChangedAt',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -165,6 +168,7 @@ export const AffiliateContentScalarFieldEnum = {
   templateId: 'templateId',
   topicId: 'topicId',
   userId: 'userId',
+  replyLink: 'replyLink',
   threadPostId: 'threadPostId',
   linkId: 'linkId'
 } as const

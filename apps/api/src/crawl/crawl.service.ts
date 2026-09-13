@@ -50,16 +50,20 @@ export class CrawlService {
     return job;
   }
 
-  async getJob(id: string) {
-    const job = await this.prisma.crawlJob.findUnique({ where: { id } });
+  async getJob(id: string, userId: string) {
+    const job = await this.prisma.crawlJob.findFirst({
+      where: { id, topic: { userId } },
+    });
     if (!job) {
       throw new NotFoundException("Crawl job not found");
     }
     return job;
   }
 
-  async updateProgress(id: string, progress: number, total: number) {
-    const job = await this.prisma.crawlJob.findUnique({ where: { id } });
+  async updateProgress(id: string, progress: number, total: number, userId: string) {
+    const job = await this.prisma.crawlJob.findFirst({
+      where: { id, topic: { userId } },
+    });
     if (!job) {
       throw new NotFoundException("Crawl job not found");
     }

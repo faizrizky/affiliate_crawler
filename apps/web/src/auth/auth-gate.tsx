@@ -3,25 +3,30 @@
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 import { apiFetch, clearToken, getToken } from "@/lib/api";
+import { AuthProvider } from "./auth-context";
+import type { UserProfile } from "./types";
 
 export function AuthGate({ children }: { children: React.ReactNode }) {
   const router = useRouter();
-  const [ready, setReady] = useState(false);
+  const [user, setUser] = useState<UserProfile | null>(null);
 
   useEffect(() => {
     if (!getToken()) {
       router.replace("/login");
       return;
     }
-    apiFetch("/auth/me")
-      .then(() => setReady(true))
+    apiFetch<UserProfile>("/auth/me")
+      .then((me) => {
+        if (!me) throw new Error("no profile");
+        setUser(me);
+      })
       .catch(() => {
         clearToken();
         router.replace("/login");
       });
   }, [router]);
 
-  if (!ready) {
+  if (!user) {
     return (
       <div className="flex min-h-screen items-center justify-center">
         <div
@@ -33,5 +38,5 @@ export function AuthGate({ children }: { children: React.ReactNode }) {
     );
   }
 
-  return <>{children}</>;
+  return <AuthProvider initialUser={user}>{children}</AuthProvider>;
 }

@@ -8,9 +8,10 @@ const DUPLICATE_NAME = "P2002";
 export class LinksService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async list(page: number, pageSize: number) {
+  async list(userId: string, page: number, pageSize: number) {
     const [items, total] = await Promise.all([
       this.prisma.affiliateLink.findMany({
+        where: { userId },
         orderBy: { createdAt: "desc" },
         skip: (page - 1) * pageSize,
         take: pageSize,
@@ -20,7 +21,7 @@ export class LinksService {
           _count: { select: { templates: true, affiliateContents: true } },
         },
       }),
-      this.prisma.affiliateLink.count(),
+      this.prisma.affiliateLink.count({ where: { userId } }),
     ]);
     return {
       links: items,
@@ -31,8 +32,8 @@ export class LinksService {
     };
   }
 
-  async get(id: string) {
-    const link = await this.prisma.affiliateLink.findUnique({ where: { id } });
+  async get(id: string, userId: string) {
+    const link = await this.prisma.affiliateLink.findFirst({ where: { id, userId } });
     if (!link) {
       throw new NotFoundException("Link not found");
     }
@@ -49,8 +50,8 @@ export class LinksService {
     }
   }
 
-  async update(id: string, dto: { name?: string; url?: string }) {
-    await this.get(id);
+  async update(id: string, userId: string, dto: { name?: string; url?: string }) {
+    await this.get(id, userId);
     try {
       return await this.prisma.affiliateLink.update({
         where: { id },
@@ -64,8 +65,8 @@ export class LinksService {
     }
   }
 
-  async remove(id: string) {
-    await this.get(id);
+  async remove(id: string, userId: string) {
+    await this.get(id, userId);
     // Tidak memblokir saat link masih dipakai: relasi di Template dan
     // AffiliateContent memakai onDelete: SetNull, dan UI sudah menampilkan
     // jumlah pemakaian di modal konfirmasi sebelum sampai ke sini.

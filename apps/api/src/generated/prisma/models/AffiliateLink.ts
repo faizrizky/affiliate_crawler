@@ -159,7 +159,7 @@ export type AffiliateLinkGroupByOutputType = {
   url: string
   createdAt: Date
   updatedAt: Date
-  userId: string | null
+  userId: string
   _count: AffiliateLinkCountAggregateOutputType | null
   _min: AffiliateLinkMinAggregateOutputType | null
   _max: AffiliateLinkMaxAggregateOutputType | null
@@ -189,8 +189,8 @@ export type AffiliateLinkWhereInput = {
   url?: Prisma.StringFilter<"AffiliateLink"> | string
   createdAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
-  userId?: Prisma.StringNullableFilter<"AffiliateLink"> | string | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  userId?: Prisma.StringFilter<"AffiliateLink"> | string
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   templates?: Prisma.TemplateListRelationFilter
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
 }
@@ -201,7 +201,7 @@ export type AffiliateLinkOrderByWithRelationInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   user?: Prisma.UserOrderByWithRelationInput
   templates?: Prisma.TemplateOrderByRelationAggregateInput
   affiliateContents?: Prisma.AffiliateContentOrderByRelationAggregateInput
@@ -209,18 +209,19 @@ export type AffiliateLinkOrderByWithRelationInput = {
 
 export type AffiliateLinkWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  name?: string
+  userId_name?: Prisma.AffiliateLinkUserIdNameCompoundUniqueInput
   AND?: Prisma.AffiliateLinkWhereInput | Prisma.AffiliateLinkWhereInput[]
   OR?: Prisma.AffiliateLinkWhereInput[]
   NOT?: Prisma.AffiliateLinkWhereInput | Prisma.AffiliateLinkWhereInput[]
+  name?: Prisma.StringFilter<"AffiliateLink"> | string
   url?: Prisma.StringFilter<"AffiliateLink"> | string
   createdAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
-  userId?: Prisma.StringNullableFilter<"AffiliateLink"> | string | null
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  userId?: Prisma.StringFilter<"AffiliateLink"> | string
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   templates?: Prisma.TemplateListRelationFilter
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
-}, "id" | "name">
+}, "id" | "userId_name">
 
 export type AffiliateLinkOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -228,7 +229,7 @@ export type AffiliateLinkOrderByWithAggregationInput = {
   url?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   _count?: Prisma.AffiliateLinkCountOrderByAggregateInput
   _max?: Prisma.AffiliateLinkMaxOrderByAggregateInput
   _min?: Prisma.AffiliateLinkMinOrderByAggregateInput
@@ -243,7 +244,7 @@ export type AffiliateLinkScalarWhereWithAggregatesInput = {
   url?: Prisma.StringWithAggregatesFilter<"AffiliateLink"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"AffiliateLink"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"AffiliateLink"> | Date | string
-  userId?: Prisma.StringNullableWithAggregatesFilter<"AffiliateLink"> | string | null
+  userId?: Prisma.StringWithAggregatesFilter<"AffiliateLink"> | string
 }
 
 export type AffiliateLinkCreateInput = {
@@ -252,7 +253,7 @@ export type AffiliateLinkCreateInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  user?: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
+  user: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
   templates?: Prisma.TemplateCreateNestedManyWithoutLinkInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutLinkInput
 }
@@ -263,7 +264,7 @@ export type AffiliateLinkUncheckedCreateInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutLinkInput
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutLinkInput
 }
@@ -274,7 +275,7 @@ export type AffiliateLinkUpdateInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneWithoutAffiliateLinksNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAffiliateLinksNestedInput
   templates?: Prisma.TemplateUpdateManyWithoutLinkNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutLinkNestedInput
 }
@@ -285,7 +286,7 @@ export type AffiliateLinkUncheckedUpdateInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutLinkNestedInput
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutLinkNestedInput
 }
@@ -296,7 +297,7 @@ export type AffiliateLinkCreateManyInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
 }
 
 export type AffiliateLinkUpdateManyMutationInput = {
@@ -313,7 +314,7 @@ export type AffiliateLinkUncheckedUpdateManyInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type AffiliateLinkListRelationFilter = {
@@ -329,6 +330,11 @@ export type AffiliateLinkOrderByRelationAggregateInput = {
 export type AffiliateLinkNullableScalarRelationFilter = {
   is?: Prisma.AffiliateLinkWhereInput | null
   isNot?: Prisma.AffiliateLinkWhereInput | null
+}
+
+export type AffiliateLinkUserIdNameCompoundUniqueInput = {
+  userId: string
+  name: string
 }
 
 export type AffiliateLinkCountOrderByAggregateInput = {
@@ -487,7 +493,7 @@ export type AffiliateLinkScalarWhereInput = {
   url?: Prisma.StringFilter<"AffiliateLink"> | string
   createdAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"AffiliateLink"> | Date | string
-  userId?: Prisma.StringNullableFilter<"AffiliateLink"> | string | null
+  userId?: Prisma.StringFilter<"AffiliateLink"> | string
 }
 
 export type AffiliateLinkCreateWithoutTemplatesInput = {
@@ -496,7 +502,7 @@ export type AffiliateLinkCreateWithoutTemplatesInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  user?: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
+  user: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutLinkInput
 }
 
@@ -506,7 +512,7 @@ export type AffiliateLinkUncheckedCreateWithoutTemplatesInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutLinkInput
 }
 
@@ -532,7 +538,7 @@ export type AffiliateLinkUpdateWithoutTemplatesInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneWithoutAffiliateLinksNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAffiliateLinksNestedInput
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutLinkNestedInput
 }
 
@@ -542,7 +548,7 @@ export type AffiliateLinkUncheckedUpdateWithoutTemplatesInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutLinkNestedInput
 }
 
@@ -552,7 +558,7 @@ export type AffiliateLinkCreateWithoutAffiliateContentsInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  user?: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
+  user: Prisma.UserCreateNestedOneWithoutAffiliateLinksInput
   templates?: Prisma.TemplateCreateNestedManyWithoutLinkInput
 }
 
@@ -562,7 +568,7 @@ export type AffiliateLinkUncheckedCreateWithoutAffiliateContentsInput = {
   url: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   templates?: Prisma.TemplateUncheckedCreateNestedManyWithoutLinkInput
 }
 
@@ -588,7 +594,7 @@ export type AffiliateLinkUpdateWithoutAffiliateContentsInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneWithoutAffiliateLinksNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutAffiliateLinksNestedInput
   templates?: Prisma.TemplateUpdateManyWithoutLinkNestedInput
 }
 
@@ -598,7 +604,7 @@ export type AffiliateLinkUncheckedUpdateWithoutAffiliateContentsInput = {
   url?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   templates?: Prisma.TemplateUncheckedUpdateManyWithoutLinkNestedInput
 }
 
@@ -685,7 +691,7 @@ export type AffiliateLinkSelect<ExtArgs extends runtime.Types.Extensions.Interna
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   templates?: boolean | Prisma.AffiliateLink$templatesArgs<ExtArgs>
   affiliateContents?: boolean | Prisma.AffiliateLink$affiliateContentsArgs<ExtArgs>
   _count?: boolean | Prisma.AffiliateLinkCountOutputTypeDefaultArgs<ExtArgs>
@@ -698,7 +704,7 @@ export type AffiliateLinkSelectCreateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["affiliateLink"]>
 
 export type AffiliateLinkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -708,7 +714,7 @@ export type AffiliateLinkSelectUpdateManyAndReturn<ExtArgs extends runtime.Types
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["affiliateLink"]>
 
 export type AffiliateLinkSelectScalar = {
@@ -722,22 +728,22 @@ export type AffiliateLinkSelectScalar = {
 
 export type AffiliateLinkOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "url" | "createdAt" | "updatedAt" | "userId", ExtArgs["result"]["affiliateLink"]>
 export type AffiliateLinkInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   templates?: boolean | Prisma.AffiliateLink$templatesArgs<ExtArgs>
   affiliateContents?: boolean | Prisma.AffiliateLink$affiliateContentsArgs<ExtArgs>
   _count?: boolean | Prisma.AffiliateLinkCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type AffiliateLinkIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type AffiliateLinkIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.AffiliateLink$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $AffiliateLinkPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "AffiliateLink"
   objects: {
-    user: Prisma.$UserPayload<ExtArgs> | null
+    user: Prisma.$UserPayload<ExtArgs>
     templates: Prisma.$TemplatePayload<ExtArgs>[]
     affiliateContents: Prisma.$AffiliateContentPayload<ExtArgs>[]
   }
@@ -747,7 +753,7 @@ export type $AffiliateLinkPayload<ExtArgs extends runtime.Types.Extensions.Inter
     url: string
     createdAt: Date
     updatedAt: Date
-    userId: string | null
+    userId: string
   }, ExtArgs["result"]["affiliateLink"]>
   composites: {}
 }
@@ -1142,7 +1148,7 @@ readonly fields: AffiliateLinkFieldRefs;
  */
 export interface Prisma__AffiliateLinkClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
-  user<T extends Prisma.AffiliateLink$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateLink$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   templates<T extends Prisma.AffiliateLink$templatesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateLink$templatesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$TemplatePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   affiliateContents<T extends Prisma.AffiliateLink$affiliateContentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.AffiliateLink$affiliateContentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
@@ -1578,25 +1584,6 @@ export type AffiliateLinkDeleteManyArgs<ExtArgs extends runtime.Types.Extensions
    * Limit how many AffiliateLinks to delete.
    */
   limit?: number
-}
-
-/**
- * AffiliateLink.user
- */
-export type AffiliateLink$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
 }
 
 /**

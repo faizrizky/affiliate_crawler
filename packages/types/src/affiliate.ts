@@ -16,6 +16,8 @@ export interface AffiliateContent {
   postUrl: string | null;
   /** Kapan job auto-publish mencocokkan draft ini. */
   autoPublishedAt: string | null;
+  /** Link post balasan yang di-paste user; username-nya dipakai auto-publish. */
+  replyLink: string | null;
   templateId: string;
   topicId: string | null;
   threadPostId: string | null;
@@ -44,6 +46,7 @@ export interface AffiliateContentListItem extends AffiliateContent {
 }
 
 export interface AffiliateContentUpdateInput {
+  replyLink?: string;
   product?: string;
   category?: string;
   context?: string;

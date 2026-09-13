@@ -9,8 +9,9 @@ export class TopicsService {
     private readonly crawl: CrawlService,
   ) {}
 
-  async list() {
+  async list(userId: string) {
     const topics = await this.prisma.topic.findMany({
+      where: { userId },
       orderBy: { createdAt: "desc" },
       include: {
         _count: { select: { posts: true } },
@@ -24,17 +25,19 @@ export class TopicsService {
     }));
   }
 
-  async delete(id: string) {
-    const topic = await this.prisma.topic.findUnique({ where: { id } });
+  async delete(id: string, userId: string) {
+    // findFirst + userId: topik milik user lain diperlakukan sama dengan
+    // topik yang tidak ada (404), supaya id milik orang lain tidak bisa diraba.
+    const topic = await this.prisma.topic.findFirst({ where: { id, userId } });
     if (!topic) {
       throw new NotFoundException("Topic not found");
     }
     await this.prisma.topic.delete({ where: { id } });
   }
 
-  async get(id: string) {
-    const topic = await this.prisma.topic.findUnique({
-      where: { id },
+  async get(id: string, userId: string) {
+    const topic = await this.prisma.topic.findFirst({
+      where: { id, userId },
       include: {
         crawlJobs: { orderBy: { createdAt: "desc" }, take: 1 },
         _count: { select: { posts: true } },
@@ -46,8 +49,8 @@ export class TopicsService {
     return topic;
   }
 
-  async getPosts(id: string, page: number, pageSize: number) {
-    const topic = await this.prisma.topic.findUnique({ where: { id } });
+  async getPosts(id: string, page: number, pageSize: number, userId: string) {
+    const topic = await this.prisma.topic.findFirst({ where: { id, userId } });
     if (!topic) {
       throw new NotFoundException("Topic not found");
     }
@@ -82,7 +85,10 @@ export class TopicsService {
 
   async search(keyword: string, limit: number, userId: string) {
     const existing = await this.prisma.topic.findFirst({
-      where: { keyword: { equals: keyword.trim(), mode: "insensitive" } },
+      where: {
+        userId,
+        keyword: { equals: keyword.trim(), mode: "insensitive" },
+      },
     });
     const topic =
       existing ??

@@ -47,21 +47,22 @@ export class TopicsController {
   constructor(private readonly topics: TopicsService) {}
 
   @Get()
-  list() {
-    return this.topics.list();
+  list(@CurrentUser() user: JwtPayload) {
+    return this.topics.list(user.sub);
   }
 
   @Get(":id")
-  get(@Param("id") id: string) {
-    return this.topics.get(id);
+  get(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.topics.get(id, user.sub);
   }
 
   @Get(":id/posts")
   posts(
     @Param("id") id: string,
     @Query() query: PostsQueryDto,
+    @CurrentUser() user: JwtPayload,
   ) {
-    return this.topics.getPosts(id, query.page ?? 1, query.pageSize ?? 20);
+    return this.topics.getPosts(id, query.page ?? 1, query.pageSize ?? 20, user.sub);
   }
 
   @Post("search")
@@ -72,7 +73,7 @@ export class TopicsController {
 
   @Delete(":id")
   @HttpCode(204)
-  delete(@Param("id") id: string) {
-    return this.topics.delete(id);
+  delete(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.topics.delete(id, user.sub);
   }
 }

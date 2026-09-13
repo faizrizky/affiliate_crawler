@@ -60,16 +60,21 @@ export class LinksController {
   constructor(private readonly links: LinksService) {}
 
   @Get()
-  list(@Query("page") page?: string, @Query("pageSize") pageSize?: string) {
+  list(
+    @CurrentUser() user: JwtPayload,
+    @Query("page") page?: string,
+    @Query("pageSize") pageSize?: string,
+  ) {
     return this.links.list(
+      user.sub,
       toPositiveInt(page, 1, 10_000),
       toPositiveInt(pageSize, 50, 200),
     );
   }
 
   @Get(":id")
-  get(@Param("id") id: string) {
-    return this.links.get(id);
+  get(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.links.get(id, user.sub);
   }
 
   @Post()
@@ -78,8 +83,12 @@ export class LinksController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() dto: LinkUpdateDto) {
-    return this.links.update(id, {
+  update(
+    @Param("id") id: string,
+    @Body() dto: LinkUpdateDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.links.update(id, user.sub, {
       ...(dto.name !== undefined ? { name: dto.name.trim() } : {}),
       ...(dto.url !== undefined ? { url: dto.url.trim() } : {}),
     });
@@ -87,7 +96,7 @@ export class LinksController {
 
   @Delete(":id")
   @HttpCode(204)
-  remove(@Param("id") id: string) {
-    return this.links.remove(id);
+  remove(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.links.remove(id, user.sub);
   }
 }

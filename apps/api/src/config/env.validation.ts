@@ -13,6 +13,17 @@ const schema = z.object({
   API_PORT: z.coerce.number().int().min(1).default(3001),
   OPENAI_API_KEY: z.string().optional(),
   JWT_SECRET: z.string().min(32),
+  // Opsional: kalau kosong, diturunkan dari JWT_SECRET dengan label berbeda
+  // (lihat auth.service.ts) supaya token akses tidak bisa dipakai sebagai refresh.
+  JWT_REFRESH_SECRET: z.string().min(32).optional(),
+  JWT_RESET_SECRET: z.string().min(32).optional(),
+  // Base URL web untuk link reset password di email.
+  APP_URL: z.url().default("http://localhost:3000"),
+  SMTP_HOST: z.string().optional(),
+  SMTP_PORT: z.coerce.number().int().optional(),
+  SMTP_USER: z.string().optional(),
+  SMTP_PASS: z.string().optional(),
+  EMAIL_FROM: z.string().optional(),
 });
 
 export function validateEnv(env: Record<string, unknown>) {

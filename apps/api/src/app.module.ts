@@ -11,6 +11,8 @@ import { LinksModule } from "./links/links.module";
 import { AffiliateModule } from "./affiliate/affiliate.module";
 import { AuthModule } from "./auth/auth.module";
 import { AutoPublishModule } from "./publish/auto-publish.module";
+import { MailModule } from "./mail/mail.module";
+import { UserModule } from "./user/user.module";
 
 @Module({
   imports: [
@@ -26,7 +28,9 @@ import { AutoPublishModule } from "./publish/auto-publish.module";
     LinksModule,
     AffiliateModule,
     AutoPublishModule,
+    MailModule,
     AuthModule,
+    UserModule,
   ],
 })
 export class AppModule {}

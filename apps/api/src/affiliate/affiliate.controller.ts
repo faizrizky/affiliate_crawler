@@ -17,6 +17,8 @@ import {
   IsNotEmpty,
   IsOptional,
   IsString,
+  Matches,
+  ValidateIf,
 } from "class-validator";
 import { PrismaService } from "../prisma/prisma.service";
 import { CurrentUser } from "../auth/auth.guard";
@@ -129,6 +131,14 @@ class UpdateContentDto {
   @IsOptional()
   @IsIn(["DRAFT", "PUBLISHED", "ARCHIVED"])
   status?: AffiliateContentStatus;
+
+  // Link balasan di Threads yang di-paste user; string kosong = hapus.
+  @IsOptional()
+  @ValidateIf((dto: UpdateContentDto) => Boolean(dto.replyLink))
+  @Matches(/^https:\/\/(www\.)?threads\.(com|net)\/@[\w.]+\/post\/[\w-]+/i, {
+    message: "replyLink harus berupa link post Threads (https://www.threads.com/@user/post/...)",
+  })
+  replyLink?: string;
 }
 
 const VARIABLE_MAP: Record<string, keyof TemplateValues> = {
@@ -160,14 +170,14 @@ export class AffiliateController {
   @Post("generate")
   @HttpCode(HttpStatus.CREATED)
   async generate(@Body() dto: GenerateContentDto, @CurrentUser() user: JwtPayload) {
-    const template = await this.prisma.template.findUnique({
-      where: { id: dto.templateId },
+    const template = await this.prisma.template.findFirst({
+      where: { id: dto.templateId, userId: user.sub },
     });
     if (!template) {
       throw new NotFoundException("Template not found");
     }
-    const link = await this.prisma.affiliateLink.findUnique({
-      where: { id: dto.linkId },
+    const link = await this.prisma.affiliateLink.findFirst({
+      where: { id: dto.linkId, userId: user.sub },
     });
     if (!link) {
       throw new NotFoundException("Link not found");
@@ -176,16 +186,16 @@ export class AffiliateController {
     let topicId = dto.topicId;
 
     if (dto.threadPostId) {
-      const post = await this.prisma.threadPost.findUnique({
-        where: { id: dto.threadPostId },
+      const post = await this.prisma.threadPost.findFirst({
+        where: { id: dto.threadPostId, topic: { userId: user.sub } },
       });
       if (!post) {
         throw new NotFoundException("Thread post not found");
       }
       topicId = post.topicId;
     } else if (topicId) {
-      const topic = await this.prisma.topic.findUnique({
-        where: { id: topicId },
+      const topic = await this.prisma.topic.findFirst({
+        where: { id: topicId, userId: user.sub },
       });
       if (!topic) {
         throw new NotFoundException("Topic not found");
@@ -218,30 +228,31 @@ export class AffiliateController {
     @Body() dto: GenerateBatchDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    const template = await this.prisma.template.findUnique({
-      where: { id: dto.templateId },
+    const template = await this.prisma.template.findFirst({
+      where: { id: dto.templateId, userId: user.sub },
     });
     if (!template) {
       throw new NotFoundException("Template not found");
     }
-    const link = await this.prisma.affiliateLink.findUnique({
-      where: { id: dto.linkId },
+    const link = await this.prisma.affiliateLink.findFirst({
+      where: { id: dto.linkId, userId: user.sub },
     });
     if (!link) {
       throw new NotFoundException("Link not found");
     }
 
     if (dto.topicId) {
-      const topic = await this.prisma.topic.findUnique({
-        where: { id: dto.topicId },
+      const topic = await this.prisma.topic.findFirst({
+        where: { id: dto.topicId, userId: user.sub },
       });
       if (!topic) {
         throw new NotFoundException("Topic not found");
       }
     }
 
+    // Post milik topik user lain masuk skippedIds, sama seperti id yang tidak ada.
     const posts = await this.prisma.threadPost.findMany({
-      where: { id: { in: dto.threadPostIds } },
+      where: { id: { in: dto.threadPostIds }, topic: { userId: user.sub } },
     });
     const skippedIds = dto.threadPostIds.filter(
       (id) => !posts.some((p) => p.id === id),
@@ -275,8 +286,9 @@ export class AffiliateController {
   }
 
   @Get()
-  async list() {
+  async list(@CurrentUser() user: JwtPayload) {
     return this.prisma.affiliateContent.findMany({
+      where: { userId: user.sub },
       orderBy: { createdAt: "desc" },
       include: {
         template: { select: { id: true, name: true } },
@@ -296,9 +308,9 @@ export class AffiliateController {
   }
 
   @Get(":id")
-  async get(@Param("id") id: string) {
-    const content = await this.prisma.affiliateContent.findUnique({
-      where: { id },
+  async get(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    const content = await this.prisma.affiliateContent.findFirst({
+      where: { id, userId: user.sub },
       include: { template: true, topic: true },
     });
     if (!content) {
@@ -308,9 +320,13 @@ export class AffiliateController {
   }
 
   @Put(":id")
-  async update(@Param("id") id: string, @Body() dto: UpdateContentDto) {
-    const existing = await this.prisma.affiliateContent.findUnique({
-      where: { id },
+  async update(
+    @Param("id") id: string,
+    @Body() dto: UpdateContentDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    const existing = await this.prisma.affiliateContent.findFirst({
+      where: { id, userId: user.sub },
     });
     if (!existing) {
       throw new NotFoundException("Affiliate content not found");
@@ -328,7 +344,13 @@ export class AffiliateController {
           affiliateLink: dto.affiliateLink || null,
         }),
         ...(dto.content !== undefined && { content: dto.content }),
-        ...(dto.status !== undefined && { status: dto.status }),
+        ...(dto.replyLink !== undefined && { replyLink: dto.replyLink || null }),
+        ...(dto.status !== undefined && {
+          status: dto.status,
+          // Tandai terkirim manual juga mengisi publishedAt; kembali ke DRAFT
+          // menghapusnya supaya auto-publish tidak salah membaca riwayat.
+          publishedAt: dto.status === "PUBLISHED" ? existing.publishedAt ?? new Date() : null,
+        }),
       },
       include: { template: { select: { id: true, name: true } } },
     });
@@ -336,9 +358,9 @@ export class AffiliateController {
 
   @Delete(":id")
   @HttpCode(HttpStatus.NO_CONTENT)
-  async remove(@Param("id") id: string) {
-    const existing = await this.prisma.affiliateContent.findUnique({
-      where: { id },
+  async remove(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    const existing = await this.prisma.affiliateContent.findFirst({
+      where: { id, userId: user.sub },
     });
     if (!existing) {
       throw new NotFoundException("Affiliate content not found");

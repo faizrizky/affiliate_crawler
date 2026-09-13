@@ -57,13 +57,13 @@ export class TemplatesController {
   constructor(private readonly templates: TemplatesService) {}
 
   @Get()
-  list() {
-    return this.templates.list();
+  list(@CurrentUser() user: JwtPayload) {
+    return this.templates.list(user.sub);
   }
 
   @Get(":id")
-  get(@Param("id") id: string) {
-    return this.templates.get(id);
+  get(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.templates.get(id, user.sub);
   }
 
   @Post()
@@ -79,15 +79,19 @@ export class TemplatesController {
   }
 
   @Patch(":id")
-  update(@Param("id") id: string, @Body() dto: TemplateUpdateDto) {
+  update(
+    @Param("id") id: string,
+    @Body() dto: TemplateUpdateDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     const variables =
       dto.content !== undefined ? extractVariables(dto.content) : undefined;
-    return this.templates.update(id, dto, variables);
+    return this.templates.update(id, user.sub, dto, variables);
   }
 
   @Delete(":id")
   @HttpCode(204)
-  remove(@Param("id") id: string) {
-    return this.templates.remove(id);
+  remove(@Param("id") id: string, @CurrentUser() user: JwtPayload) {
+    return this.templates.remove(id, user.sub);
   }
 }

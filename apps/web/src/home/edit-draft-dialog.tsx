@@ -35,6 +35,14 @@ const schema = z.object({
   category: z.string().trim().max(100),
   context: z.string().trim().max(500),
   affiliateLink: z.string().trim().max(500),
+  replyLink: z
+    .string()
+    .trim()
+    .max(500)
+    .refine(
+      (v) => v === "" || /^https:\/\/(www\.)?threads\.(com|net)\/@[\w.]+\/post\/[\w-]+/i.test(v),
+      "Harus link post Threads, mis. https://www.threads.com/@kamu/post/abc",
+    ),
   content: z.string().trim().min(1, "Content is required"),
   status: z.enum(["DRAFT", "PUBLISHED", "ARCHIVED"]),
 });
@@ -46,6 +54,7 @@ const EMPTY: FormData = {
   category: "",
   context: "",
   affiliateLink: "",
+  replyLink: "",
   content: "",
   status: "DRAFT",
 };
@@ -71,6 +80,7 @@ export function EditDraftDialog({ draft, onOpenChange }: Props) {
       category: draft.category ?? "",
       context: draft.context ?? "",
       affiliateLink: draft.affiliateLink ?? "",
+      replyLink: draft.replyLink ?? "",
       content: draft.content,
       status: draft.status,
     });
@@ -132,6 +142,23 @@ export function EditDraftDialog({ draft, onOpenChange }: Props) {
                 placeholder="https://…"
                 {...form.register("affiliateLink")}
               />
+            </div>
+
+            <div className="space-y-1.5">
+              <Label htmlFor="edit-reply-link">Link balasan di Threads</Label>
+              <Input
+                id="edit-reply-link"
+                placeholder="https://www.threads.com/@kamu/post/…"
+                {...form.register("replyLink")}
+              />
+              <p className="text-xs text-muted-foreground">
+                Opsional. Tempel setelah kamu posting; auto-publish memakai akun di link ini.
+              </p>
+              {form.formState.errors.replyLink && (
+                <p className="text-xs text-destructive">
+                  {form.formState.errors.replyLink.message}
+                </p>
+              )}
             </div>
 
             <div className="space-y-1.5">

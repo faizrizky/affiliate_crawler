@@ -159,7 +159,7 @@ export type TopicGroupByOutputType = {
   status: $Enums.TopicStatus
   createdAt: Date
   updatedAt: Date
-  userId: string | null
+  userId: string
   _count: TopicCountAggregateOutputType | null
   _min: TopicMinAggregateOutputType | null
   _max: TopicMaxAggregateOutputType | null
@@ -189,11 +189,11 @@ export type TopicWhereInput = {
   status?: Prisma.EnumTopicStatusFilter<"Topic"> | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Topic"> | string | null
+  userId?: Prisma.StringFilter<"Topic"> | string
   posts?: Prisma.ThreadPostListRelationFilter
   crawlJobs?: Prisma.CrawlJobListRelationFilter
   contents?: Prisma.AffiliateContentListRelationFilter
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }
 
 export type TopicOrderByWithRelationInput = {
@@ -202,7 +202,7 @@ export type TopicOrderByWithRelationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   posts?: Prisma.ThreadPostOrderByRelationAggregateInput
   crawlJobs?: Prisma.CrawlJobOrderByRelationAggregateInput
   contents?: Prisma.AffiliateContentOrderByRelationAggregateInput
@@ -218,11 +218,11 @@ export type TopicWhereUniqueInput = Prisma.AtLeast<{
   status?: Prisma.EnumTopicStatusFilter<"Topic"> | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Topic"> | string | null
+  userId?: Prisma.StringFilter<"Topic"> | string
   posts?: Prisma.ThreadPostListRelationFilter
   crawlJobs?: Prisma.CrawlJobListRelationFilter
   contents?: Prisma.AffiliateContentListRelationFilter
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
 }, "id">
 
 export type TopicOrderByWithAggregationInput = {
@@ -231,7 +231,7 @@ export type TopicOrderByWithAggregationInput = {
   status?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   _count?: Prisma.TopicCountOrderByAggregateInput
   _max?: Prisma.TopicMaxOrderByAggregateInput
   _min?: Prisma.TopicMinOrderByAggregateInput
@@ -246,7 +246,7 @@ export type TopicScalarWhereWithAggregatesInput = {
   status?: Prisma.EnumTopicStatusWithAggregatesFilter<"Topic"> | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Topic"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Topic"> | Date | string
-  userId?: Prisma.StringNullableWithAggregatesFilter<"Topic"> | string | null
+  userId?: Prisma.StringWithAggregatesFilter<"Topic"> | string
 }
 
 export type TopicCreateInput = {
@@ -258,7 +258,7 @@ export type TopicCreateInput = {
   posts?: Prisma.ThreadPostCreateNestedManyWithoutTopicInput
   crawlJobs?: Prisma.CrawlJobCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentCreateNestedManyWithoutTopicInput
-  user?: Prisma.UserCreateNestedOneWithoutTopicsInput
+  user: Prisma.UserCreateNestedOneWithoutTopicsInput
 }
 
 export type TopicUncheckedCreateInput = {
@@ -267,7 +267,7 @@ export type TopicUncheckedCreateInput = {
   status?: $Enums.TopicStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   posts?: Prisma.ThreadPostUncheckedCreateNestedManyWithoutTopicInput
   crawlJobs?: Prisma.CrawlJobUncheckedCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTopicInput
@@ -282,7 +282,7 @@ export type TopicUpdateInput = {
   posts?: Prisma.ThreadPostUpdateManyWithoutTopicNestedInput
   crawlJobs?: Prisma.CrawlJobUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUpdateManyWithoutTopicNestedInput
-  user?: Prisma.UserUpdateOneWithoutTopicsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTopicsNestedInput
 }
 
 export type TopicUncheckedUpdateInput = {
@@ -291,7 +291,7 @@ export type TopicUncheckedUpdateInput = {
   status?: Prisma.EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   posts?: Prisma.ThreadPostUncheckedUpdateManyWithoutTopicNestedInput
   crawlJobs?: Prisma.CrawlJobUncheckedUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTopicNestedInput
@@ -303,7 +303,7 @@ export type TopicCreateManyInput = {
   status?: $Enums.TopicStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
 }
 
 export type TopicUpdateManyMutationInput = {
@@ -320,7 +320,7 @@ export type TopicUncheckedUpdateManyInput = {
   status?: Prisma.EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type TopicListRelationFilter = {
@@ -517,7 +517,7 @@ export type TopicScalarWhereInput = {
   status?: Prisma.EnumTopicStatusFilter<"Topic"> | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Topic"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Topic"> | string | null
+  userId?: Prisma.StringFilter<"Topic"> | string
 }
 
 export type TopicCreateWithoutPostsInput = {
@@ -528,7 +528,7 @@ export type TopicCreateWithoutPostsInput = {
   updatedAt?: Date | string
   crawlJobs?: Prisma.CrawlJobCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentCreateNestedManyWithoutTopicInput
-  user?: Prisma.UserCreateNestedOneWithoutTopicsInput
+  user: Prisma.UserCreateNestedOneWithoutTopicsInput
 }
 
 export type TopicUncheckedCreateWithoutPostsInput = {
@@ -537,7 +537,7 @@ export type TopicUncheckedCreateWithoutPostsInput = {
   status?: $Enums.TopicStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   crawlJobs?: Prisma.CrawlJobUncheckedCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTopicInput
 }
@@ -566,7 +566,7 @@ export type TopicUpdateWithoutPostsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   crawlJobs?: Prisma.CrawlJobUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUpdateManyWithoutTopicNestedInput
-  user?: Prisma.UserUpdateOneWithoutTopicsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTopicsNestedInput
 }
 
 export type TopicUncheckedUpdateWithoutPostsInput = {
@@ -575,7 +575,7 @@ export type TopicUncheckedUpdateWithoutPostsInput = {
   status?: Prisma.EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   crawlJobs?: Prisma.CrawlJobUncheckedUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTopicNestedInput
 }
@@ -588,7 +588,7 @@ export type TopicCreateWithoutContentsInput = {
   updatedAt?: Date | string
   posts?: Prisma.ThreadPostCreateNestedManyWithoutTopicInput
   crawlJobs?: Prisma.CrawlJobCreateNestedManyWithoutTopicInput
-  user?: Prisma.UserCreateNestedOneWithoutTopicsInput
+  user: Prisma.UserCreateNestedOneWithoutTopicsInput
 }
 
 export type TopicUncheckedCreateWithoutContentsInput = {
@@ -597,7 +597,7 @@ export type TopicUncheckedCreateWithoutContentsInput = {
   status?: $Enums.TopicStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   posts?: Prisma.ThreadPostUncheckedCreateNestedManyWithoutTopicInput
   crawlJobs?: Prisma.CrawlJobUncheckedCreateNestedManyWithoutTopicInput
 }
@@ -626,7 +626,7 @@ export type TopicUpdateWithoutContentsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   posts?: Prisma.ThreadPostUpdateManyWithoutTopicNestedInput
   crawlJobs?: Prisma.CrawlJobUpdateManyWithoutTopicNestedInput
-  user?: Prisma.UserUpdateOneWithoutTopicsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTopicsNestedInput
 }
 
 export type TopicUncheckedUpdateWithoutContentsInput = {
@@ -635,7 +635,7 @@ export type TopicUncheckedUpdateWithoutContentsInput = {
   status?: Prisma.EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   posts?: Prisma.ThreadPostUncheckedUpdateManyWithoutTopicNestedInput
   crawlJobs?: Prisma.CrawlJobUncheckedUpdateManyWithoutTopicNestedInput
 }
@@ -648,7 +648,7 @@ export type TopicCreateWithoutCrawlJobsInput = {
   updatedAt?: Date | string
   posts?: Prisma.ThreadPostCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentCreateNestedManyWithoutTopicInput
-  user?: Prisma.UserCreateNestedOneWithoutTopicsInput
+  user: Prisma.UserCreateNestedOneWithoutTopicsInput
 }
 
 export type TopicUncheckedCreateWithoutCrawlJobsInput = {
@@ -657,7 +657,7 @@ export type TopicUncheckedCreateWithoutCrawlJobsInput = {
   status?: $Enums.TopicStatus
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   posts?: Prisma.ThreadPostUncheckedCreateNestedManyWithoutTopicInput
   contents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTopicInput
 }
@@ -686,7 +686,7 @@ export type TopicUpdateWithoutCrawlJobsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   posts?: Prisma.ThreadPostUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUpdateManyWithoutTopicNestedInput
-  user?: Prisma.UserUpdateOneWithoutTopicsNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTopicsNestedInput
 }
 
 export type TopicUncheckedUpdateWithoutCrawlJobsInput = {
@@ -695,7 +695,7 @@ export type TopicUncheckedUpdateWithoutCrawlJobsInput = {
   status?: Prisma.EnumTopicStatusFieldUpdateOperationsInput | $Enums.TopicStatus
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   posts?: Prisma.ThreadPostUncheckedUpdateManyWithoutTopicNestedInput
   contents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTopicNestedInput
 }
@@ -797,7 +797,7 @@ export type TopicSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   posts?: boolean | Prisma.Topic$postsArgs<ExtArgs>
   crawlJobs?: boolean | Prisma.Topic$crawlJobsArgs<ExtArgs>
   contents?: boolean | Prisma.Topic$contentsArgs<ExtArgs>
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.TopicCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["topic"]>
 
@@ -808,7 +808,7 @@ export type TopicSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["topic"]>
 
 export type TopicSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -818,7 +818,7 @@ export type TopicSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensi
   createdAt?: boolean
   updatedAt?: boolean
   userId?: boolean
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["topic"]>
 
 export type TopicSelectScalar = {
@@ -835,14 +835,14 @@ export type TopicInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   posts?: boolean | Prisma.Topic$postsArgs<ExtArgs>
   crawlJobs?: boolean | Prisma.Topic$crawlJobsArgs<ExtArgs>
   contents?: boolean | Prisma.Topic$contentsArgs<ExtArgs>
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   _count?: boolean | Prisma.TopicCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TopicIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 export type TopicIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Topic$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
 }
 
 export type $TopicPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -851,7 +851,7 @@ export type $TopicPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     posts: Prisma.$ThreadPostPayload<ExtArgs>[]
     crawlJobs: Prisma.$CrawlJobPayload<ExtArgs>[]
     contents: Prisma.$AffiliateContentPayload<ExtArgs>[]
-    user: Prisma.$UserPayload<ExtArgs> | null
+    user: Prisma.$UserPayload<ExtArgs>
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -859,7 +859,7 @@ export type $TopicPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs 
     status: $Enums.TopicStatus
     createdAt: Date
     updatedAt: Date
-    userId: string | null
+    userId: string
   }, ExtArgs["result"]["topic"]>
   composites: {}
 }
@@ -1257,7 +1257,7 @@ export interface Prisma__TopicClient<T, Null = never, ExtArgs extends runtime.Ty
   posts<T extends Prisma.Topic$postsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Topic$postsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ThreadPostPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   crawlJobs<T extends Prisma.Topic$crawlJobsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Topic$crawlJobsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$CrawlJobPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   contents<T extends Prisma.Topic$contentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Topic$contentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  user<T extends Prisma.Topic$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Topic$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1763,25 +1763,6 @@ export type Topic$contentsArgs<ExtArgs extends runtime.Types.Extensions.Internal
   take?: number
   skip?: number
   distinct?: Prisma.AffiliateContentScalarFieldEnum | Prisma.AffiliateContentScalarFieldEnum[]
-}
-
-/**
- * Topic.user
- */
-export type Topic$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
 }
 
 /**

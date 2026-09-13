@@ -175,7 +175,7 @@ export type TemplateGroupByOutputType = {
   isDefault: boolean
   createdAt: Date
   updatedAt: Date
-  userId: string | null
+  userId: string
   linkId: string | null
   _count: TemplateCountAggregateOutputType | null
   _min: TemplateMinAggregateOutputType | null
@@ -208,10 +208,10 @@ export type TemplateWhereInput = {
   isDefault?: Prisma.BoolFilter<"Template"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Template"> | string | null
+  userId?: Prisma.StringFilter<"Template"> | string
   linkId?: Prisma.StringNullableFilter<"Template"> | string | null
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
 }
 
@@ -223,7 +223,7 @@ export type TemplateOrderByWithRelationInput = {
   isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   affiliateContents?: Prisma.AffiliateContentOrderByRelationAggregateInput
   user?: Prisma.UserOrderByWithRelationInput
@@ -232,21 +232,22 @@ export type TemplateOrderByWithRelationInput = {
 
 export type TemplateWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  name?: string
+  userId_name?: Prisma.TemplateUserIdNameCompoundUniqueInput
   AND?: Prisma.TemplateWhereInput | Prisma.TemplateWhereInput[]
   OR?: Prisma.TemplateWhereInput[]
   NOT?: Prisma.TemplateWhereInput | Prisma.TemplateWhereInput[]
+  name?: Prisma.StringFilter<"Template"> | string
   content?: Prisma.StringFilter<"Template"> | string
   variables?: Prisma.JsonNullableFilter<"Template">
   isDefault?: Prisma.BoolFilter<"Template"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Template"> | string | null
+  userId?: Prisma.StringFilter<"Template"> | string
   linkId?: Prisma.StringNullableFilter<"Template"> | string | null
   affiliateContents?: Prisma.AffiliateContentListRelationFilter
-  user?: Prisma.XOR<Prisma.UserNullableScalarRelationFilter, Prisma.UserWhereInput> | null
+  user?: Prisma.XOR<Prisma.UserScalarRelationFilter, Prisma.UserWhereInput>
   link?: Prisma.XOR<Prisma.AffiliateLinkNullableScalarRelationFilter, Prisma.AffiliateLinkWhereInput> | null
-}, "id" | "name">
+}, "id" | "userId_name">
 
 export type TemplateOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -256,7 +257,7 @@ export type TemplateOrderByWithAggregationInput = {
   isDefault?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
-  userId?: Prisma.SortOrderInput | Prisma.SortOrder
+  userId?: Prisma.SortOrder
   linkId?: Prisma.SortOrderInput | Prisma.SortOrder
   _count?: Prisma.TemplateCountOrderByAggregateInput
   _max?: Prisma.TemplateMaxOrderByAggregateInput
@@ -274,7 +275,7 @@ export type TemplateScalarWhereWithAggregatesInput = {
   isDefault?: Prisma.BoolWithAggregatesFilter<"Template"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Template"> | Date | string
-  userId?: Prisma.StringNullableWithAggregatesFilter<"Template"> | string | null
+  userId?: Prisma.StringWithAggregatesFilter<"Template"> | string
   linkId?: Prisma.StringNullableWithAggregatesFilter<"Template"> | string | null
 }
 
@@ -287,7 +288,7 @@ export type TemplateCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
-  user?: Prisma.UserCreateNestedOneWithoutTemplatesInput
+  user: Prisma.UserCreateNestedOneWithoutTemplatesInput
   link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
 }
 
@@ -299,7 +300,7 @@ export type TemplateUncheckedCreateInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   linkId?: string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
 }
@@ -313,7 +314,7 @@ export type TemplateUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
-  user?: Prisma.UserUpdateOneWithoutTemplatesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
   link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
 }
 
@@ -325,7 +326,7 @@ export type TemplateUncheckedUpdateInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
 }
@@ -338,7 +339,7 @@ export type TemplateCreateManyInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   linkId?: string | null
 }
 
@@ -360,7 +361,7 @@ export type TemplateUncheckedUpdateManyInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -372,6 +373,11 @@ export type TemplateListRelationFilter = {
 
 export type TemplateOrderByRelationAggregateInput = {
   _count?: Prisma.SortOrder
+}
+
+export type TemplateUserIdNameCompoundUniqueInput = {
+  userId: string
+  name: string
 }
 
 export type TemplateCountOrderByAggregateInput = {
@@ -576,7 +582,7 @@ export type TemplateScalarWhereInput = {
   isDefault?: Prisma.BoolFilter<"Template"> | boolean
   createdAt?: Prisma.DateTimeFilter<"Template"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Template"> | Date | string
-  userId?: Prisma.StringNullableFilter<"Template"> | string | null
+  userId?: Prisma.StringFilter<"Template"> | string
   linkId?: Prisma.StringNullableFilter<"Template"> | string | null
 }
 
@@ -589,7 +595,7 @@ export type TemplateCreateWithoutLinkInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   affiliateContents?: Prisma.AffiliateContentCreateNestedManyWithoutTemplateInput
-  user?: Prisma.UserCreateNestedOneWithoutTemplatesInput
+  user: Prisma.UserCreateNestedOneWithoutTemplatesInput
 }
 
 export type TemplateUncheckedCreateWithoutLinkInput = {
@@ -600,7 +606,7 @@ export type TemplateUncheckedCreateWithoutLinkInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   affiliateContents?: Prisma.AffiliateContentUncheckedCreateNestedManyWithoutTemplateInput
 }
 
@@ -638,7 +644,7 @@ export type TemplateCreateWithoutAffiliateContentsInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  user?: Prisma.UserCreateNestedOneWithoutTemplatesInput
+  user: Prisma.UserCreateNestedOneWithoutTemplatesInput
   link?: Prisma.AffiliateLinkCreateNestedOneWithoutTemplatesInput
 }
 
@@ -650,7 +656,7 @@ export type TemplateUncheckedCreateWithoutAffiliateContentsInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
   linkId?: string | null
 }
 
@@ -678,7 +684,7 @@ export type TemplateUpdateWithoutAffiliateContentsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  user?: Prisma.UserUpdateOneWithoutTemplatesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
   link?: Prisma.AffiliateLinkUpdateOneWithoutTemplatesNestedInput
 }
 
@@ -690,7 +696,7 @@ export type TemplateUncheckedUpdateWithoutAffiliateContentsInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   linkId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
 }
 
@@ -748,7 +754,7 @@ export type TemplateCreateManyLinkInput = {
   isDefault?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
-  userId?: string | null
+  userId: string
 }
 
 export type TemplateUpdateWithoutLinkInput = {
@@ -760,7 +766,7 @@ export type TemplateUpdateWithoutLinkInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   affiliateContents?: Prisma.AffiliateContentUpdateManyWithoutTemplateNestedInput
-  user?: Prisma.UserUpdateOneWithoutTemplatesNestedInput
+  user?: Prisma.UserUpdateOneRequiredWithoutTemplatesNestedInput
 }
 
 export type TemplateUncheckedUpdateWithoutLinkInput = {
@@ -771,7 +777,7 @@ export type TemplateUncheckedUpdateWithoutLinkInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
   affiliateContents?: Prisma.AffiliateContentUncheckedUpdateManyWithoutTemplateNestedInput
 }
 
@@ -783,7 +789,7 @@ export type TemplateUncheckedUpdateManyWithoutLinkInput = {
   isDefault?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  userId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  userId?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 
@@ -828,7 +834,7 @@ export type TemplateSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   userId?: boolean
   linkId?: boolean
   affiliateContents?: boolean | Prisma.Template$affiliateContentsArgs<ExtArgs>
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
@@ -843,7 +849,7 @@ export type TemplateSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   userId?: boolean
   linkId?: boolean
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
 
@@ -857,7 +863,7 @@ export type TemplateSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   updatedAt?: boolean
   userId?: boolean
   linkId?: boolean
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
 }, ExtArgs["result"]["template"]>
 
@@ -876,16 +882,16 @@ export type TemplateSelectScalar = {
 export type TemplateOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "content" | "variables" | "isDefault" | "createdAt" | "updatedAt" | "userId" | "linkId", ExtArgs["result"]["template"]>
 export type TemplateInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   affiliateContents?: boolean | Prisma.Template$affiliateContentsArgs<ExtArgs>
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
   _count?: boolean | Prisma.TemplateCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type TemplateIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
 }
 export type TemplateIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  user?: boolean | Prisma.Template$userArgs<ExtArgs>
+  user?: boolean | Prisma.UserDefaultArgs<ExtArgs>
   link?: boolean | Prisma.Template$linkArgs<ExtArgs>
 }
 
@@ -893,7 +899,7 @@ export type $TemplatePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
   name: "Template"
   objects: {
     affiliateContents: Prisma.$AffiliateContentPayload<ExtArgs>[]
-    user: Prisma.$UserPayload<ExtArgs> | null
+    user: Prisma.$UserPayload<ExtArgs>
     link: Prisma.$AffiliateLinkPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -904,7 +910,7 @@ export type $TemplatePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     isDefault: boolean
     createdAt: Date
     updatedAt: Date
-    userId: string | null
+    userId: string
     linkId: string | null
   }, ExtArgs["result"]["template"]>
   composites: {}
@@ -1301,7 +1307,7 @@ readonly fields: TemplateFieldRefs;
 export interface Prisma__TemplateClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   affiliateContents<T extends Prisma.Template$affiliateContentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$affiliateContentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$AffiliateContentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  user<T extends Prisma.Template$userArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$userArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  user<T extends Prisma.UserDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.UserDefaultArgs<ExtArgs>>): Prisma.Prisma__UserClient<runtime.Types.Result.GetResult<Prisma.$UserPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   link<T extends Prisma.Template$linkArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Template$linkArgs<ExtArgs>>): Prisma.Prisma__AffiliateLinkClient<runtime.Types.Result.GetResult<Prisma.$AffiliateLinkPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1763,25 +1769,6 @@ export type Template$affiliateContentsArgs<ExtArgs extends runtime.Types.Extensi
   take?: number
   skip?: number
   distinct?: Prisma.AffiliateContentScalarFieldEnum | Prisma.AffiliateContentScalarFieldEnum[]
-}
-
-/**
- * Template.user
- */
-export type Template$userArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the User
-   */
-  select?: Prisma.UserSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the User
-   */
-  omit?: Prisma.UserOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.UserInclude<ExtArgs> | null
-  where?: Prisma.UserWhereInput
 }
 
 /**
