@@ -95,11 +95,12 @@ export function TemplateEditor() {
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{isEditing ? "Edit template" : "New template"}</DialogTitle>
-          <DialogDescription>
+          {/* Disembunyikan di mobile supaya form muat satu layar tanpa scroll. */}
+          <DialogDescription className="hidden sm:block">
             Use {"{{variable}}"} placeholders — they are filled in per post.
           </DialogDescription>
         </DialogHeader>
-        <form onSubmit={onSubmit} className="flex flex-col gap-4">
+        <form onSubmit={onSubmit} className="flex flex-col gap-3 sm:gap-4">
           <div className="space-y-1.5">
             <Label htmlFor="template-name">Name</Label>
             <Input
@@ -118,6 +119,8 @@ export function TemplateEditor() {
             <Textarea
               id="template-content"
               rows={8}
+              // Mobile: 5 baris (bisa di-drag lebih tinggi); desktop tetap 8 baris.
+              className="h-32 resize-y sm:h-auto"
               placeholder={
                 "Check out {{product}} — perfect for {{context}}. Get yours: {{affiliate_link}}"
               }

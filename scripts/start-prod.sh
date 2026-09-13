@@ -31,6 +31,21 @@ stop_matching() {
   kill -9 $(pgrep -f "$pattern") 2>/dev/null || true
 }
 
+stop_port() {
+  # Next.js standalone mengganti judul prosesnya jadi "next-server (vX)", jadi
+  # pgrep berdasarkan path server.js tidak pernah cocok. Hentikan lewat port.
+  local port="$1"
+  local pids
+  pids="$(ss -ltnp 2>/dev/null | grep ":$port " | grep -o 'pid=[0-9]*' | cut -d= -f2 | sort -u || true)"
+  [ -z "$pids" ] && return 0
+  kill $pids 2>/dev/null || true
+  for _ in $(seq 1 20); do
+    ss -ltn 2>/dev/null | grep -q ":$port " || return 0
+    sleep 0.5
+  done
+  kill -9 $pids 2>/dev/null || true
+}
+
 wait_http() {
   local name="$1" url="$2"
   for _ in $(seq 1 60); do
@@ -54,6 +69,7 @@ if [ "${SKIP_BUILD:-0}" != "1" ]; then
   pnpm --filter api build
   echo "==> build web (dev server web harus mati: berbagi folder .next)"
   stop_matching "next/dist/bin/nex[t] dev"
+  stop_port "$WEB_PORT"
   pnpm --filter web build
   STANDALONE="apps/web/.next/standalone/apps/web"
   rm -rf "$STANDALONE/.next/static" "$STANDALONE/public"
@@ -68,7 +84,7 @@ stop_matching "dist/mai[n].js"
 wait_http "api" "http://localhost:$API_PORT/health"
 
 echo "==> restart web"
-stop_matching "apps/web/serve[r].js"
+stop_port "$WEB_PORT"
 (cd apps/web/.next/standalone && setsid nohup env NODE_ENV=production PORT="$WEB_PORT" HOSTNAME=0.0.0.0 \
   API_PROXY_TARGET="http://localhost:$API_PORT" node apps/web/server.js >"$LOG_DIR/web.log" 2>&1 &)
 wait_http "web" "http://localhost:$WEB_PORT/login"
